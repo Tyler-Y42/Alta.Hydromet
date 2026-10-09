@@ -92,6 +92,7 @@
   .info .pop { font-size: 0.78rem; color: var(--ink2); line-height: 1.5; background: #fff; border: 0.75px solid var(--rule); padding: 8px 10px; margin: 6px 0 4px; }
   .plab { font-size: 0.86rem; color: var(--ink); margin: 14px 0 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
   .plab .pt { font-weight: 800; font-size: 0.95rem; }
+  .plab .pl { font-weight: 800; font-size: 1.2rem; line-height: 1; }
   ul.kb { margin: 3px 0 0; padding-left: 1.15rem; font-size: 0.82rem; font-weight: 600; color: var(--ink); }
   ul.kb:empty { display: none; }
   .bandkey { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.78rem; font-weight: 600; color: var(--ink2); margin: 8px 0 0; }
@@ -174,11 +175,11 @@
       <div class="ch"><h3>Upper Little Cottonwood Canyon</h3><span class="u" id="ts-range"></span>
         <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden" id="zoom-reset">Full window</button></span></div>
       <div class="bandkey"><span><i style="background:rgba(0,0,0,0.12)"></i>Storm N: recorded by the gauges</span><span><i style="background:rgba(213,94,0,0.22)"></i>Radar N: burst seen by radar, missed by gauges</span><span><i style="background:#D55E00;height:2px"></i>Radar rain rate, whole upper canyon</span></div>
-      <div class="plab"><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
-      <div class="plab"><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
-      <div class="plab"><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
-      <div class="plab"><span class="pt">Air temperature</span><span class="u">°C</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
-      <div class="plab"><span class="pt">Rain line</span><span class="u">ft</span></div><ul class="kb" id="kb-e"></ul><div class="cbox"><canvas id="p-fl"></canvas></div>
+      <div class="plab"><b class="pl">a</b><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
+      <div class="plab"><b class="pl">b</b><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
+      <div class="plab"><b class="pl">c</b><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
+      <div class="plab"><b class="pl">d</b><span class="pt">Air temperature</span><span class="u">°C</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
+      <div class="plab"><b class="pl">e</b><span class="pt">Rain line</span><span class="u">ft</span></div><ul class="kb" id="kb-e"></ul><div class="cbox"><canvas id="p-fl"></canvas></div>
       <p class="cap" id="cap1"></p>
       <div class="zoomnote">Drag across a chart to zoom; double-click to reset. Click a storm to zoom to it.</div>
     </div>
@@ -1095,11 +1096,11 @@ function renderFig1() {
 
   document.getElementById('ts-range').textContent = `${fmtDT(va)} to ${fmtDT(vb, { tz: true })}${S.view ? ' (zoomed)' : ''}`;
   document.getElementById('cap1').innerHTML =
-    `<b>Precipitation:</b> hourly. Black bars are the mean of the four Alta gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy); gray bars the wettest of them. The orange line is the rain rate radar predicts, averaged over the whole upper canyon above the canyon mouth (70.8 km², not just Albion or Alta; echoes ≥ 30 dBZ, uncalibrated). ` +
-    `<b>Running total:</b> at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood. ` +
-    `<b>Creek flow:</b> Tanners Flat, the only gauge in the canyon (above the diversions)${nsp ? `; × marks ${nsp} sensor dropout${nsp === 1 ? '' : 's'} removed` : ''}. ` +
-    `<b>Air temperature:</b> Albion Basin (blue), Hidden Peak summit, and Powerhouse near the canyon mouth (gray); dashed line 0 °C, dotted line 1 °C. ` +
-    `<b>Rain line:</b> the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Gaps are inversions. ` +
+    `<b>a</b> <b>Precipitation:</b> hourly. Black bars are the mean of the four Alta gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy); gray bars the wettest of them. The orange line is the rain rate radar predicts, averaged over the whole upper canyon above the canyon mouth (70.8 km², not just Albion or Alta; echoes ≥ 30 dBZ, uncalibrated).<br>` +
+    `<b>b</b> <b>Running total:</b> at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood.<br>` +
+    `<b>c</b> <b>Creek flow:</b> Tanners Flat, the only gauge in the canyon (above the diversions)${nsp ? `; × marks ${nsp} sensor dropout${nsp === 1 ? '' : 's'} removed` : ''}.<br>` +
+    `<b>d</b> <b>Air temperature:</b> Albion Basin (blue), Hidden Peak summit, and Powerhouse near the canyon mouth (gray); dashed line 0 °C, dotted line 1 °C.<br>` +
+    `<b>e</b> <b>Rain line:</b> the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Gaps are inversions.<br>` +
     `<b>Bands:</b> gray "Storm N" is a storm the gauges recorded (≥ ${S.minMm} mm at an Alta gauge); orange "Radar N" is a burst radar saw that the gauges barely caught.`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
