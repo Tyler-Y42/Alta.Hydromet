@@ -1,4 +1,5 @@
 name: County gauges and radar
+run-name: "County gauges and radar (${{ inputs.trigger || github.event_name }})"
 
 # Salt Lake County's Contrail portal can't be read cross-origin from a browser, so this
 # job copies the gauges into JSON on the `data` branch (served via raw.githubusercontent.com).
@@ -10,6 +11,10 @@ on:
     - cron: "*/15 * * * *"   # GitHub delays scheduled runs; expect 15-45 min latency
   workflow_dispatch:
     inputs:
+      trigger:
+        description: "Who started this run (the Cloudflare cron sends cloudflare)"
+        required: false
+        default: "manual"
       since:
         description: "County backfill from YYYY-MM (blank = last 3 days)"
         required: false
