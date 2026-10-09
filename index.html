@@ -888,9 +888,10 @@ Chart.register({
       const items = [];
       chart.data.datasets.forEach((ds, i) => { if (!chart.isDatasetVisible(i) || !ds.endLabel || !ds.data.length) return; const last = ds.data[ds.data.length - 1]; if (last.y == null) return; items.push({ y: chart.scales.y.getPixelForValue(last.y), text: ds.endLabel, color: ds.labelColor || ds.borderColor }); });
       items.sort((p, q) => p.y - q.y); for (let i = 1; i < items.length; i++) if (items[i].y - items[i - 1].y < 11) items[i].y = items[i - 1].y + 11;
+      for (let i = items.length - 1, lim = ca.bottom + 6; i >= 0; i--) { if (items[i].y > lim) items[i].y = lim; lim = items[i].y - 11; } // keep the stack inside: push up from the bottom
       ctx.save(); ctx.font = '700 10.5px Arial, Helvetica'; ctx.textBaseline = 'middle';
       const lx = (chart.scales.y2 ? chart.scales.y2.right : ca.right) + 4;
-      for (const it of items) { ctx.fillStyle = it.color === '#ffffff' ? INK : it.color; ctx.fillText(it.text, lx, Math.min(ca.bottom + 8, Math.max(ca.top - 4, it.y))); }
+      for (const it of items) { ctx.fillStyle = it.color === '#ffffff' ? INK : it.color; ctx.fillText(it.text, lx, it.y); }
       ctx.restore();
     }
     if (o && o.sync && S.drag && S.drag.x1 != null) { const x0 = x.getPixelForValue(S.drag.v0), x1 = x.getPixelForValue(S.drag.v1); ctx.save(); ctx.fillStyle = 'rgba(28,92,171,0.12)'; ctx.fillRect(Math.min(x0, x1), ca.top, Math.abs(x1 - x0), ca.bottom - ca.top); ctx.restore(); }
