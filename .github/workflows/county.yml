@@ -7,7 +7,7 @@ name: County gauges and radar
 
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *"   # GitHub delays scheduled runs; expect 15-45 min latency
+    - cron: "*/15 * * * *"   # GitHub delays scheduled runs; expect 15-45 min latency
   workflow_dispatch:
     inputs:
       since:
