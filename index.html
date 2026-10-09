@@ -1091,7 +1091,7 @@ function renderSummary() {
   document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al], i) => `<div class="tile${al ? ' alert' : ''}" style="--acc:${ACC[i]}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
   const m = o.missed;
   document.getElementById('alertline').innerHTML = !S.syn ? `<span class="bad">MesoWest data unavailable: ${S.status.syn ? S.status.syn.msg : ''}</span>` :
-    m.length ? `Radar showed ${m.length} convective cell${m.length === 1 ? '' : 's'} the gauges barely recorded; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, up to ${m[m.length - 1].peak.toFixed(0)} dBZ ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])} (orange "Radar cell" bands and rows).` : '';
+    m.length ? `Radar saw ${m.length} burst${m.length === 1 ? '' : 's'} the gauges missed; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, ${m[m.length - 1].peak.toFixed(0)} dBZ ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])}.` : '';
 }
 function summaryText() {
   const o = summaryParts(), L = [];
@@ -1174,12 +1174,12 @@ function renderFig1() {
 
   document.getElementById('ts-range').textContent = `${fmtDT(va)} to ${fmtDT(vb, { tz: true })}${S.view ? ' (zoomed)' : ''}`;
   document.getElementById('cap1').innerHTML =
-    `<b>a</b> <b>Precipitation:</b> hourly. Black bars are the mean of the four Alta gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy); gray bars the wettest of them. Melt tips from the unheated gauges are left out of the bars. The orange line is the rain rate radar predicts, averaged over the whole upper canyon above the canyon mouth (70.8 km², not just Albion or Alta): NOAA MRMS hourly${radarFrom5 != null ? `, and the 5 min reflectivity estimate from ${fmtTime(radarFrom5)} on until MRMS arrives (about 1 h)` : ''}. Radar runs low in snow.<br>` +
-    `<b>b</b> <b>Running total:</b> at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood.${precipOut('ATB', S.win.a, S.win.b) ? ` Alta base is dotted at 0: ${STN.ATB.precipOut}.` : ''} Albion Basin, Alta hwy, White Pine and Powerhouse are unheated; in cold weather they hold snow and tip later as it melts.<br>` +
-    `<b>c</b> <b>Creek flow:</b> Tanners Flat, the only gauge in the canyon (above the diversions); county data, provisional${nsp ? `; × marks ${nsp} bad report${nsp === 1 ? '' : 's'} removed` : ''}.<br>` +
-    `<b>d</b> <b>Air temperature:</b> Albion Basin (blue), Hidden Peak summit, and Powerhouse near the canyon mouth (gray); dashed line 0 °C, dotted line 1 °C.<br>` +
-    `<b>e</b> <b>Rain line:</b> the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Solid while it is precipitating, when it matches Salt Lake soundings within about 600 ft; faint when dry, since cold slopes on clear nights pull it low. Gaps are inversions.<br>` +
-    `<b>Bands:</b> gray "Storm N" is a storm the gauges recorded (≥ ${S.minMm} mm at an Alta gauge); orange "Radar N" is a burst radar saw that the gauges barely caught (fixed ridge clutter removed).`;
+    `<b>a</b> <b>Precipitation:</b> black is the mean of the four Alta gauges, gray the wettest; melt tips from unheated gauges are left out. Orange is radar averaged over the whole upper canyon (70.8 km², NOAA MRMS hourly${radarFrom5 != null ? `; 5 min estimate from ${fmtTime(radarFrom5)} until MRMS arrives` : ''}) and runs low in snow.<br>` +
+    `<b>b</b> <b>Running total:</b> ${precipOut('ATB', S.win.a, S.win.b) ? `Alta base is dotted at 0 because ${STN.ATB.precipOut}. ` : ''}Albion Basin, Alta hwy, White Pine and Powerhouse are unheated, so in cold weather they tip late as caught snow melts.<br>` +
+    `<b>c</b> <b>Creek flow:</b> the only canyon gauge, above the diversions; provisional county data${nsp ? `, × marks removed bad reports` : ''}.<br>` +
+    `<b>d</b> <b>Air temperature:</b> the dotted line is 1 °C, the rain/snow threshold used throughout.<br>` +
+    `<b>e</b> <b>Rain line:</b> where air is 1 °C, from a fit of eight station temperatures each hour; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
+    `<b>Bands:</b> a storm needs ${S.minMm} mm or more at an Alta gauge; fixed ridge clutter is removed from radar.`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
 
@@ -1302,7 +1302,7 @@ function renderStorms() {
   });
   S.cells.filter(c => !c.inStorm).forEach((c, i) => {
     const ga = ALTA.map(id => sumPrecip(S.P[id], c.start - 30 * MIN, c.end + 30 * MIN)).filter(x => x.status !== 'nodata').map(x => x.mm), rd = radarAmount(c.start - 30 * MIN, c.end + 30 * MIN);
-    rows.push(`<tr class="click" data-s="${c.start}" data-e="${c.end}" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>Radar cell ${i + 1}</b>${fn('Radar cell: a burst of 35 dBZ or more somewhere over the upper canyon with no gauge storm. Gauges sit between cells, and tipping buckets miss much of the rain and hail in short convective bursts.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
+    rows.push(`<tr class="click" data-s="${c.start}" data-e="${c.end}" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>Radar cell ${i + 1}</b>${fn('Radar cell: 35 dBZ or more over the upper canyon with no gauge storm. Gauges sit between cells, and tipping buckets miss much of a short burst.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
       <td>${ga.length ? `${mmStr(Math.min(...ga), 1)}–${mmStr(Math.max(...ga), 1)}` : '—'}</td><td>—</td><td>—</td><td>${rd ? rd.mm.toFixed(1) : '—'} <span class="muted">${c.peak.toFixed(0)} dBZ</span></td>
       <td class="l">${nearestPlace(c.at[0], c.at[1])}</td><td colspan="3" class="l muted">peak ${fmtTime(c.peakT)}</td></tr>`);
   });
@@ -1310,7 +1310,7 @@ function renderStorms() {
     `<tbody>${rows.join('') || `<tr><td class="l muted" colspan="11">No storms or radar cells in this window.</td></tr>`}</tbody>`;
   note.innerHTML = notes.map((n, i) => `<sup class="f">${String.fromCharCode(97 + i)}</sup> ${n}`).join('<br>') + (notes.length ? '<br>' : '') +
     (S.minor.length ? `${S.minor.length} lighter tip group${S.minor.length === 1 ? '' : 's'} below ${S.minMm} mm not listed. ` : '') +
-    `Each row is a storm the gauges recorded or a radar cell they missed. Ranges run from the driest to the wettest gauge; the Alta gauges are Collins Gulch, Albion Basin, Guard House, and Alta hwy. Radar is the amount radar predicts averaged over the whole upper canyon (NOAA MRMS hourly when available), with the peak reflectivity anywhere in it. Tanners Flat columns give flow before → peak, the rise, and the lag from the middle of the rain to the peak. Click a row to zoom the charts and set the map's radar to it.`;
+    `Ranges run from the driest to the wettest gauge. Radar is the upper canyon mean (MRMS hourly when available) with the peak reflectivity anywhere in it. Lag runs from the middle of the rain to the flow peak. Click a row to zoom the charts and map radar to it.`;
   const nR = S.cells.filter(c => !c.inStorm).length;
   document.getElementById('storm-def').textContent = `${S.events.length} storm${S.events.length === 1 ? '' : 's'}${nR ? ` and ${nR} radar cell${nR === 1 ? '' : 's'}` : ''} in the window`;
   tb.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => {
@@ -1399,15 +1399,15 @@ function renderElev() {
   };
   if (charts['p-elev']) charts['p-elev'].destroy();
   charts['p-elev'] = new Chart(document.getElementById('p-elev'), cfg);
-  document.getElementById('cap2').innerHTML = `Dashed line: the Little Cottonwood headwaters watershed (USGS HUC 160202040202). Gauges are colored by elevation as in the charts; open circles measure temperature or snow only, triangles are SNOTEL, squares stream gauges. The radar layer is the NEXRAD mosaic at the time on the slider; press play to loop it. Tap any station for its latest values and source.`;
-  document.getElementById('cap-elev').innerHTML = `Each dot is one gauge's total for the window. In a typical winter storm totals climb with elevation; a gauge far left of neighbors at the same height missed a cell or undercaught snow or hail. Gray is Big Cottonwood.`;
+  document.getElementById('cap2').innerHTML = `Dashed outline: the headwaters watershed (USGS HUC 160202040202). Open circles measure temperature or snow only, triangles are SNOTEL, squares stream gauges. Tap a station for its latest values and source.`;
+  document.getElementById('cap-elev').innerHTML = `Winter storms usually build totals with elevation. A gauge well left of others at its height missed a cell or undercaught snow or hail.`;
   const lcc = pts.filter(p => p.s.role === 'gauge');
   let key = '';
   if (lcc.length >= 3 && Math.max(...lcc.map(p => p.x)) >= 1) {
     const n = lcc.length, mx = lcc.reduce((a, p) => a + p.y, 0) / n, my = lcc.reduce((a, p) => a + p.x, 0) / n;
     let sxy = 0, sxx = 0, syy = 0; for (const p of lcc) { sxy += (p.y - mx) * (p.x - my); sxx += (p.y - mx) ** 2; syy += (p.x - my) ** 2; }
     const r = sxy / Math.sqrt(sxx * syy || 1), wet = lcc.reduce((a, p) => p.x > a.x ? p : a);
-    key = `${r > 0.5 ? 'Totals increase with elevation, the usual orographic pattern.' : r < -0.3 ? '<span class="flag">Lower gauges got more than Alta: cells hit the mid and lower canyon.</span>' : 'No consistent pattern with elevation: showery, cell by cell precipitation.'} Wettest: ${wet.s.id} (${mmStr(wet.x, 1)} mm at ${ft(wet.y)} ft).`;
+    key = `${r > 0.5 ? 'Totals increase with elevation, the usual orographic pattern.' : r < -0.3 ? '<span class="flag">Lower gauges got more than Alta: cells hit the mid and lower canyon.</span>' : 'No consistent pattern with elevation: showery, cell by cell precipitation.'}`;
   }
   document.getElementById('kb-elev').innerHTML = key && !key.startsWith('No consistent') ? `<li>${key}</li>` : '';
 }
@@ -1437,7 +1437,7 @@ function renderStationTable() {
     `<tr class="grp ctx"><td colspan="9">Lower canyon and ridge, for context</td></tr>` + STATIONS.filter(s => s.group === 'canyon').map(row).join('') +
     `<tr class="grp ctx"><td colspan="9">Big Cottonwood, for comparison</td></tr>` + STATIONS.filter(s => s.group === 'bcc').map(row).join('') + `</tbody>`;
   document.getElementById('st-asof').textContent = `as of ${fmtDT(T, { tz: true })}`;
-  document.getElementById('t-stations-note').innerHTML = `Gauges run from the ridge down to the canyon mouth; the swatch color matches the charts and map. Last 24 h and since midnight end ${fmtDT(T, { tz: true })}. <sup class="f">p</sup> Partial: the last report is more than 25 min before the end, so the total may still grow (AGD often reports about 1 h late). Totals are ±0.25 mm, and minimums in snow or hail. Each station ID links to its MesoWest page.`;
+  document.getElementById('t-stations-note').innerHTML = `<sup class="f">p</sup> Partial: the last report is more than 25 min old, so the total may still grow (Guard House often reports about 1 h late). Totals are ±0.25 mm and minimums in snow or hail.`;
 }
 
 function renderSWE() {
@@ -1450,7 +1450,7 @@ function renderSWE() {
   }
   timeChart('p-swe', ds, { showX: true, endLabels: true, decimate: false, xRange: [a, b], rightPad: 78, yTitle: 'SWE, in', y2: { title: 'mm', conv: v => v * 25.4, dec: 0 }, paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 2 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in` });
   const sb = S.snotel && ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t <= T + DAY && x.v != null).pop();
-  document.getElementById('cap3').innerHTML = `Daily snow water equivalent (the water held in the snowpack) since 1 October. Atwater is in Alta; Snowbird has the long record, and its median (dotted) is the normal for each date; dashed gray is Brighton in Big Cottonwood. Gray band: the selected window.`;
+  document.getElementById('cap3').innerHTML = `Snow water equivalent is the water held in the snowpack. Dotted is Snowbird's median for each date (record since 1989); the gray band is the selected window.`;
   const tm = S.snotel && S.snotel['766:UT:SNTL'] && S.snotel['766:UT:SNTL'].timing;
   let ks = '';
   if (sb) {
@@ -1468,7 +1468,7 @@ function renderValley() {
   S.events.forEach((e, i) => { for (const f of FLOW.filter(x => !x.primary)) { const r = e.resp && e.resp[f.key]; if (r) rows.push(`<tr><td class="l">Storm ${i + 1}</td><td class="l">${f.name} <span class="muted">${f.note}</span></td><td>${cfs(r.base)}</td><td>${cfs(r.peak)}</td><td>${r.dQ == null ? '—' : (r.dQ >= 0 ? '+' : '') + cfs(r.dQ)}</td><td>${r.clear ? r.lag.toFixed(1) : '—'}</td><td class="l muted">${r.flags.join('; ')}</td></tr>`); } });
   document.getElementById('t-valley').innerHTML = `<thead><tr><th class="l">Storm</th><th class="l">Gauge</th><th>Baseline</th><th>Peak</th><th>ΔQ</th><th>Lag h</th><th class="l">Flags</th></tr></thead><tbody>${rows.join('') || '<tr><td class="l muted" colspan="7">No storms in the window.</td></tr>'}</tbody>`;
   const up = countyManifest ? Date.parse(countyManifest.updated_utc) : null;
-  document.getElementById('cap-s1').innerHTML = `Gauges below the canyon, downstream of the Salt Lake City and Metropolitan Water District diversions and the valley storm drains. Their storm peaks are valley runoff and water operations, not the upper canyon; use Tanners Flat for that. Sources: <a href="https://rain-flow.saltlakecounty.gov/" target="_blank" rel="noopener">Salt Lake County</a>${up ? ` (copied ${ago(up)})` : ''}, <a href="https://waterdata.usgs.gov/monitoring-location/USGS-10168000/" target="_blank" rel="noopener">USGS 10168000</a>.`;
+  document.getElementById('cap-s1').innerHTML = `These sit below the Salt Lake City and Metropolitan Water District diversions and the valley storm drains, so their peaks reflect valley runoff and water operations; use Tanners Flat for the upper canyon. Sources: <a href="https://rain-flow.saltlakecounty.gov/" target="_blank" rel="noopener">Salt Lake County</a>${up ? ` (copied ${ago(up)})` : ''}, <a href="https://waterdata.usgs.gov/monitoring-location/USGS-10168000/" target="_blank" rel="noopener">USGS 10168000</a>.`;
 }
 
 /* Readout */
