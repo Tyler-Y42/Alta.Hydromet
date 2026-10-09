@@ -365,7 +365,6 @@ const RADAR_PTS = [
   { key: 'snowbird', name: 'Snowbird', lat: 40.5640, lon: -111.6550 },
   { key: 'tanners', name: 'Tanners Flat', lat: 40.5700, lon: -111.7007 },
 ];
-const PLACES = [...RADAR_PTS, { name: 'the canyon mouth', lat: 40.5730, lon: -111.7970 }, { name: 'White Pine', lat: 40.5761, lon: -111.6819 }, { name: 'Powerhouse', lat: 40.5710, lon: -111.7437 }, { name: 'Collins Gulch', lat: 40.5763, lon: -111.6383 }];
 
 /* Colors: ink for the main series, a sequential blue ramp for elevation (light-surface
    steps of the validated reference palette), orange for radar, gray for comparison. */
@@ -839,11 +838,11 @@ function radarCells(frames, events) {
   if (cur) cells.push(cur);
   return cells.filter(c => c.end - c.start >= 10 * MIN && (c.maxPx == null || c.maxPx >= CELL_MIN_PX)).map(c => ({ ...c, inStorm: events.some(e => c.start <= e.end + HOUR && c.end >= e.start - HOUR) }));
 }
-function nearestPlace(lat, lon) { // phrase that reads after "near"
-  let best = null, bd = Infinity; for (const p of PLACES) { const d = Math.hypot((p.lat - lat) * 111, (p.lon - lon) * 84.5); if (d < bd) { bd = d; best = p; } }
-  if (bd < 1.2) return best.name;
-  const dy = (lat - best.lat) * 111, dx = (lon - best.lon) * 84.5, ang = (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360;
-  return `${best.name} (${bd.toFixed(1)} km ${['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(ang / 45) % 8]})`;
+function nearestPlace(lat, lon) { // always relative to Albion: "near Albion" or "6.8 km W of Albion"
+  const A = RADAR_PTS.find(p => p.key === 'albion'), dy = (lat - A.lat) * 111, dx = (lon - A.lon) * 84.5, bd = Math.hypot(dx, dy);
+  if (bd < 1.2) return 'near Albion';
+  const ang = (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360;
+  return `${bd.toFixed(1)} km ${['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(ang / 45) % 8]} of Albion`;
 }
 
 /* ======================================================================
@@ -1092,7 +1091,7 @@ function renderSummary() {
   document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al], i) => `<div class="tile${al ? ' alert' : ''}" style="--acc:${ACC[i]}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
   const m = o.missed;
   document.getElementById('alertline').innerHTML = !S.syn ? `<span class="bad">MesoWest data unavailable: ${S.status.syn ? S.status.syn.msg : ''}</span>` :
-    m.length ? `Radar showed ${m.length} convective cell${m.length === 1 ? '' : 's'} the gauges barely recorded; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, up to ${m[m.length - 1].peak.toFixed(0)} dBZ near ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])} (orange "Radar cell" bands and rows).` : '';
+    m.length ? `Radar showed ${m.length} convective cell${m.length === 1 ? '' : 's'} the gauges barely recorded; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, up to ${m[m.length - 1].peak.toFixed(0)} dBZ ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])} (orange "Radar cell" bands and rows).` : '';
 }
 function summaryText() {
   const o = summaryParts(), L = [];
@@ -1195,7 +1194,7 @@ function panelBullets(va, vb) {
       const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).map(g => st[g.id].tot);
       if (vals.length) { const wg = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).reduce((x, y) => st[y.id].tot > st[x.id].tot ? y : x); A.push(`Storm ${k}, ${fmtSpan(e.start, e.end)}: up to ${mmIn(Math.max(...vals))} at ${wg.short}`); }
     }
-    if (cells.length) A.push(`<span class="flag">Radar saw ${cells.length} burst${cells.length === 1 ? '' : 's'} the gauges missed (orange bands), the strongest near ${nearestPlace(...cells.reduce((x, y) => y.peak > x.peak ? y : x).at)}</span>`);
+    if (cells.length) A.push(`<span class="flag">Radar saw ${cells.length} burst${cells.length === 1 ? '' : 's'} the gauges missed (orange bands), the strongest ${nearestPlace(...cells.reduce((x, y) => y.peak > x.peak ? y : x).at)}</span>`);
     const tot = GAUGES.map(g => ({ g, r: sumPrecip(S.P[g.id], va, vb) })).filter(x => x.r.status !== 'nodata' && !suspectZero(x.g.id, va, vb));
     const al = tot.filter(x => isFocus(x.g)), ot = tot.filter(x => !isFocus(x.g));
     if (al.length && ot.length) { const am = Math.max(...al.map(x => x.r.mm)), ow = ot.reduce((x, y) => y.r.mm > x.r.mm ? y : x);
@@ -1305,7 +1304,7 @@ function renderStorms() {
     const ga = ALTA.map(id => sumPrecip(S.P[id], c.start - 30 * MIN, c.end + 30 * MIN)).filter(x => x.status !== 'nodata').map(x => x.mm), rd = radarAmount(c.start - 30 * MIN, c.end + 30 * MIN);
     rows.push(`<tr class="click" data-s="${c.start}" data-e="${c.end}" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>Radar cell ${i + 1}</b>${fn('Radar cell: a burst of 35 dBZ or more somewhere over the upper canyon with no gauge storm. Gauges sit between cells, and tipping buckets miss much of the rain and hail in short convective bursts.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
       <td>${ga.length ? `${mmStr(Math.min(...ga), 1)}–${mmStr(Math.max(...ga), 1)}` : '—'}</td><td>—</td><td>—</td><td>${rd ? rd.mm.toFixed(1) : '—'} <span class="muted">${c.peak.toFixed(0)} dBZ</span></td>
-      <td class="l">near ${nearestPlace(c.at[0], c.at[1])}</td><td colspan="3" class="l muted">peak ${fmtTime(c.peakT)}</td></tr>`);
+      <td class="l">${nearestPlace(c.at[0], c.at[1])}</td><td colspan="3" class="l muted">peak ${fmtTime(c.peakT)}</td></tr>`);
   });
   tb.innerHTML = `<thead><tr><th class="l"></th><th class="l">Start to end</th><th>Duration</th><th>Alta gauges<br>mm</th><th>All LCC gauges<br>mm</th><th>Peak 10 min<br>mm</th><th>Radar, upper canyon<br>mm</th><th class="l">Rain or snow</th><th>Tanners Flat<br>cfs</th><th>ΔQ<br>cfs</th><th>Lag<br>h</th></tr></thead>` +
     `<tbody>${rows.join('') || `<tr><td class="l muted" colspan="11">No storms or radar cells in this window.</td></tr>`}</tbody>`;
@@ -1492,7 +1491,7 @@ function buildReadout() {
     const r = e.resp && e.resp.lcc_tanners_q;
     if (r && r.base != null && r.peak != null) L.push(`     Tanners Flat ${cfs(r.base)} to ${cfs(r.peak)} cfs (${r.dQ >= 0 ? '+' : ''}${cfs(r.dQ)})${r.clear ? `, lag ${r.lag.toFixed(1)} h` : ', no clear response'}${r.flags.length ? ' [' + r.flags.join('; ') + ']' : ''}`);
   });
-  S.cells.filter(c => !c.inStorm).forEach((c, i) => L.push(`  R${i + 1} radar cell ${fmtSpan(c.start, c.end)}, ${c.peak.toFixed(0)} dBZ near ${nearestPlace(c.at[0], c.at[1])}; no gauge storm`));
+  S.cells.filter(c => !c.inStorm).forEach((c, i) => L.push(`  R${i + 1} radar cell ${fmtSpan(c.start, c.end)}, ${c.peak.toFixed(0)} dBZ ${nearestPlace(c.at[0], c.at[1])}; no gauge storm`));
   const bad = Object.entries(S.status).filter(([, v]) => v.cls === 'err' || v.cls === 'warn');
   if (bad.length) { L.push(''); L.push('DATA ISSUES: ' + bad.map(([k, v]) => `${SRC[k][0]} ${v.msg}`).join('; ')); }
   return L.join('\n');
