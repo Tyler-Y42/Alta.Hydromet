@@ -174,7 +174,7 @@
     <div class="card">
       <div class="ch"><h3>Upper Little Cottonwood Canyon</h3><span class="u" id="ts-range"></span>
         <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden" id="zoom-reset">Full window</button></span></div>
-      <div class="bandkey"><span><i style="background:rgba(0,0,0,0.12)"></i>Storm N: recorded by the gauges</span><span><i style="background:rgba(213,94,0,0.22)"></i>Radar N: burst seen by radar, missed by gauges</span><span><i style="background:#D55E00;height:2px"></i>Radar rain rate, whole upper canyon</span></div>
+      <div class="bandkey"><span><i style="background:rgba(0,0,0,0.12)"></i>Storm N: recorded by the gauges</span><span><i style="background:rgba(213,94,0,0.22)"></i>Radar N: burst seen by radar, missed by gauges</span><span><i style="background:#D55E00;height:2px"></i>Radar rain rate - whole canyon mean</span></div>
       <div class="plab"><b class="pl">a</b><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
       <div class="plab"><b class="pl">b</b><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
       <div class="plab"><b class="pl">c</b><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
@@ -1052,7 +1052,7 @@ function renderFig1() {
   ];
   if (document.getElementById('show-radar').checked && S.radar.some(Boolean)) {
     const hr = new Map(); for (const f of S.radar) if (f) { const h = Math.floor(f.t / HOUR) * HOUR, o = hr.get(h) || { s: 0, n: 0 }; o.s += f.basinRate; o.n++; hr.set(h, o); }
-    ds.push({ type: 'line', label: 'Radar rate, whole upper canyon', data: [...hr].sort((p, q) => p[0] - q[0]).map(([h, o]) => ({ x: h + HOUR / 2, y: o.s / o.n })), borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, stepped: 'middle', order: 1 });
+    ds.push({ type: 'line', label: 'Radar rain rate - whole canyon mean', data: [...hr].sort((p, q) => p[0] - q[0]).map(([h, o]) => ({ x: h + HOUR / 2, y: o.s / o.n })), borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, stepped: 'middle', order: 1 });
   }
   timeChart('p-hr', ds, { type: 'bar', legend: true, rightPad: RIGHT_PAD, yTitle: 'mm per hour', y2: { title: 'in per hour', conv: v => v / 25.4 }, paper: { ...sh, labels: true }, y: { beginAtZero: true, suggestedMax: 1 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm/h (${(c.parsed.y / 25.4).toFixed(3)} in/h)` });
 
