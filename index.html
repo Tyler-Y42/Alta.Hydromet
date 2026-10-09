@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Alta Hydromet</title>
 <meta name="description" content="Upper Little Cottonwood Canyon: gauge and radar precipitation, freezing level, Tanners Flat streamflow, and snowpack.">
-<meta name="theme-color" content="#fbfaf7">
+<meta name="theme-color" content="#f4f3ef">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
@@ -14,12 +14,14 @@
 <style>
   :root {
     color-scheme: light;
-    --paper: #fbfaf7;
+    --paper: #f4f3ef;
+    --card: #ffffff;
     --ink: #161616;
     --ink2: #4a4a48;
     --ink3: #7c7b77;
     --rule: #1f1f1f;
-    --hair: #d9d7d0;
+    --edge: #d4d2ca;
+    --hair: #e4e2db;
     --radar: #eb6834;
     --flag: #a35a00;
     --bad: #b3261e;
@@ -29,199 +31,214 @@
   html { background-color: var(--paper); }
   body {
     margin: 0; color: var(--ink); background-color: var(--paper);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.45;
-    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
-             max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.4;
+    padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+             max(20px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
     -webkit-text-size-adjust: 100%;
   }
-  .page { max-width: 1080px; margin: 0 auto; }
+  .page { max-width: 1500px; margin: 0 auto; }
   a { color: var(--link); text-decoration: none; }
   a:hover { text-decoration: underline; }
-  header { border-bottom: 1.5px solid var(--rule); padding-bottom: 8px; margin-bottom: 14px; }
-  header h1 { margin: 0; font-size: 1.55rem; font-weight: 700; letter-spacing: -0.01em; }
-  header .meta { color: var(--ink2); font-size: 0.86rem; margin-top: 2px; }
-  h2 { font-size: 1.02rem; font-weight: 700; margin: 26px 0 8px; padding-top: 10px; border-top: 0.75px solid var(--rule); }
-  .controls { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 0.86rem; margin: 6px 0 4px; }
-  .seg { display: inline-flex; border: 0.75px solid var(--rule); border-radius: 3px; overflow: hidden; }
-  .seg button { background: none; border: 0; border-right: 0.75px solid var(--rule); padding: 3px 9px; font: inherit; color: var(--ink); cursor: pointer; }
+  /* top bar */
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 2px 0 8px; border-bottom: 1.5px solid var(--rule); margin-bottom: 10px; }
+  .bar h1 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; margin-right: 6px; }
+  .bar .grow { flex: 1 1 auto; }
+  .seg { display: inline-flex; border: 0.75px solid var(--rule); border-radius: 3px; overflow: hidden; background: var(--card); }
+  .seg button { background: none; border: 0; border-right: 0.75px solid var(--rule); padding: 3px 9px; font: inherit; font-size: 0.84rem; color: var(--ink); cursor: pointer; }
   .seg button:last-child { border-right: 0; }
-  .seg button.on { background: var(--ink); color: var(--paper); }
-  .ctl-btn { background: none; border: 0.75px solid var(--rule); border-radius: 3px; padding: 3px 9px; font: inherit; color: var(--ink); cursor: pointer; }
-  input, select { font: inherit; font-size: 0.86rem; color: var(--ink); background: #fff; border: 0.75px solid #9a988f; border-radius: 3px; padding: 2px 5px; max-width: 100%; }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .btn { background: var(--card); border: 0.75px solid var(--rule); border-radius: 3px; padding: 3px 9px; font: inherit; font-size: 0.84rem; color: var(--ink); cursor: pointer; }
+  .btn.on { background: var(--ink); color: #fff; }
+  input, select { font: inherit; font-size: 0.84rem; color: var(--ink); background: var(--card); border: 0.75px solid #9a988f; border-radius: 3px; padding: 2px 5px; max-width: 100%; }
   input[type=number] { width: 3.6rem; }
-  details > summary { cursor: pointer; color: var(--link); font-size: 0.86rem; }
-  .status { font-size: 0.78rem; color: var(--ink3); margin-top: 4px; }
-  .status span { margin-right: 12px; white-space: nowrap; }
-  .status .ok::before, .status .warn::before, .status .err::before, .status .loading::before { content: "●"; margin-right: 4px; }
-  .status .ok::before { color: var(--good); } .status .warn::before { color: var(--flag); } .status .err::before { color: var(--bad); }
-  .status .loading::before { color: var(--ink3); }
-  .summary { font-size: 1rem; line-height: 1.55; margin: 6px 0 0; }
-  .summary p { margin: 0 0 6px; }
-  .keys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 0.75px solid var(--rule); border-bottom: 0.75px solid var(--rule); margin: 12px 0 2px; }
-  .keys > div { padding: 8px 10px 8px 0; }
-  .keys > div + div { padding-left: 10px; border-left: 0.75px solid var(--hair); }
-  .keys .k { font-size: 0.72rem; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.04em; }
-  .keys .v { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
-  .keys .s { font-size: 0.78rem; color: var(--ink2); }
-  @media (max-width: 680px) { .keys { grid-template-columns: repeat(2, minmax(0, 1fr)); } .keys > div:nth-child(3) { border-left: 0; padding-left: 0; } .keys > div:nth-child(n+3) { border-top: 0.75px solid var(--hair); } }
-  figure { margin: 0 0 6px; }
-  .panel { position: relative; }
-  .plab { font-size: 0.8rem; color: var(--ink); margin: 8px 0 0; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-  .plab b { font-size: 0.95rem; font-weight: 700; }
+  .custom { font-size: 0.84rem; display: inline-flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .status { font-size: 0.74rem; color: var(--ink3); width: 100%; }
+  .status span { margin-right: 10px; white-space: nowrap; }
+  .status .ok::before, .status .warn::before, .status .err::before, .status .loading::before { content: "●"; margin-right: 3px; }
+  .status .ok::before { color: var(--good); } .status .warn::before { color: var(--flag); } .status .err::before { color: var(--bad); } .status .loading::before { color: var(--ink3); }
+  /* tiles */
+  .tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+  .tile { background: var(--card); border: 0.75px solid var(--edge); padding: 7px 10px 8px; min-width: 0; }
+  .tile .k { font-size: 0.68rem; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.05em; }
+  .tile .v { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile .s { font-size: 0.74rem; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile.alert { border-color: var(--radar); }
+  .tile.alert .v { color: var(--radar); }
+  @media (max-width: 1100px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .alertline { font-size: 0.82rem; color: var(--flag); margin: -2px 0 8px; }
+  .alertline:empty { display: none; }
+  /* dashboard grid */
+  .dash { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 8px; align-items: start; }
+  .col { display: grid; gap: 8px; min-width: 0; }
+  .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  @media (max-width: 980px) { .dash, .row3 { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--card); border: 0.75px solid var(--edge); padding: 8px 10px 10px; min-width: 0; }
+  .ch { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .ch h3 { margin: 0; font-size: 0.86rem; font-weight: 700; }
+  .ch .u { font-size: 0.76rem; color: var(--ink2); }
+  .ch .r { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; font-size: 0.78rem; }
+  .info { position: relative; }
+  .info > summary { list-style: none; cursor: pointer; color: var(--ink3); font-size: 0.8rem; display: inline-block; width: 15px; height: 15px; line-height: 14px; text-align: center; border: 0.75px solid var(--ink3); border-radius: 50%; }
+  .info > summary::-webkit-details-marker { display: none; }
+  .info[open] > summary { color: #fff; background: var(--ink); border-color: var(--ink); }
+  .info .pop { font-size: 0.78rem; color: var(--ink2); line-height: 1.5; background: #fff; border: 0.75px solid var(--rule); padding: 8px 10px; margin: 6px 0 4px; }
+  .plab { font-size: 0.74rem; color: var(--ink); margin: 4px 0 0; display: flex; gap: 6px; align-items: baseline; }
+  .plab b { font-weight: 700; }
   .plab .u { color: var(--ink2); }
-  .plab .ctl { margin-left: auto; font-size: 0.8rem; }
-  .cbox { position: relative; height: 150px; }
-  .cbox.tall { height: 190px; }
-  .cbox.flow { height: 170px; }
-  @media (max-width: 600px) { .cbox { height: 130px; } .cbox.tall { height: 170px; } .cbox.flow { height: 150px; } }
-  figcaption { font-size: 0.8rem; color: var(--ink2); line-height: 1.5; margin-top: 8px; }
-  figcaption b { color: var(--ink); }
-  .fig2 { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 18px; }
-  @media (max-width: 820px) { .fig2 { grid-template-columns: minmax(0, 1fr); } }
-  #map { height: 400px; border: 0.75px solid var(--rule); background: #eee; }
-  @media (max-width: 600px) { #map { height: 320px; } }
+  .cbox { position: relative; height: 112px; touch-action: pan-y; }
+  .cbox.hr { height: 140px; } .cbox.cum { height: 140px; } .cbox.q { height: 128px; } .cbox.side { height: 210px; }
+  @media (max-width: 600px) { .cbox { height: 104px; } .cbox.hr, .cbox.cum { height: 128px; } .cbox.q { height: 118px; } }
+  .zoomnote { font-size: 0.74rem; color: var(--ink3); }
+  p.cap { font-size: 0.78rem; color: var(--ink2); line-height: 1.5; margin: 6px 0 0; }
+  p.cap b { color: var(--ink); }
+  p.key { font-size: 0.84rem; color: var(--ink); line-height: 1.45; margin: 8px 0 0; padding-left: 8px; border-left: 2px solid var(--ink); }
+  p.key:empty { display: none; }
+  p.key .flag { color: var(--flag); }
+  #map { height: 360px; border: 0.75px solid var(--edge); background: #eee; }
+  @media (max-width: 600px) { #map { height: 300px; } }
   .leaflet-container { font-family: inherit; }
-  .stlab { background: rgba(251, 250, 247, 0.85) !important; border: 0 !important; box-shadow: none !important; padding: 0 3px !important; font-size: 10.5px !important; color: #111 !important; }
+  .stlab { background: rgba(255, 255, 255, 0.85) !important; border: 0 !important; box-shadow: none !important; padding: 0 3px !important; font-size: 10.5px !important; color: #111 !important; }
   .stlab::before { display: none !important; }
-  .radar-ctl { display: flex; gap: 8px; align-items: center; font-size: 0.8rem; margin-top: 6px; flex-wrap: wrap; }
-  .radar-ctl input[type=range] { flex: 1 1 180px; accent-color: var(--radar); }
-  .legend-row { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.76rem; color: var(--ink2); margin-top: 6px; }
-  .legend-row i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; }
+  .radar-ctl { display: flex; gap: 8px; align-items: center; font-size: 0.78rem; margin-top: 6px; }
+  .radar-ctl input[type=range] { flex: 1 1 auto; min-width: 80px; accent-color: var(--radar); }
+  .radar-ctl .lbl { color: var(--ink2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 0.72rem; color: var(--ink2); margin-top: 5px; }
+  .legend-row i { display: inline-block; width: 9px; height: 9px; margin-right: 4px; vertical-align: -1px; }
+  /* tables */
   .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { border-collapse: collapse; width: 100%; font-size: 0.82rem; font-variant-numeric: tabular-nums; border-top: 1.5px solid var(--rule); border-bottom: 1.5px solid var(--rule); }
-  thead th { border-bottom: 0.75px solid var(--rule); font-weight: 700; text-align: right; padding: 5px 7px; white-space: nowrap; vertical-align: bottom; }
-  td { padding: 4px 7px; text-align: right; white-space: nowrap; vertical-align: top; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.78rem; font-variant-numeric: tabular-nums; border-top: 1.25px solid var(--rule); border-bottom: 1.25px solid var(--rule); }
+  thead th { border-bottom: 0.75px solid var(--rule); font-weight: 700; text-align: right; padding: 4px 6px; white-space: nowrap; vertical-align: bottom; }
+  td { padding: 3px 6px; text-align: right; white-space: nowrap; vertical-align: top; }
   th.l, td.l { text-align: left; }
-  tr.grp td { font-weight: 700; padding-top: 8px; text-align: left; border-top: 0.75px solid var(--hair); }
+  tr.grp td { font-weight: 700; padding-top: 6px; text-align: left; border-top: 0.75px solid var(--hair); }
   tbody tr.click { cursor: pointer; }
-  tbody tr.click:hover { background: rgba(0, 0, 0, 0.035); }
-  td .sw { display: inline-block; width: 9px; height: 9px; margin-right: 5px; vertical-align: 0; }
-  .tnote { font-size: 0.76rem; color: var(--ink2); margin: 6px 0 0; line-height: 1.5; }
+  tbody tr.click:hover, tbody tr.click.sel { background: rgba(0, 0, 0, 0.05); }
+  td .sw { display: inline-block; width: 8px; height: 8px; margin-right: 5px; }
+  .tnote { font-size: 0.72rem; color: var(--ink2); margin: 5px 0 0; line-height: 1.45; }
   sup.f { color: var(--flag); font-weight: 700; margin-left: 1px; }
   .muted { color: var(--ink3); } .flag { color: var(--flag); } .bad { color: var(--bad); }
-  textarea.readout { width: 100%; min-height: 200px; box-sizing: border-box; resize: vertical; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.76rem; line-height: 1.45; color: var(--ink); background: #fff; border: 0.75px solid #9a988f; border-radius: 3px; padding: 8px; }
-  .methods { font-size: 0.84rem; color: var(--ink2); line-height: 1.55; }
-  .methods h3 { color: var(--ink); font-size: 0.88rem; margin: 14px 0 4px; }
+  /* bottom drawer */
+  .drawer { margin-top: 10px; background: var(--card); border: 0.75px solid var(--edge); padding: 8px 10px; }
+  .drawer > summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; }
+  .drawer details { margin-top: 8px; }
+  .drawer details > summary { cursor: pointer; color: var(--link); font-size: 0.82rem; }
+  .controls { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 0.82rem; margin-top: 6px; }
+  textarea.readout { width: 100%; min-height: 180px; box-sizing: border-box; resize: vertical; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.74rem; line-height: 1.45; color: var(--ink); background: #fff; border: 0.75px solid #9a988f; padding: 8px; margin-top: 6px; }
+  .methods { font-size: 0.8rem; color: var(--ink2); line-height: 1.5; }
+  .methods h3 { color: var(--ink); font-size: 0.84rem; margin: 12px 0 4px; }
   .methods ul { margin: 4px 0; padding-left: 1.1rem; }
-  pre.tests { white-space: pre-wrap; font-size: 0.76rem; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; margin: 8px 0 0; }
+  pre.tests { white-space: pre-wrap; font-size: 0.74rem; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; margin: 8px 0 0; }
   .pass { color: var(--good); } .fail { color: var(--bad); }
-  footer { font-size: 0.76rem; color: var(--ink3); margin-top: 22px; border-top: 0.75px solid var(--rule); padding-top: 8px; line-height: 1.6; }
+  footer { font-size: 0.72rem; color: var(--ink3); margin-top: 10px; line-height: 1.55; }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 <div class="page">
 
-<header>
+<div class="bar">
   <h1>Alta Hydromet</h1>
-  <div class="meta" id="meta">Loading…</div>
-</header>
-
-<div class="controls">
-  <span class="seg" id="presets">
-    <button data-p="24h">24 h</button><button data-p="72h">72 h</button><button data-p="7d">7 d</button><button data-p="30d">30 d</button><button data-p="wy">Water year</button>
-  </span>
-  <span>From <input type="datetime-local" id="cs"> to <input type="datetime-local" id="ce"> <button class="ctl-btn" id="apply-custom">Go</button></span>
-  <button class="ctl-btn" id="refresh">Refresh</button>
+  <span class="seg" id="presets"><button data-p="24h">24 h</button><button data-p="72h">72 h</button><button data-p="7d">7 d</button><button data-p="30d">30 d</button><button data-p="wy">WY</button></span>
+  <span class="custom"><input type="datetime-local" id="cs" aria-label="Start"> to <input type="datetime-local" id="ce" aria-label="End"> <button class="btn" id="apply-custom">Go</button></span>
+  <button class="btn" id="refresh">Refresh</button>
+  <span class="grow"></span>
+  <span class="zoomnote" id="meta"></span>
+  <div class="status" id="status"></div>
 </div>
-<div class="status" id="status"></div>
 
-<section class="summary" id="summary"></section>
-<div class="keys" id="keys"></div>
+<div class="tiles" id="tiles"></div>
+<div class="alertline" id="alertline"></div>
 
-<h2>Fig. 1 · Precipitation, temperature, and streamflow</h2>
-<figure>
-  <div class="panel"><div class="plab"><b>a</b> Precipitation, upper canyon <span class="u">mm per hour</span>
-    <span class="ctl"><label><input type="checkbox" id="show-radar" checked> radar estimate</label></span></div>
-    <div class="cbox tall"><canvas id="p-hr"></canvas></div></div>
-  <div class="panel"><div class="plab"><b>b</b> Cumulative precipitation by gauge, high to low <span class="u">mm</span></div>
-    <div class="cbox tall"><canvas id="p-cum"></canvas></div></div>
-  <div class="panel"><div class="plab"><b>c</b> Air temperature <span class="u">°C</span></div>
-    <div class="cbox"><canvas id="p-temp"></canvas></div></div>
-  <div class="panel"><div class="plab"><b>d</b> Freezing level estimated from station temperatures <span class="u">ft</span></div>
-    <div class="cbox"><canvas id="p-fl"></canvas></div></div>
-  <div class="panel"><div class="plab"><b>e</b> Discharge, Little Cottonwood Creek at Tanners Flat <span class="u">cfs</span></div>
-    <div class="cbox flow"><canvas id="p-q"></canvas></div></div>
-  <figcaption id="cap1"></figcaption>
-</figure>
-
-<h2>Table 1 · Storms and radar cells</h2>
-<div class="tscroll"><table id="t-storms"></table></div>
-<p class="tnote" id="t-storms-note"></p>
-
-<h2>Fig. 2 · Where the stations are</h2>
-<figure class="fig2">
-  <div>
-    <div class="plab"><b>a</b> Upper Little Cottonwood Canyon <span class="u">watershed above the canyon mouth, 70.8 km²</span></div>
-    <div id="map"></div>
-    <div class="radar-ctl"><label><input type="checkbox" id="map-radar" checked> Radar</label>
-      <input type="range" id="radar-t" min="0" max="0" value="0" aria-label="Radar time"><span id="radar-lbl" class="muted"></span></div>
-    <div class="legend-row">
-      <span><i style="background:#256abf;border-radius:50%"></i>Precipitation gauge</span>
-      <span><i style="background:#fff;border:1.5px solid #111;border-radius:50%"></i>Temperature, wind, snow depth</span>
-      <span><i style="background:#111;clip-path:polygon(50% 0,100% 100%,0 100%)"></i>SNOTEL</span>
-      <span><i style="background:#111"></i>Stream gauge</span>
+<div class="dash">
+  <div class="col">
+    <div class="card">
+      <div class="ch"><h3>Upper canyon</h3><span class="u" id="ts-range"></span>
+        <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden" id="zoom-reset">Full window</button></span></div>
+      <div class="plab"><b>a</b> Precipitation <span class="u">mm h⁻¹</span></div><div class="cbox hr"><canvas id="p-hr"></canvas></div>
+      <div class="plab"><b>b</b> Cumulative precipitation by gauge <span class="u">mm</span></div><div class="cbox cum"><canvas id="p-cum"></canvas></div>
+      <div class="plab"><b>c</b> Air temperature <span class="u">°C</span></div><div class="cbox"><canvas id="p-temp"></canvas></div>
+      <div class="plab"><b>d</b> Freezing level <span class="u">ft</span></div><div class="cbox"><canvas id="p-fl"></canvas></div>
+      <div class="plab"><b>e</b> Discharge, Tanners Flat <span class="u">cfs</span></div><div class="cbox q"><canvas id="p-q"></canvas></div>
+      <p class="key" id="key1"></p>
+      <p class="cap" id="cap1"></p>
+      <div class="zoomnote">Drag across a chart to zoom; double-click to reset. Click a storm to zoom to it.</div>
     </div>
   </div>
-  <div>
-    <div class="plab"><b>b</b> Window precipitation against elevation</div>
-    <div class="cbox" style="height:400px"><canvas id="p-elev"></canvas></div>
+  <div class="col">
+    <div class="card">
+      <div class="ch"><h3>Map and radar</h3><span class="u">LCC headwaters, 70.8 km²</span>
+        </div>
+      <div id="map"></div>
+      <div class="radar-ctl"><button class="btn" id="radar-play" aria-label="Play radar">▶</button><label><input type="checkbox" id="map-radar" checked> Radar</label>
+        <input type="range" id="radar-t" min="0" max="0" value="0" aria-label="Radar time"><span class="lbl" id="radar-lbl"></span></div>
+      <div class="legend-row"><span><i style="background:#256abf;border-radius:50%"></i>Precip gauge</span><span><i style="background:#fff;border:1.5px solid #111;border-radius:50%"></i>Temp/snow only</span><span><i style="background:#111;clip-path:polygon(50% 0,100% 100%,0 100%)"></i>SNOTEL</span><span><i style="background:#111"></i>Stream gauge</span></div>
+      <p class="cap" id="cap2"></p>
+    </div>
+    <div class="card">
+      <div class="ch"><h3>Storms</h3><span class="u" id="storm-def"></span></div>
+      <div class="tscroll"><table id="t-storms"></table></div>
+      <p class="cap" id="t-storms-note"></p>
+    </div>
+    <div class="card">
+      <div class="ch"><h3>Stations</h3><span class="u" id="st-asof"></span></div>
+      <div class="tscroll"><table id="t-stations"></table></div>
+      <p class="cap" id="t-stations-note"></p>
+    </div>
   </div>
-  <figcaption id="cap2" style="grid-column:1/-1"></figcaption>
-</figure>
+</div>
 
-<h2>Table 2 · Stations</h2>
-<div class="tscroll"><table id="t-stations"></table></div>
-<p class="tnote" id="t-stations-note"></p>
+<div class="row3">
+  <div class="card">
+    <div class="ch"><h3>Precipitation vs elevation</h3><span class="u">window total</span></div>
+    <div class="cbox side"><canvas id="p-elev"></canvas></div>
+    <p class="key" id="key-elev"></p><p class="cap" id="cap-elev"></p>
+  </div>
+  <div class="card">
+    <div class="ch"><h3>Snowpack</h3><span class="u">SWE since Oct 1, in</span></div>
+    <div class="cbox side"><canvas id="p-swe"></canvas></div>
+    <p class="key" id="key-swe"></p><p class="cap" id="cap3"></p>
+  </div>
+  <div class="card">
+    <div class="ch"><h3>Valley streamflow</h3><span class="u">below diversions, cfs</span></div>
+    <div class="cbox side"><canvas id="p-valley"></canvas></div>
+    <p class="cap" id="cap-s1"></p>
+  </div>
+</div>
 
-<h2>Fig. 3 · Snowpack, water year to date</h2>
-<figure>
-  <div class="plab"><b>a</b> Snow water equivalent <span class="u">in</span></div>
-  <div class="cbox tall"><canvas id="p-swe"></canvas></div>
-  <figcaption id="cap3"></figcaption>
-</figure>
-
-<h2>Supplementary · Valley and diverted streamflow</h2>
-<details id="supp">
-  <summary>Show valley gauges (below the diversions)</summary>
-  <figure>
-    <div class="plab"><b>S1</b> Discharge below the canyon <span class="u">cfs</span></div>
-    <div class="cbox tall"><canvas id="p-valley"></canvas></div>
-    <figcaption id="cap-s1"></figcaption>
-  </figure>
-  <div class="tscroll"><table id="t-valley"></table></div>
-  <details style="margin-top:10px">
-    <summary>Add a canyon-mouth record (CSV upload)</summary>
-    <p class="tnote">Two columns: timestamp, cfs. Timestamps with Z or an offset are used as given; plain ones (2026-10-08 13:40 or 10/8/2026 1:40 PM) are read as Mountain time. Kept in memory only.</p>
+<details class="drawer">
+  <summary>Data, export, and methods</summary>
+  <details>
+    <summary>Field-notes readout and CSV export</summary>
+    <div class="controls">
+      <button class="btn" id="copy-readout">Copy readout</button>
+      <button class="btn" data-export="precip">Precip CSV</button>
+      <button class="btn" data-export="events">Storms CSV</button>
+      <button class="btn" data-export="flow">Flow CSV</button>
+      <button class="btn" data-export="radar">Radar CSV</button>
+      <button class="btn" data-export="snotel">SNOTEL CSV</button>
+    </div>
+    <textarea class="readout" id="readout" readonly spellcheck="false"></textarea>
+  </details>
+  <details>
+    <summary>Storm detection settings</summary>
+    <div class="controls">
+      <span>Detect from: <span id="det-boxes"></span></span>
+      <label>max gap <input type="number" id="gap-h" value="3" min="0.5" max="24" step="0.5"> h</label>
+      <label>threshold <input type="number" id="min-mm" value="1.0" min="0.25" max="50" step="0.25"> mm</label>
+      <button class="btn" id="apply-storm">Recompute</button>
+    </div>
+  </details>
+  <details>
+    <summary>Valley streamflow response table and canyon-mouth CSV upload</summary>
+    <div class="tscroll" style="margin-top:6px"><table id="t-valley"></table></div>
+    <p class="tnote">Upload a canyon-mouth record: two columns, timestamp and cfs. Timestamps with Z or an offset are used as given; plain ones (2026-10-08 13:40 or 10/8/2026 1:40 PM) are read as Mountain time. Kept in memory only.</p>
     <input type="file" id="upload" accept=".csv,text/csv,text/plain"> <span class="tnote" id="upload-status"></span>
   </details>
-</details>
+  <details id="methods-box">
+    <summary>Methods and QC</summary>
+    <div class="methods">
 
-<h2>Data and methods</h2>
-<details>
-  <summary>Field-notes readout and CSV export</summary>
-  <div class="controls" style="margin-top:8px">
-    <button class="ctl-btn" id="copy-readout">Copy readout</button>
-    <button class="ctl-btn" data-export="precip">Precip CSV</button>
-    <button class="ctl-btn" data-export="events">Storms CSV</button>
-    <button class="ctl-btn" data-export="flow">Flow CSV</button>
-    <button class="ctl-btn" data-export="radar">Radar CSV</button>
-    <button class="ctl-btn" data-export="snotel">SNOTEL CSV</button>
-  </div>
-  <textarea class="readout" id="readout" readonly spellcheck="false"></textarea>
-</details>
-<details>
-  <summary>Storm detection settings</summary>
-  <div class="controls" style="margin-top:8px">
-    <span>Detect from: <span id="det-boxes"></span></span>
-    <label>max gap <input type="number" id="gap-h" value="3" min="0.5" max="24" step="0.5"> h</label>
-    <label>threshold <input type="number" id="min-mm" value="1.0" min="0.25" max="50" step="0.25"> mm</label>
-    <button class="ctl-btn" id="apply-storm">Recompute</button>
-  </div>
-</details>
-<details id="methods-box">
-  <summary>Methods and QC</summary>
-  <div class="methods">
     <h3>Which stations, and why</h3>
     <ul>
       <li><b>Gauges along the canyon.</b> Seven precipitation gauges from the ridge to the canyon mouth: Alta Collins (CLN, 9,662 ft, the Alta avalanche program's storm plot, hourly), Albion Basin (PC064, PacifiCorp), Alta Guard House (AGD), Alta RWIS (UTALC, UDOT), White Pine (UTWLC, UDOT), Elberts (ELBUT), and Powerhouse (UTPLC, 6,049 ft, near the mouth). Brighton (PC056) and Spruces (SPC) are over the ridge in Big Cottonwood and are shown for comparison only.</li>
@@ -252,14 +269,15 @@
     <ul>
       <li>Tips from the detection gauges (CLN, PC064, AGD, UTALC by default) are pooled in time order; a gap over 3 h starts a new group. A group is a storm when any detection gauge totals at least 1.0 mm.</li>
       <li>Rain or snow: precipitation weighted mean of each gauge's own air temperature; below 1 °C is called mixed or snow.</li>
-      <li>Tanners Flat response: baseline is the time weighted mean of the 6 h before the start; peak is the maximum up to 48 h after the end, cut at the next storm. Lag runs from the precipitation centroid to the peak. A rise of two gauge steps (about 0.3 cfs) or less is no clear response. A peak before the centroid gets no lag, since the rise came from earlier precipitation.</li>
+      <li>Tanners Flat response: baseline is the time weighted mean of the 6 h before the start; peak is the maximum up to 48 h after the end, cut at the next storm. Lag runs to the peak from the centroid of the rain that fell before it, at every gauge above Tanners Flat (CLN, PC064, AGD, UTALC, UTWLC, ELBUT); storms with two bursts would otherwise place the centroid after the first peak. A rise of two gauge steps (about 0.3 cfs) or less is no clear response. A peak before the centroid gets no lag, since the rise came from earlier precipitation.</li>
       <li>Flow QC: a single report far from the median of its three neighbors on each side is removed (Tanners Flat stage dropped from 0.36 to 0.04 ft for one report, twice on 10/8/2026). A wild newest report is held until the next one confirms it.</li>
     </ul>
     <h3>Snow depth QC</h3>
     <ul><li>Values outside 0 to 4,000 mm are dropped. UTWLC depth is never used (it reads 719 mm in October). A nonzero depth that does not change at all for 48 h is a stuck sensor and is hidden (CLN read 1,371.6 mm on every report in October 2026). A sonic sensor over bare ground reads grass and rocks, so any reading of 150 mm or less within 3 h of a 0 is shown as 0.</li></ul>
-    <div style="margin-top:10px"><button class="ctl-btn" id="run-tests">Run parser self-test</button> <span class="muted">Unit tests and a live check of the 10/7 to 10/8/2026 reference values.</span></div>
-    <pre class="tests hidden" id="test-out"></pre>
-  </div>
+      <div style="margin-top:10px"><button class="btn" id="run-tests">Run parser self-test</button> <span class="muted">Unit tests and a live check of the 10/7 to 10/8/2026 reference values.</span></div>
+      <pre class="tests hidden" id="test-out"></pre>
+    </div>
+  </details>
 </details>
 
 <footer id="sources"></footer>
@@ -598,8 +616,8 @@ function flowResponse(ev, nextStart, s) {
   if (tpk == null || base == null) return { base, peak: tpk == null ? null : peak, tpk, dQ: null, lag: null, clear: false, flags: [...flags, base == null ? 'no baseline data' : 'no data after start'] };
   const dQ = peak - base, res = s.res || seriesResolution(s);
   let clear = dQ > 2 * res + 1e-9;
-  const j0 = bisectRight(s.t, ev.start) - 1;
-  if (clear && j0 >= 0 && s.v[j0] - base > 2 * res + 1e-9) flags.push('already rising at start');
+  const pre = twMean(s, ev.start - 30 * MIN, ev.start); // 30 min mean, so a single stage step does not count
+  if (clear && pre != null && pre - base > 2 * res + 1e-9) flags.push('already rising at start');
   let lag = clear ? (tpk - ev.centroid) / HOUR : null;
   if (lag != null && lag < 0) { flags.push('peak before centroid, from earlier precip'); lag = null; clear = false; }
   return { base, peak, tpk, dQ, res, clear, lag, flags };
@@ -771,7 +789,7 @@ async function loadSnotel(a, b) {
   const d = await fetchJSON(url, { timeout: 60000 }), out = {};
   for (const s of d) {
     const rec = out[s.stationTriplet] = {};
-    for (const e of s.data || []) rec[e.stationElement.elementCode] = (e.values || []).map(x => { const [y, m, dd] = x.date.split('-').map(Number); return { date: x.date, t: Date.UTC(y, m - 1, dd + 1, 8), v: x.value, med: x.median, qc: x.qcFlag || '' }; });
+    for (const e of s.data || []) { if (e.stationElement.elementCode === 'WTEQ' && e.timingCentralTendencies) rec.timing = e.timingCentralTendencies; rec[e.stationElement.elementCode] = (e.values || []).map(x => { const [y, m, dd] = x.date.split('-').map(Number); return { date: x.date, t: Date.UTC(y, m - 1, dd + 1, 8), v: x.value, med: x.median, qc: x.qcFlag || '' }; }); }
   }
   return out;
 }
@@ -798,7 +816,7 @@ function parseUploadCSV(text) {
 const S = {
   win: { preset: '7d', a: 0, b: 0 }, det: [...ALTA], gapH: 3, minMm: 1.0,
   syn: null, P: {}, county: null, usgs: null, upload: null, snotel: null, radar: [], radarFrames: [],
-  status: {}, events: [], minor: [], cells: [], fl: [], hoverX: null, loadedAt: null, radarT: null,
+  status: {}, events: [], minor: [], cells: [], fl: [], hoverX: null, loadedAt: null, radarT: null, view: null, drag: null, selStorm: null,
 };
 function windowFromPreset(p) { const now = Date.now(), spans = { '24h': DAY, '72h': 3 * DAY, '7d': 7 * DAY, '30d': 30 * DAY }; return p === 'wy' ? { a: waterYearStart(now), b: now } : { a: now - (spans[p] || 7 * DAY), b: now }; }
 function readHash() {
@@ -840,6 +858,7 @@ Chart.register({
       for (const it of items) { ctx.fillStyle = it.color; ctx.fillText(it.text, ca.right + 4, Math.min(ca.bottom + 8, Math.max(ca.top - 4, it.y))); }
       ctx.restore();
     }
+    if (o && o.sync && S.drag && S.drag.x1 != null) { const x0 = x.getPixelForValue(S.drag.v0), x1 = x.getPixelForValue(S.drag.v1); ctx.save(); ctx.fillStyle = 'rgba(28,92,171,0.12)'; ctx.fillRect(Math.min(x0, x1), ca.top, Math.abs(x1 - x0), ca.bottom - ca.top); ctx.restore(); }
     if (o && o.sync && S.hoverX != null && S.hoverX >= x.min && S.hoverX <= x.max) { const px = x.getPixelForValue(S.hoverX); ctx.save(); ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 0.75; ctx.beginPath(); ctx.moveTo(px, ca.top); ctx.lineTo(px, ca.bottom); ctx.stroke(); ctx.restore(); }
   },
 });
@@ -855,7 +874,7 @@ const axisStyle = () => ({ border: { display: true, color: INK, width: 0.75 }, g
 const charts = {};
 function redrawSynced(except) { for (const c of Object.values(charts)) if (c !== except && c.options.plugins.paper && c.options.plugins.paper.sync) c.draw(); }
 function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, legend = false, paper = {}, type = 'line', tooltipLabel, xRange, decimate = true, rightPad } = {}) {
-  const [a, b] = xRange || [S.win.a, S.win.b], span = b - a;
+  const [a, b] = xRange || VIEW(), span = b - a;
   const cfg = {
     type, data: { datasets },
     options: {
@@ -882,6 +901,13 @@ function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, leg
   const el = document.getElementById(id);
   charts[id] = new Chart(el, cfg);
   el.onmouseleave = () => { S.hoverX = null; redrawSynced(null); };
+  if (cfg.options.plugins.paper.sync) {
+    const ch = charts[id];
+    el.onpointerdown = e => { const v = ch.scales.x.getValueForPixel(e.offsetX); if (v < ch.scales.x.min || v > ch.scales.x.max) return; S.drag = { v0: v, v1: v, px: e.offsetX, x1: null }; };
+    el.onpointermove = e => { if (!S.drag) return; if (Math.abs(e.offsetX - S.drag.px) > 6) { S.drag.x1 = e.offsetX; S.drag.v1 = Math.max(ch.scales.x.min, Math.min(ch.scales.x.max, ch.scales.x.getValueForPixel(e.offsetX))); redrawSynced(null); } };
+    el.onpointerup = () => { const d = S.drag; S.drag = null; if (d && d.x1 != null && Math.abs(d.v1 - d.v0) > 20 * MIN) setView([Math.min(d.v0, d.v1), Math.max(d.v0, d.v1)]); else redrawSynced(null); };
+    el.ondblclick = () => setView(null);
+  }
   return charts[id];
 }
 const shading = () => ({ events: S.events.map((e, i) => ({ start: e.start, end: e.end, label: 'S' + (i + 1) })), cells: S.cells.filter(c => !c.inStorm).map((c, i) => ({ start: c.start, end: c.end, label: 'R' + (i + 1) })) });
@@ -890,47 +916,53 @@ const shading = () => ({ events: S.events.map((e, i) => ({ start: e.start, end: 
    Rendering
    ====================================================================== */
 const T_END = () => Math.min(S.win.b, Date.now());
+const VIEW = () => S.view || [S.win.a, S.win.b];
+function setView(v) { S.view = v; document.getElementById('zoom-reset').classList.toggle('hidden', !v); safe(renderFig1, 'fig1'); }
 const stA = s => `<a href="${mesoLink(s.id)}" target="_blank" rel="noopener">${s.id}</a>`;
 
-function renderSummary() {
-  const el = document.getElementById('summary'), keys = document.getElementById('keys');
-  const T = T_END(), live = S.win.b >= Date.now() - 10 * MIN, P = [];
+function summaryParts() {
+  const T = T_END(), live = S.win.b >= Date.now() - 10 * MIN, o = {};
   if (S.syn) {
-    const tips = ALTA.map(id => lastTip(S.P[id], T)).filter(Boolean), lt = tips.length ? Math.max(...tips.map(x => x.t)) : null;
-    const r24 = ALTA.map(id => sumPrecip(S.P[id], T - DAY, T)).filter(x => x.status !== 'nodata'), vals = r24.map(x => x.mm);
-    const lo = vals.length ? Math.min(...vals) : null, hi = vals.length ? Math.max(...vals) : null;
-    const rf = S.radar.filter(Boolean), rLast = rf.length ? rf[rf.length - 1] : null;
-    let s1 = (lt != null && T - lt < 30 * MIN) ? `<b>Precipitating at Alta</b>: last tip ${fmtTime(lt)}.` : lt ? `<b>Dry at the Alta gauges for ${durTxt(T - lt)}</b> (last tip ${fmtWhen(lt)}).` : `<b>No precipitation at the Alta gauges</b> in this window.`;
-    if (vals.length) s1 += ` Last 24 h: ${hi === lo ? mmStr(hi) : `${mmStr(lo)} to ${mmStr(hi)}`} mm across the ${r24.length} Alta gauges.`;
-    if (live && rLast) s1 += rLast.maxDbz != null && rLast.maxDbz >= RADAR_FLOOR ? ` Radar at ${fmtTime(rLast.t)}: ${rLast.maxDbz >= 35 ? 'showers' : 'light echoes'} to ${rLast.maxDbz.toFixed(0)} dBZ over the watershed, near ${nearestPlace(rLast.maxAt[0], rLast.maxAt[1])}.` : ` Radar at ${fmtTime(rLast.t)}: nothing above the clutter level (${RADAR_FLOOR} dBZ) over the watershed.`;
-    P.push(s1);
-    const missed = S.cells.filter(c => !c.inStorm);
-    if (missed.length) { const c = missed[missed.length - 1]; P.push(`<span class="flag">Radar saw a cell the gauges missed: ${fmtSpan(c.start, c.end)}, up to ${c.peak.toFixed(0)} dBZ near ${nearestPlace(c.at[0], c.at[1])}${missed.length > 1 ? ` (${missed.length} in this window, see Table 1)` : ''}.</span>`); }
-    const fl = S.fl.filter(x => x.fl != null && x.t <= T).pop(), ta = nearestValue(S.syn.AGD, 'air_temp', T, 90 * MIN);
-    let s2 = ta != null ? `Air ${ta.toFixed(1)} °C at Alta (8,800 ft)` : 'No current temperature at Alta';
-    if (fl && T - fl.t < 3 * HOUR) { const r = Math.round(fl.fl / 100) * 100; s2 += `; freezing level ${fl.fl > 12000 ? 'above 12,000 ft' : fl.fl < 5000 ? 'below 5,000 ft' : `near ${ft(r)} ft`}, so precipitation would fall as ${fl.fl > 9800 ? 'rain through the whole canyon' : fl.fl > 8000 ? 'snow at Alta and rain lower down' : 'snow down to the lower canyon'}.`; }
-    else s2 += '.';
-    P.push(s2);
-  } else P.push(`<span class="bad">MesoWest data unavailable: ${S.status.syn ? S.status.syn.msg : ''}</span>`);
-  const tf = S.county && S.county.lcc_tanners_q;
-  if (tf && tf.t.length) {
-    const i = tf.t.length - 1, q = tf.v[i], q24 = twMean(tf, tf.t[i] - 26 * HOUR, tf.t[i] - 22 * HOUR);
-    const tw = S.county.lcc_tanners_tw, twv = tw && tw.t.length ? tw.v[tw.v.length - 1] : null;
-    const d = q24 == null ? null : q - q24, trend = d == null ? '' : Math.abs(d) <= 2 * tf.res ? 'steady over 24 h' : d > 0 ? `up ${cfs(d)} cfs in 24 h` : `down ${cfs(-d)} cfs in 24 h`;
-    P.push(`Little Cottonwood Creek at Tanners Flat: <b>${cfs(q)} cfs</b> at ${fmtWhen(tf.t[i])}${trend ? ', ' + trend : ''}${twv != null ? `; water ${fToC(twv).toFixed(1)} °C` : ''}.`);
+    const tips = ALTA.map(id => lastTip(S.P[id], T)).filter(Boolean);
+    o.lastTip = tips.length ? Math.max(...tips.map(x => x.t)) : null;
+    const r24 = ALTA.map(id => sumPrecip(S.P[id], T - DAY, T)).filter(x => x.status !== 'nodata').map(x => x.mm);
+    o.r24 = r24.length ? [Math.min(...r24), Math.max(...r24), r24.length] : null;
+    o.wet = o.lastTip != null && T - o.lastTip < 30 * MIN;
+    o.ta = nearestValue(S.syn.AGD, 'air_temp', T, 90 * MIN);
+    const fl = S.fl.filter(x => x.fl != null && x.t <= T).pop(); o.fl = fl && T - fl.t < 3 * HOUR ? fl.fl : null;
   }
+  const rf = S.radar.filter(Boolean); o.rLast = live && rf.length ? rf[rf.length - 1] : null;
+  const tf = S.county && S.county.lcc_tanners_q;
+  if (tf && tf.t.length) { const i = tf.t.length - 1, q24 = twMean(tf, tf.t[i] - 26 * HOUR, tf.t[i] - 22 * HOUR); o.q = { v: tf.v[i], t: tf.t[i], d: q24 == null ? null : tf.v[i] - q24, res: tf.res }; }
   const sw = trip => S.snotel && S.snotel[trip] && (S.snotel[trip].WTEQ || []).filter(x => x.t <= T + DAY && x.v != null).pop();
-  const sb = sw('766:UT:SNTL'), at = sw('1308:UT:SNTL');
-  if (sb) P.push(`Snowpack (${sb.date}): ${at ? `Atwater ${at.v.toFixed(1)} in of water, ` : ''}Snowbird ${sb.v.toFixed(1)} in${sb.med != null ? ` against a median of ${sb.med.toFixed(1)} in` : ''}.`);
-  el.innerHTML = P.map(p => `<p>${p}</p>`).join('');
-  const k = [];
-  if (S.syn) { const w = sumPrecip(S.P.AGD, S.win.a, S.win.b), w2 = sumPrecip(S.P.PC064, S.win.a, S.win.b); k.push(['Window precip, Alta', w.status === 'nodata' ? '—' : `${mmStr(w.mm, 1)} mm`, `AGD; PC064 ${w2.status === 'nodata' ? 'no data' : mmStr(w2.mm, 1) + ' mm'}`]); }
-  else k.push(['Window precip, Alta', '—', '']);
-  const nc = S.cells.filter(c => !c.inStorm).length;
-  k.push(['Storms', `${S.events.length}`, nc ? `plus ${nc} radar-only cell${nc === 1 ? '' : 's'}` : `threshold ${S.minMm} mm`]);
-  k.push(['Tanners Flat', tf && tf.t.length ? `${cfs(tf.v[tf.v.length - 1])} cfs` : '—', tf && tf.t.length ? `at ${fmtWhen(tf.t[tf.t.length - 1])}` : 'no data']);
-  k.push(['Snowbird SWE', sb ? `${sb.v.toFixed(1)} in` : '—', sb && sb.med != null ? `median ${sb.med.toFixed(1)} in` : '']);
-  keys.innerHTML = k.map(([a, b, c]) => `<div><div class="k">${a}</div><div class="v">${b}</div><div class="s">${c}</div></div>`).join('');
+  o.sb = sw('766:UT:SNTL'); o.at = sw('1308:UT:SNTL');
+  o.missed = S.cells.filter(c => !c.inStorm);
+  return o;
+}
+const flTxt = fl => fl == null ? '—' : fl > 12000 ? '> 12,000 ft' : fl < 5000 ? '< 5,000 ft' : `${ft(Math.round(fl / 100) * 100)} ft`;
+const phaseTxt = fl => fl == null ? '' : fl > 9800 ? 'rain to the ridgetops' : fl > 8000 ? 'snow at Alta, rain below' : 'snow to the lower canyon';
+function renderSummary() {
+  const o = summaryParts(), tiles = [];
+  tiles.push(['Precip now', o.wet ? 'Falling' : o.lastTip ? `Dry ${durTxt(T_END() - o.lastTip)}` : 'Dry', o.lastTip ? `last tip ${fmtWhen(o.lastTip)}, Alta gauges` : 'no tips this window']);
+  tiles.push(['Last 24 h, Alta', o.r24 ? (o.r24[0] === o.r24[1] ? `${mmStr(o.r24[0], 1)} mm` : `${mmStr(o.r24[0], 1)}–${mmStr(o.r24[1], 1)} mm`) : '—', o.r24 ? `range over ${o.r24[2]} gauges` : 'no data']);
+  const rl = o.rLast;
+  tiles.push(['Radar now', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `near ${nearestPlace(rl.maxAt[0], rl.maxAt[1])}, ${fmtTime(rl.t)}` : `nothing over the watershed, ${fmtTime(rl.t)}`) : 'window ended or no frames', rl && rl.maxDbz >= 35]);
+  tiles.push(['Air at Alta', o.ta != null ? `${o.ta.toFixed(1)} °C` : '—', o.fl != null ? `freezing level ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : 'freezing level not resolved']);
+  tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
+  tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${o.sb.med != null ? `, median ${o.sb.med.toFixed(1)} in` : ''}${o.at ? `; Atwater ${o.at.v.toFixed(1)}` : ''}` : 'no data']);
+  document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al]) => `<div class="tile${al ? ' alert' : ''}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
+  const m = o.missed;
+  document.getElementById('alertline').innerHTML = !S.syn ? `<span class="bad">MesoWest data unavailable: ${S.status.syn ? S.status.syn.msg : ''}</span>` :
+    m.length ? `Radar showed ${m.length} convective cell${m.length === 1 ? '' : 's'} the gauges barely recorded; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, up to ${m[m.length - 1].peak.toFixed(0)} dBZ near ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])} (orange bands, rows R in Storms).` : '';
+}
+function summaryText() {
+  const o = summaryParts(), L = [];
+  L.push(o.wet ? `Precipitating at Alta (last tip ${fmtTime(o.lastTip)}).` : o.lastTip ? `Dry at the Alta gauges for ${durTxt(T_END() - o.lastTip)} (last tip ${fmtWhen(o.lastTip)}).` : 'No precipitation at the Alta gauges in the window.');
+  if (o.r24) L.push(`Last 24 h: ${mmStr(o.r24[0])} to ${mmStr(o.r24[1])} mm across ${o.r24[2]} Alta gauges.`);
+  if (o.ta != null) L.push(`Air ${o.ta.toFixed(1)} C at Alta; freezing level ${flTxt(o.fl)}${o.fl != null ? ` (${phaseTxt(o.fl)})` : ''}.`);
+  if (o.q) L.push(`Tanners Flat ${cfs(o.q.v)} cfs at ${fmtWhen(o.q.t)}.`);
+  if (o.sb) L.push(`Snowbird SWE ${o.sb.v.toFixed(1)} in${o.sb.med != null ? ` (median ${o.sb.med.toFixed(1)})` : ''}.`);
+  return L.join(' ');
 }
 
 function hourlyAlta() {
@@ -945,7 +977,7 @@ function renderFig1() {
   const sh = shading();
   const hu = S.syn ? hourlyAlta() : [];
   const w = document.getElementById('p-hr').parentElement.clientWidth - AXIS_W - 20;
-  const barW = Math.max(1, Math.min(9, w / Math.max(1, (S.win.b - S.win.a) / HOUR) * 0.8));
+  const [va, vb] = VIEW(), barW = Math.max(1, Math.min(14, w / Math.max(1, (vb - va) / HOUR) * 0.8));
   const ds = [
     { type: 'bar', label: 'Wettest Alta gauge', data: hu.filter(x => x.max > 0).map(x => ({ x: x.t, y: x.max })), backgroundColor: '#c9c7bf', barThickness: barW, grouped: false, order: 3 },
     { type: 'bar', label: 'Mean of CLN, PC064, AGD, UTALC', data: hu.filter(x => x.mean > 0).map(x => ({ x: x.t, y: x.mean })), backgroundColor: INK, barThickness: barW, grouped: false, order: 2 },
@@ -984,23 +1016,44 @@ function renderFig1() {
   let nsp = 0, yq = {};
   if (tf && tf.t.length) {
     const main = tf.t.map((t, i) => ({ x: t, y: tf.v[i] })).filter(p => p.x >= S.win.a - HOUR && p.x <= S.win.b + HOUR);
+    const inView = main.filter(p => p.x >= va && p.x <= vb);
     qd.push({ label: 'LCC @ Tanners Flat', data: main, borderColor: INK, backgroundColor: INK, stepped: true, borderWidth: 1.4 });
-    if (main.length) { const lo = Math.min(...main.map(p => p.y)), hi = Math.max(...main.map(p => p.y)), pad = Math.max(0.5, (hi - lo) * 0.15); yq = { min: Math.max(0, Math.floor(lo - pad)), max: Math.ceil(hi + pad) }; }
+    if (inView.length) { const lo = Math.min(...inView.map(p => p.y)), hi = Math.max(...inView.map(p => p.y)), pad = Math.max(0.5, (hi - lo) * 0.15); yq = { min: Math.max(0, Math.floor(lo - pad)), max: Math.ceil(hi + pad) }; }
     const sp = (tf.spikes || []).filter(x => x.t >= S.win.a && x.t <= S.win.b); nsp = sp.length;
     if (sp.length) qd.push({ label: 'Removed by QC', data: sp.map(x => ({ x: x.t, y: yq.min != null ? yq.min : x.v, raw: x.v })), showLine: false, pointRadius: 3.5, pointStyle: 'crossRot', borderColor: '#a35a00', backgroundColor: '#a35a00', borderWidth: 1.25, clip: false });
   }
   timeChart('p-q', qd, { showX: true, rightPad: RIGHT_PAD, paper: sh, y: yq, tooltipLabel: c => c.dataset.label === 'Removed by QC' ? `Removed by QC: ${cfs(c.raw.raw)} cfs` : `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
 
+  document.getElementById('ts-range').textContent = `${fmtDT(va)} to ${fmtDT(vb, { tz: true })}${S.view ? ' (zoomed)' : ''}`;
   document.getElementById('cap1').innerHTML =
-    `<b>Fig. 1 | Upper Little Cottonwood Canyon, ${fmtDT(S.win.a)} to ${fmtDT(S.win.b, { tz: true })}.</b> ` +
-    `<b>a</b>, Hourly precipitation. Black bars are the mean of the four Alta gauges, gray bars the wettest of them; the orange line is the radar estimate averaged over the watershed (uncalibrated, Z = 200R<sup>1.6</sup>, echoes ≥ 30 dBZ only, so it shows convective bursts and misses light snow). ` +
-    `<b>b</b>, Cumulative precipitation at each gauge; darker blue is higher. Dashed gray lines are Big Cottonwood gauges for comparison. ` +
-    `<b>c</b>, Air temperature on the ridge (Hidden Peak, 11,000 ft), at Albion Basin (9,026 ft), and near the canyon mouth (Powerhouse, 6,049 ft). The dotted line marks 1 °C, the rain/snow call. ` +
-    `<b>d</b>, Freezing level from an hourly fit of temperature against all eight stations' elevations; gaps are inversions or poor fits, and values above 18,000 ft sit on the top edge. ` +
-    `<b>e</b>, Discharge at the county gauge in the canyon, above the diversions.${nsp ? ` ${nsp} single-report dropout${nsp === 1 ? '' : 's'} removed, marked × on the bottom edge.` : ''} ` +
-    `Gray bands S1, S2… are storms (≥ ${S.minMm} mm at an Alta gauge); orange bands R1… are radar cells (≥ 35 dBZ) with no gauge storm.`;
+    `<b>a</b> Hourly precipitation: black is the mean of the four Alta gauges (CLN, PC064, AGD, UTALC), gray the wettest of them, orange the radar estimate over the watershed (echoes ≥ 30 dBZ, uncalibrated). ` +
+    `<b>b</b> Running total at each gauge; darker blue is higher, dashed gray is Big Cottonwood. ` +
+    `<b>c</b> Air temperature at 11,000, 9,026, and 6,049 ft; dashed line 0 °C, dotted line 1 °C (the rain/snow call). ` +
+    `<b>d</b> Freezing level fitted to all eight station temperatures each hour; gaps are inversions. ` +
+    `<b>e</b> Creek flow at Tanners Flat, the only gauge in the canyon (above the diversions)${nsp ? `; × marks ${nsp} sensor dropout${nsp === 1 ? '' : 's'} removed` : ''}. ` +
+    `Gray bands S are storms (≥ ${S.minMm} mm at an Alta gauge); orange bands R are radar cells with no gauge storm.`;
+  document.getElementById('key1').innerHTML = fig1Takeaway(va, vb);
 }
 
+function fig1Takeaway(va, vb) {
+  if (!S.syn) return '';
+  const tot = GAUGES.map(g => ({ g, r: sumPrecip(S.P[g.id], va, vb) })).filter(x => x.r.status !== 'nodata');
+  if (!tot.length) return '';
+  const wet = tot.reduce((x, y) => y.r.mm > x.r.mm ? y : x), dry = tot.reduce((x, y) => y.r.mm < x.r.mm ? y : x);
+  const parts = [wet.r.mm < 0.25 ? `No measurable precipitation at the canyon gauges${S.view ? ' in this view' : ''}.` : `Gauges caught ${mmStr(dry.r.mm, 1)} to ${mmStr(wet.r.mm, 1)} mm (wettest ${wet.g.id}, ${ft(wet.g.elev)} ft).`];
+  const evs = S.events.filter(e => e.end > va && e.start < vb);
+  for (const e of evs.slice(-2)) {
+    const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.map(g => st[g.id]).filter(x => x && x.hasData).map(x => x.tot);
+    const temps = S.det.map(id => st[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((a, b) => a + b.meanT, 0) / temps.length : null;
+    const r = e.resp && e.resp.lcc_tanners_q;
+    let t = `S${k} (${fmtSpan(e.start, e.end)}): ${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)} mm` : ''}${mt != null ? ` as ${mt < 1 ? 'mixed rain and snow' : 'rain'} (${mt.toFixed(0)} °C)` : ''}`;
+    if (r && r.base != null && r.peak != null) t += r.clear ? `; Tanners Flat rose ${cfs(r.base)} → ${cfs(r.peak)} cfs, peaking ${r.lag.toFixed(1)} h after the rain` : r.flags.some(f => f.startsWith('peak before')) ? `; Tanners Flat had already peaked (${cfs(r.peak)} cfs) from earlier rain` : '; no clear rise at Tanners Flat';
+    parts.push(t + '.');
+  }
+  const cells = S.cells.filter(c => !c.inStorm && c.end > va && c.start < vb);
+  if (cells.length) parts.push(`<span class="flag">Radar shows ${cells.length} cell${cells.length === 1 ? '' : 's'} (R) the gauges missed.</span>`);
+  return parts.join(' ');
+}
 function computeEvents() {
   S.events = []; S.minor = [];
   if (!S.syn) return;
@@ -1023,7 +1076,19 @@ function renderStorms() {
   S.events.forEach((e, i) => {
     const stats = Object.fromEntries(GAUGES.map(g => [g.id, eventStationStats(e, S.P[g.id], S.syn[g.id])]));
     e.stats = stats; e.resp = {};
-    for (const f of FLOW) if (F[f.key] && F[f.key].t.length) e.resp[f.key] = flowResponse(e, e.nextStart, F[f.key]);
+    // For runoff, time the rain by every gauge upstream of Tanners Flat (7,117 ft), not only the detection gauges.
+    // Lag is timed from the rain that fell before the peak (multi-burst storms otherwise put the centroid after it).
+    const upTips = [];
+    for (const g of GAUGES.filter(g => g.elev > 7117)) { const p = S.P[g.id]; if (p) for (const inc of p.incs) if (inc.include && inc.mm > 0 && inc.t > e.start && inc.t <= e.end) upTips.push(inc); }
+    const cen = tmax => { let w = 0, wt = 0; for (const x of upTips) if (x.t <= tmax) { w += x.mm; wt += x.mm * (x.t0 + x.t) / 2; } return w ? wt / w : null; };
+    e.centroidUp = cen(Infinity) || e.centroid;
+    for (const f of FLOW) {
+      if (!F[f.key] || !F[f.key].t.length) continue;
+      let r = flowResponse({ ...e, centroid: e.centroidUp }, e.nextStart, F[f.key]);
+      const c2 = r && r.tpk ? cen(r.tpk) : null;
+      if (c2 != null) r = flowResponse({ ...e, centroid: c2 }, e.nextStart, F[f.key]);
+      e.resp[f.key] = r;
+    }
     const vals = GAUGES.filter(g => stats[g.id].hasData).map(g => stats[g.id].tot), alta = ALTA.filter(id => stats[id].hasData).map(id => stats[id].tot);
     const pk = GAUGES.map(g => ({ id: g.id, ...stats[g.id] })).filter(x => x.peak > 0).sort((x, y) => y.peak - x.peak)[0];
     const temps = S.det.map(id => stats[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((x, y) => x + y.meanT, 0) / temps.length : null;
@@ -1036,7 +1101,7 @@ function renderStorms() {
     const r = e.resp.lcc_tanners_q;
     if (r) for (const f of r.flags) flags += fn(`Tanners Flat: ${f}.`);
     const rd = radarSum(e.start - 30 * MIN, e.end + 30 * MIN);
-    rows.push(`<tr class="click" data-t="${e.start + (e.end - e.start) / 2}"><td class="l"><b>S${i + 1}</b>${flags}</td><td class="l">${fmtSpan(e.start, e.end)}</td><td>${durTxt(e.end - e.start)}</td>
+    rows.push(`<tr class="click" data-s="${e.start}" data-e="${e.end}" data-t="${e.start + (e.end - e.start) / 2}"><td class="l"><b>S${i + 1}</b>${flags}</td><td class="l">${fmtSpan(e.start, e.end)}</td><td>${durTxt(e.end - e.start)}</td>
       <td>${alta.length ? `${mmStr(Math.min(...alta), 1)}–${mmStr(Math.max(...alta), 1)}` : '—'}</td><td>${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)}` : '—'}</td>
       <td>${pk ? `${pk.peak.toFixed(2)} <span class="muted">${pk.id}</span>` : '—'}</td><td>${rd ? `${rd.mm.toFixed(1)}${rd.maxDbz != null ? ` <span class="muted">${rd.maxDbz.toFixed(0)} dBZ</span>` : ''}` : '<span class="muted">n/a</span>'}</td>
       <td class="l">${mt == null ? '—' : `${mt < 1 ? 'mixed/snow' : 'rain'} <span class="muted">${mt.toFixed(1)} °C</span>`}</td>
@@ -1044,7 +1109,7 @@ function renderStorms() {
   });
   S.cells.filter(c => !c.inStorm).forEach((c, i) => {
     const ga = ALTA.map(id => sumPrecip(S.P[id], c.start - 30 * MIN, c.end + 30 * MIN)).filter(x => x.status !== 'nodata').map(x => x.mm), rd = radarSum(c.start - 30 * MIN, c.end + 30 * MIN);
-    rows.push(`<tr class="click" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>R${i + 1}</b>${fn('Radar cell (≥ 35 dBZ over the watershed) with no gauge storm. Gauges sit between cells, and tipping buckets miss much of the rain and hail in short convective bursts.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
+    rows.push(`<tr class="click" data-s="${c.start}" data-e="${c.end}" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>R${i + 1}</b>${fn('Radar cell (≥ 35 dBZ over the watershed) with no gauge storm. Gauges sit between cells, and tipping buckets miss much of the rain and hail in short convective bursts.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
       <td>${ga.length ? `${mmStr(Math.min(...ga), 1)}–${mmStr(Math.max(...ga), 1)}` : '—'}</td><td>—</td><td>—</td><td>${rd ? rd.mm.toFixed(1) : '—'} <span class="muted">${c.peak.toFixed(0)} dBZ</span></td>
       <td class="l">near ${nearestPlace(c.at[0], c.at[1])}</td><td colspan="3" class="l muted">peak ${fmtTime(c.peakT)}</td></tr>`);
   });
@@ -1052,8 +1117,14 @@ function renderStorms() {
     `<tbody>${rows.join('') || `<tr><td class="l muted" colspan="11">No storms or radar cells in this window.</td></tr>`}</tbody>`;
   note.innerHTML = notes.map((n, i) => `<sup class="f">${String.fromCharCode(97 + i)}</sup> ${n}`).join('<br>') + (notes.length ? '<br>' : '') +
     (S.minor.length ? `${S.minor.length} lighter tip group${S.minor.length === 1 ? '' : 's'} below ${S.minMm} mm not listed. ` : '') +
-    `Ranges run from the driest to the wettest gauge. Alta gauges are CLN, PC064, AGD, and UTALC. Tap a row to show its radar on the map.`;
-  tb.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => { setRadarTime(+tr.dataset.t); document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    `Each row is a storm (S) or a radar cell the gauges missed (R). Ranges run from the driest to the wettest gauge; Alta gauges are CLN, PC064, AGD, UTALC. Radar is the watershed-mean estimate with the peak reflectivity. Tanners Flat columns give flow before → peak, the rise, and the lag from the middle of the rain to the peak. Click a row to zoom the charts and set the map's radar to it.`;
+  const nR = S.cells.filter(c => !c.inStorm).length;
+  document.getElementById('storm-def').textContent = `${S.events.length} storm${S.events.length === 1 ? '' : 's'}${nR ? ` and ${nR} radar-only cell${nR === 1 ? '' : 's'}` : ''} in the window`;
+  tb.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => {
+    const a = +tr.dataset.s, b = +tr.dataset.e;
+    tb.querySelectorAll('tr.sel').forEach(x => x.classList.remove('sel')); tr.classList.add('sel');
+    setView([a - 6 * HOUR, Math.min(Date.now(), b + 18 * HOUR)]); setRadarTime(+tr.dataset.t);
+  });
 }
 
 /* Map */
@@ -1134,7 +1205,17 @@ function renderElev() {
   };
   if (charts['p-elev']) charts['p-elev'].destroy();
   charts['p-elev'] = new Chart(document.getElementById('p-elev'), cfg);
-  document.getElementById('cap2').innerHTML = `<b>Fig. 2 | Station locations and the precipitation gradient.</b> <b>a</b>, Hillshade with the Little Cottonwood headwaters watershed (USGS HUC 160202040202, dashed). Gauges are colored by elevation as in Fig. 1; open circles measure temperature, wind, or snow depth only; triangles are SNOTEL; squares are stream gauges. The radar layer is the NEXRAD mosaic for the time on the slider; tap a row in Table 1 to jump to it, or a station for its latest values and source. <b>b</b>, Window precipitation against gauge elevation. A gauge far left of its neighbors at a similar height undercaught or missed a cell.`;
+  document.getElementById('cap2').innerHTML = `Dashed line: the Little Cottonwood headwaters watershed (USGS HUC 160202040202). Gauges are colored by elevation as in the charts; open circles measure temperature or snow only, triangles are SNOTEL, squares stream gauges. The radar layer is the NEXRAD mosaic at the time on the slider; press play to loop it. Tap any station for its latest values and source.`;
+  document.getElementById('cap-elev').innerHTML = `Each dot is one gauge's total for the window. In a typical winter storm totals climb with elevation; a gauge far left of neighbors at the same height missed a cell or undercaught snow or hail. Gray is Big Cottonwood.`;
+  const lcc = pts.filter(p => p.s.role === 'gauge');
+  let key = '';
+  if (lcc.length >= 3 && Math.max(...lcc.map(p => p.x)) >= 1) {
+    const n = lcc.length, mx = lcc.reduce((a, p) => a + p.y, 0) / n, my = lcc.reduce((a, p) => a + p.x, 0) / n;
+    let sxy = 0, sxx = 0, syy = 0; for (const p of lcc) { sxy += (p.y - mx) * (p.x - my); sxx += (p.y - mx) ** 2; syy += (p.x - my) ** 2; }
+    const r = sxy / Math.sqrt(sxx * syy || 1), wet = lcc.reduce((a, p) => p.x > a.x ? p : a);
+    key = `${r > 0.5 ? 'Totals increase with elevation, the usual orographic pattern.' : r < -0.3 ? '<span class="flag">Lower gauges got more than Alta: cells hit the mid and lower canyon.</span>' : 'No consistent pattern with elevation: showery, cell by cell precipitation.'} Wettest: ${wet.s.id} (${mmStr(wet.x, 1)} mm at ${ft(wet.y)} ft).`;
+  }
+  document.getElementById('key-elev').innerHTML = key;
 }
 
 function renderStationTable() {
@@ -1158,7 +1239,8 @@ function renderStationTable() {
     `<tr class="grp"><td colspan="9">Little Cottonwood, ridge to canyon mouth</td></tr>` + GAUGES.map(row).join('') +
     `<tr class="grp"><td colspan="9">Temperature and snow only</td></tr>` + STATIONS.filter(s => s.role === 'met').map(row).join('') +
     `<tr class="grp"><td colspan="9">Big Cottonwood, for comparison</td></tr>` + STATIONS.filter(s => s.role === 'neighbor').map(row).join('') + `</tbody>`;
-  document.getElementById('t-stations-note').innerHTML = `Last 24 h and since midnight end ${fmtDT(T, { tz: true })}. <sup class="f">p</sup> Partial: the last report is more than 25 min before the end, so the total may still grow (AGD often reports about 1 h late). Totals are ±0.25 mm, and minimums in snow or hail. Each station ID links to its MesoWest page.`;
+  document.getElementById('st-asof').textContent = `as of ${fmtDT(T, { tz: true })}`;
+  document.getElementById('t-stations-note').innerHTML = `Gauges run from the ridge down to the canyon mouth; the swatch color matches the charts and map. Last 24 h and since midnight end ${fmtDT(T, { tz: true })}. <sup class="f">p</sup> Partial: the last report is more than 25 min before the end, so the total may still grow (AGD often reports about 1 h late). Totals are ±0.25 mm, and minimums in snow or hail. Each station ID links to its MesoWest page.`;
 }
 
 function renderSWE() {
@@ -1169,28 +1251,34 @@ function renderSWE() {
     const med = ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t >= a && x.med != null);
     if (med.length) ds.push({ label: 'Snowbird median', endLabel: 'median', data: med.map(x => ({ x: x.t, y: x.med })), borderColor: INK3, backgroundColor: INK3, borderWidth: 1, borderDash: [1, 2.5] });
   }
-  timeChart('p-swe', ds, { showX: true, endLabels: true, decimate: false, xRange: [a, b], paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 2 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in` });
+  timeChart('p-swe', ds, { showX: true, endLabels: true, decimate: false, xRange: [a, b], rightPad: 70, paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 2 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in` });
   const sb = S.snotel && ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t <= T + DAY && x.v != null).pop();
-  document.getElementById('cap3').innerHTML = `<b>Fig. 3 | Snow water equivalent since 1 October.</b> Daily NRCS SNOTEL values (midnight PST readings). Atwater is in Alta; Snowbird has the longest record, and its median (dotted) is the reference; Brighton (dashed gray) is in Big Cottonwood. The gray band is the selected window.${sb && sb.med != null ? ` Snowbird is at ${sb.v.toFixed(1)} in against a median of ${sb.med.toFixed(1)} in for ${sb.date}.` : ''} Sources: <a href="${snotelLink(1308)}" target="_blank" rel="noopener">Atwater</a>, <a href="${snotelLink(766)}" target="_blank" rel="noopener">Snowbird</a>, <a href="${snotelLink(366)}" target="_blank" rel="noopener">Brighton</a>.`;
+  document.getElementById('cap3').innerHTML = `Daily snow water equivalent (the water held in the snowpack) since 1 October. Atwater is in Alta; Snowbird has the long record, and its median (dotted) is the normal for each date; dashed gray is Brighton in Big Cottonwood. Gray band: the selected window.`;
+  const tm = S.snotel && S.snotel['766:UT:SNTL'] && S.snotel['766:UT:SNTL'].timing;
+  let ks = '';
+  if (sb) {
+    if (sb.v < 0.5 && (!sb.med || sb.med < 0.5)) ks = `No lasting snowpack yet${tm && tm.medianOnset ? `; Snowbird's median start date is ${tm.medianOnset.month}/${tm.medianOnset.day}` : ''}.`;
+    else ks = `Snowbird ${sb.v.toFixed(1)} in, ${sb.med ? `${Math.round(sb.v / sb.med * 100)}% of median (${sb.med.toFixed(1)} in)` : 'no median for this date'}${tm && tm.medianPeak ? `; the median peak is ${tm.medianPeak.value} in around ${tm.medianPeak.month}/${tm.medianPeak.day}` : ''}.`;
+  }
+  document.getElementById('key-swe').innerHTML = ks;
 }
 
 function renderValley() {
-  if (!document.getElementById('supp').open) return;
   const F = flowSeries(), ds = [], cols = { bcc_mouth_q: NEIGHBOR, lcc_crestwood_q: '#3987e5', lcc_300w_q: '#104281', usgs_10168000: RADAR, upload: '#2e7d32' };
   for (const f of FLOW.filter(x => !x.primary)) { const s = F[f.key]; if (!s || !s.t.length) continue; ds.push({ label: f.name, endLabel: f.name.replace(/^USGS 10168000 /, 'USGS ').replace(/@ /, ''), data: s.t.map((t, i) => ({ x: t, y: s.v[i] })).filter(p => p.x >= S.win.a && p.x <= S.win.b), borderColor: cols[f.key], backgroundColor: cols[f.key], stepped: f.src === 'county' }); }
-  timeChart('p-valley', ds, { showX: true, endLabels: true, paper: { ...shading(), sync: false }, tooltipLabel: c => `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
+  timeChart('p-valley', ds, { showX: true, endLabels: true, xRange: [S.win.a, S.win.b], paper: { ...shading(), sync: false }, tooltipLabel: c => `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
   const rows = [];
   S.events.forEach((e, i) => { for (const f of FLOW.filter(x => !x.primary)) { const r = e.resp && e.resp[f.key]; if (r) rows.push(`<tr><td class="l">S${i + 1}</td><td class="l">${f.name} <span class="muted">${f.note}</span></td><td>${cfs(r.base)}</td><td>${cfs(r.peak)}</td><td>${r.dQ == null ? '—' : (r.dQ >= 0 ? '+' : '') + cfs(r.dQ)}</td><td>${r.clear ? r.lag.toFixed(1) : '—'}</td><td class="l muted">${r.flags.join('; ')}</td></tr>`); } });
   document.getElementById('t-valley').innerHTML = `<thead><tr><th class="l">Storm</th><th class="l">Gauge</th><th>Baseline</th><th>Peak</th><th>ΔQ</th><th>Lag h</th><th class="l">Flags</th></tr></thead><tbody>${rows.join('') || '<tr><td class="l muted" colspan="7">No storms in the window.</td></tr>'}</tbody>`;
   const up = countyManifest ? Date.parse(countyManifest.updated_utc) : null;
-  document.getElementById('cap-s1').innerHTML = `<b>Fig. S1 | Streamflow below the canyon.</b> These gauges sit below the Salt Lake City and Metropolitan Water District diversions and the valley storm-drain network, so their storm response is valley runoff and water operations, not the upper canyon. BCC at the canyon mouth is below the Big Cottonwood intakes. Sources: <a href="https://rain-flow.saltlakecounty.gov/" target="_blank" rel="noopener">Salt Lake County Flood Control</a>${up ? ` (copied ${ago(up)})` : ''}, <a href="https://waterdata.usgs.gov/monitoring-location/USGS-10168000/" target="_blank" rel="noopener">USGS 10168000</a> (provisional).`;
+  document.getElementById('cap-s1').innerHTML = `Gauges below the canyon, downstream of the Salt Lake City and Metropolitan Water District diversions and the valley storm drains. Their storm peaks are valley runoff and water operations, not the upper canyon; use Tanners Flat for that. Sources: <a href="https://rain-flow.saltlakecounty.gov/" target="_blank" rel="noopener">Salt Lake County</a>${up ? ` (copied ${ago(up)})` : ''}, <a href="https://waterdata.usgs.gov/monitoring-location/USGS-10168000/" target="_blank" rel="noopener">USGS 10168000</a>.`;
 }
 
 /* Readout */
 function buildReadout() {
   const L = [], T = T_END();
   L.push(`ALTA HYDROMET ${fmtDT(S.win.a, { tz: true })} to ${fmtDT(S.win.b, { tz: true })}`);
-  L.push(document.getElementById('summary').innerText.trim());
+  L.push(summaryText());
   L.push('');
   if (S.syn) {
     L.push('PRECIP, window / last 24 h (mm, +/-0.25; minimums in snow)');
@@ -1242,7 +1330,7 @@ function safe(fn, name) { try { fn(); } catch (e) { console.error(name, e); } }
 function renderAll() {
   document.querySelectorAll('#presets [data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === S.win.preset));
   document.getElementById('cs').value = localInput(S.win.a); document.getElementById('ce').value = localInput(S.win.b);
-  document.getElementById('meta').textContent = `${fmtDT(S.win.a)} to ${fmtDT(S.win.b, { tz: true })} · ${S.loadedAt ? 'loaded ' + fmtTime(S.loadedAt) : 'loading'}`;
+  document.getElementById('meta').textContent = S.loadedAt ? `loaded ${fmtTime(S.loadedAt)}` : 'loading…';
   safe(renderStorms, 'storms'); safe(renderSummary, 'summary'); safe(renderFig1, 'fig1'); safe(renderMap, 'map'); safe(renderElev, 'elev');
   safe(renderStationTable, 'stations'); safe(renderSWE, 'swe'); safe(renderValley, 'valley');
   safe(() => { document.getElementById('readout').value = buildReadout(); }, 'readout');
@@ -1254,7 +1342,7 @@ async function loadAll() {
   writeHash();
   const { a, b } = S.win, now = Date.now();
   const pa = Math.min(a - 12 * HOUR, b - DAY - HOUR, midnightDenver(Math.min(b, now)) - HOUR), fa = a - 12 * HOUR, fb = Math.min(now, b + 48 * HOUR);
-  S.radar = []; S.radarFrames = []; S.cells = [];
+  S.radar = []; S.radarFrames = []; S.cells = []; S.view = null; document.getElementById('zoom-reset').classList.add('hidden');
   for (const k of ['syn', 'radar', 'county', 'usgs', 'snotel']) setStatus(k, 'loading', 'loading');
   renderAll();
   const done = () => { if (seq === loadSeq) { safe(processAll, 'process'); renderAll(); } };
@@ -1366,11 +1454,20 @@ function initUI() {
   document.getElementById('show-radar').onchange = () => safe(renderFig1, 'fig1');
   document.getElementById('map-radar').onchange = () => updateRadarLayer();
   document.getElementById('radar-t').oninput = e => { const f = S.radar.filter(Boolean)[+e.target.value]; if (f) { S.radarT = f.t; updateRadarLayer(); } };
-  document.getElementById('supp').ontoggle = () => safe(renderValley, 'valley');
   document.querySelectorAll('[data-export]').forEach(b => b.onclick = () => exportCSV(b.dataset.export));
   document.getElementById('copy-readout').onclick = async () => { const ta = document.getElementById('readout'); try { await navigator.clipboard.writeText(ta.value); } catch { ta.select(); document.execCommand('copy'); } const b = document.getElementById('copy-readout'); b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy readout', 1500); };
   document.getElementById('upload').onchange = async e => { const f = e.target.files[0]; if (!f) return; const r = parseUploadCSV(await f.text()); S.upload = r.t.length ? qcFlow(r) : null; document.getElementById('upload-status').textContent = r.t.length ? `${r.t.length} rows, ${fmtDT(r.t[0])} to ${fmtDT(r.t[r.t.length - 1])}${r.bad ? `, ${r.bad} skipped` : ''}` : 'No usable rows.'; safe(processAll, 'process'); renderAll(); };
   document.getElementById('run-tests').onclick = () => runSelfTests();
+  document.getElementById('zoom-reset').onclick = () => { setView(null); document.querySelectorAll('#t-storms tr.sel').forEach(x => x.classList.remove('sel')); };
+  let playT = null;
+  document.getElementById('radar-play').onclick = e => {
+    const b = e.currentTarget;
+    if (playT) { clearInterval(playT); playT = null; b.textContent = '▶'; return; }
+    const fr = S.radar.filter(Boolean); if (!fr.length) return;
+    const sl = document.getElementById('radar-t'); let i = +sl.value; if (i >= fr.length - 1) i = Math.max(0, fr.length - 37);
+    b.textContent = '❚❚';
+    playT = setInterval(() => { i++; if (i >= fr.length) { clearInterval(playT); playT = null; b.textContent = '▶'; return; } sl.value = i; S.radarT = fr[i].t; updateRadarLayer(); }, 450);
+  };
   document.getElementById('sources').innerHTML = [
     `Sources. Gauges and weather: ${STATIONS.map(s => `<a href="${mesoLink(s.id)}" target="_blank" rel="noopener">${s.id}</a>`).join(', ')} via the <a href="https://docs.synopticdata.com/services/time-series" target="_blank" rel="noopener">Synoptic API</a>.`,
     `Radar: <a href="https://mesonet.agron.iastate.edu/docs/nexrad_mosaic/" target="_blank" rel="noopener">IEM NEXRAD mosaic</a>. Snowpack: NRCS SNOTEL ${SNOTEL.map(s => `<a href="${snotelLink(s.num)}" target="_blank" rel="noopener">${s.name}</a>`).join(', ')} via <a href="https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html" target="_blank" rel="noopener">AWDB</a>.`,
@@ -1379,7 +1476,7 @@ function initUI() {
   ].join('<br>');
 }
 readHash(); initUI(); loadAll();
-if (/[?&]selftest/.test(location.search)) { document.getElementById('methods-box').open = true; runSelfTests(); }
+if (/[?&]selftest/.test(location.search)) { document.querySelector('.drawer').open = true; document.getElementById('methods-box').open = true; runSelfTests(); }
 window.addEventListener('hashchange', () => { const before = JSON.stringify(S.win); readHash(); if (JSON.stringify(S.win) !== before) loadAll(); });
 let _rz = null; window.addEventListener('resize', () => { clearTimeout(_rz); _rz = setTimeout(() => safe(renderFig1, 'fig1'), 250); });
 </script>
