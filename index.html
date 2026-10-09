@@ -18,7 +18,7 @@
     --card: #ffffff;
     --ink: #161616;
     --ink2: #4a4a48;
-    --ink3: #7c7b77;
+    --ink3: #6b6a66;
     --rule: #1f1f1f;
     --edge: #d4d2ca;
     --hair: #e4e2db;
@@ -259,8 +259,8 @@
     <h3>Which stations, and why</h3>
     <ul>
       <li><b>Gauges along the canyon.</b> Seven precipitation gauges from the ridge to the canyon mouth: Alta Collins (CLN, 9,662 ft, the Alta avalanche program's storm plot, hourly), Albion Basin (PC064, PacifiCorp), Alta Guard House (AGD), Alta RWIS (UTALC, UDOT), White Pine (UTWLC, UDOT), Elberts (ELBUT), and Powerhouse (UTPLC, 6,049 ft, near the mouth). Brighton (PC056) and Spruces (SPC) are over the ridge in Big Cottonwood and are shown for comparison only.</li>
-      <li><b>How the gauges compare:</b> from 9 August to 8 October 2026, PC064 and AGD caught 144.3 and 144.0 mm, the other canyon gauges 127 to 136 mm, and Spruces 140 mm. CLN caught 94 mm and was missing about 19% of its hourly reports, so treat CLN as a timing check rather than a total.</li>
-      <li><b>Alta base area (ATB)</b> recorded 0 mm in both the 10/7 and 10/8/2026 storms while its neighbors tipped. It is shown, flagged in Table 2 whenever it reads zero while the other Alta gauges catch 1 mm or more, and left out of storm detection. Hidden Peak (HDP) is used for ridge temperature only, and the Atwater study plot (ATH20) for snow depth.</li>
+      <li><b>How the gauges compare (water year 2026, against Atwater SNOTEL by day):</b> Guard House (AGD) and Collins Gulch (CLN) caught about 90% of SNOTEL in both cold and warm weather (daily r 0.95 to 0.98) and are the reference gauges. Albion Basin (PC064) and White Pine (UTWLC) are unheated: in cold weather they caught 28% and 36% and read near 0 on 20 of 34 big snow days, then tipped as the snow melted. In summer they agree with the heated gauges. CLN was missing 30 to 40% of hours in June and September 2026 (nothing from 9/16 to 9/20).</li>
+      <li><b>Alta base area (ATB)</b> has recorded 0 mm for the whole of water year 2026 while reporting 93% of the time. Its precipitation is shown as "sensor out" while it still reads 0; its temperature is used. Hidden Peak (HDP) is used for ridge temperature only, and the Atwater study plot (ATH20) for snow depth.</li>
       <li><b>Snowpack:</b> SNOTEL Atwater (1308, in Alta since 2022), Snowbird (766, record since 1989, with a median), Brighton (366, Big Cottonwood). Daily values only; hourly SNOTEL precipitation has 0.1 in steps and thermal noise.</li>
       <li><b>Streamflow:</b> Salt Lake County Flood Control gauge 220 at Tanners Flat (7,117 ft) is the only active gauge in the canyon, above the Salt Lake City and Metropolitan Water District diversions. The old canyon-mouth gauge (USGS 10167500, CBRFC LCTU1) closed in 2008. Valley gauges are in the supplement.</li>
       <li><b>Radar:</b> the NEXRAD national mosaic (IEM, 5 min). It shows convective cells that fall between gauges, as on 10/8/2026 when a hail-producing cell sat over Albion Basin from about 12:25 to 1:45 PM while PC064 recorded 0.76 mm.</li>
@@ -271,23 +271,26 @@
       <li>AGD, ELBUT, SPC: first differences of cumulative <code>precip_accum</code>. Negative steps (bucket dumps, resets) count as 0. A step that spans more than 30 min is attributed to the later report and flagged.</li>
       <li>Increments faster than 10 mm per 10 min are flagged suspect and left out of totals unless another gauge recorded precipitation within 30 min.</li>
       <li>Tip size 0.254 mm, so every total is ±0.25 mm. A value stamped t covers the interval ending at t. "No data" (no reports) is distinct from 0. A total is partial when its last report is more than 25 min before the end of the interval. Every load re-fetches at least the last 72 h.</li>
-      <li>Tipping buckets undercatch snow and hail, and unheated buckets hold snow until it melts. Totals in cold or convective storms are minimums. Table 1 flags gauges that caught nothing below 1 °C and storms seen by one gauge only.</li>
+      <li>Tipping buckets undercatch snow and hail (WMO SPICE: unheated buckets catch half or less of snowfall once wind passes about 3 m/s), and unheated buckets hold snow until it melts. A tip from an unheated gauge (PC064, UTALC, UTWLC, UTPLC, PC056) is used to find storms only if that gauge's air stayed at or above 1 °C for the previous 24 h; otherwise it is marked as possible melt, kept in the gauge's own total, and left out of the hourly bars. Totals in cold or convective storms are minimums.</li>
     </ul>
     <h3>Radar estimate</h3>
     <ul>
+      <li><b>Amounts</b> come from NOAA MRMS one hour radar QPE (via IEM, 0.01°, 76 cells over the watershed), copied hourly by the Action. Against Atwater SNOTEL it is close in rain (9/18/2026: 48.5 vs 50.8 mm) and 35 to 90% in snow. The newest hour or two, before MRMS arrives, use the 5 min estimate below.</li>
       <li>Mosaic reflectivity (dBZ) is read from IEM map tiles at about 120 m pixels. Rain rate uses the Marshall Palmer relation Z = 200 R<sup>1.6</sup> with a 53 dBZ cap for hail. Echoes below 30 dBZ count as 0: on the dry days of 10/4 and 10/5/2026 terrain clutter and other non-weather echoes reached 23 to 33 dBZ over the watershed and added 0.2 to 1 mm a day of false rain at lower floors. The cost is that light snow, often 15 to 30 dBZ, does not show in the radar line; the gauges cover it.</li>
-      <li>The estimate is uncalibrated. The radars see the canyon from well above the ground, terrain blocks part of the beam, and hail inflates reflectivity. Use it for timing and location, and as a check on the gauges, not as a total.</li>
-      <li>A radar cell is any period with watershed maximum reflectivity of 35 dBZ or more for at least 10 min. Cells outside gauge storms are listed in Table 1 as R1, R2, ….</li>
+      <li>The 5 min estimate is uncalibrated and runs low in steady rain (9/28/2026: 7.9 mm against 24 to 28 mm at the gauges), because the 30 dBZ floor drops light widespread echo. The radars see the canyon from well above the ground, terrain blocks part of the beam, and hail inflates reflectivity. Small shallow cells can be missed: the 10/8/2026 hail cell at the Albion campground peaked at 39 dBZ on radar.</li>
+      <li><b>Clutter mask:</b> on 19 dry days (9/8 to 10/8/2026) the watershed maximum sat on the same ridge pixels near Mount Superior and the White Pine and Pfeifferhorn ridge in 794 frames. Pixels within about 450 m of 16 such spots (349 of 5,259) are left out of the mean, the maximum and the cell search.</li>
+      <li>A radar cell is any period with watershed maximum reflectivity of 35 dBZ or more for at least 10 min, covering at least 30 tile pixels (about two mosaic cells) at its largest. Cells outside gauge storms are listed in the storm table as "Radar cell N".</li>
       <li>The GitHub Action reads one mosaic tile per 5 min frame every 15 min and stores the series on the data branch, so the page loads a few kilobytes instead of hundreds of tiles; only frames newer than the last run are decoded in the browser. Stored radar starts 8 September 2026.</li>
     </ul>
-    <h3>Freezing level</h3>
-    <ul><li>Each hour, a straight line is fit to air temperature against elevation for every station reporting (6,049 to 11,000 ft); the freezing level is where that line crosses 0 °C. It is left blank when the fit is poor (r² &lt; 0.6) or temperature rises with height (an inversion). Above about 12,000 ft it is an extrapolation.</li></ul>
+    <h3>Rain line</h3>
+    <ul><li>Each hour, a straight line is fit to air temperature against elevation for every station reporting (6,049 to 11,000 ft); the rain line is where that line crosses 1 °C. It is left blank when the fit is poor (r² &lt; 0.6) or temperature rises with height (an inversion). Above about 12,000 ft it is an extrapolation.</li>
+      <li>Checked against the 1 °C height in 176 Salt Lake City soundings (Nov 2025 to Apr 2026): while precipitating, mean error 577 ft, with the line about 470 ft below the free air value, as expected for where snow reaches the ground (NWS: the snow level sits up to about 1,000 ft below the freezing level). On clear mornings it reads about 1,400 ft low because cold air drains onto the slopes, so dry hours are drawn faint.</li></ul>
     <h3>Storms and response</h3>
     <ul>
       <li>Tips from the detection gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy; MesoWest CLN, PC064, AGD, UTALC) are pooled in time order; a gap over 3 h starts a new group. A group is a storm when any detection gauge totals at least 1.0 mm.</li>
       <li>Rain or snow: precipitation weighted mean of each gauge's own air temperature; below 1 °C is called mixed or snow.</li>
-      <li>Tanners Flat response: baseline is the time weighted mean of the 6 h before the start; peak is the maximum up to 48 h after the end, cut at the next storm. Lag runs to the peak from the centroid of the rain that fell before it, at every gauge above Tanners Flat (CLN, PC064, AGD, UTALC, UTWLC, ELBUT); storms with two bursts would otherwise place the centroid after the first peak. A rise of two gauge steps (about 0.3 cfs) or less is no clear response. A peak before the centroid gets no lag, since the rise came from earlier precipitation.</li>
-      <li>Flow QC: a report far from the median of its five neighbors on each side is removed (this survives small clusters such as the 64 to 235 cfs readings of 10/8/2026 evening) (Tanners Flat stage dropped from 0.36 to 0.04 ft for one report, twice on 10/8/2026). A wild newest report is held until the next one confirms it.</li>
+      <li>Tanners Flat response: baseline is the time weighted mean of the 6 h before the start; peak is the maximum up to 48 h after the end, cut at the next storm. Lag runs to the peak from the centroid of the rain that fell before it, at every gauge above Tanners Flat (CLN, PC064, AGD, UTALC, UTWLC, ELBUT); storms with two bursts would otherwise place the centroid after the first peak. A clear response needs a rise of at least 3 gauge steps (about 1 cfs; the gauge flickers one 0.32 cfs step all the time) and at least 5% of the baseline. A peak before the centroid, or more than 12 h after it, gets no lag: the rise belongs to other water. From November to March, after a below freezing day at White Pine or Elberts, flow is marked ice possible (USGS: ice backs water up and raises stage with no change in flow; the 2/18/2026 jump to 70 cfs at Tanners Flat looks like this).</li>
+      <li>Flow QC: a report far from the median of its five neighbors on each side is removed (this survives small clusters such as the 64 to 235 cfs readings of 10/8/2026 evening) (Tanners Flat stage dropped from 0.36 to 0.04 ft for one report, twice on 10/8/2026). A wild newest report is held until the next one confirms it. When the county sends several values within the same minute, their median is kept.</li>
     </ul>
     <h3>Snow depth QC</h3>
     <ul><li>Values outside 0 to 4,000 mm are dropped. UTWLC depth is never used (it reads 719 mm in October). A nonzero depth that does not change at all for 48 h is a stuck sensor and is hidden (CLN read 1,371.6 mm on every report in October 2026). A sonic sensor over bare ground reads grass and rocks, so any reading of 150 mm or less within 3 h of a 0 is shown as 0.</li></ul>
@@ -321,16 +324,16 @@ const mesoLink = id => `https://mesowest.utah.edu/cgi-bin/droman/meso_base_dyn.c
 // group: albion (Albion Basin and Alta, the focus), canyon (lower canyon and ridge, context), bcc (Big Cottonwood, comparison)
 const STATIONS = [
   { id: 'CLN', name: 'Collins Gulch, Alta', short: 'Collins Gulch', elev: 9662, lat: 40.5763, lon: -111.6383, net: 'Alta avalanche network', mode: 'hour', role: 'gauge', group: 'albion', color: '#CC79A7' },
-  { id: 'PC064', name: 'Albion Basin', short: 'Albion Basin', elev: 9026, lat: 40.5929, lon: -111.6244, net: 'PacifiCorp', mode: 'ten', role: 'gauge', group: 'albion', color: '#0072B2' },
+  { id: 'PC064', name: 'Albion Basin', short: 'Albion Basin', elev: 9026, lat: 40.5929, lon: -111.6244, net: 'PacifiCorp', mode: 'ten', role: 'gauge', group: 'albion', color: '#0072B2', unheated: true },
   { id: 'AGD', name: 'Alta Guard House', short: 'Guard House', elev: 8799, lat: 40.5905, lon: -111.6380, net: 'Alta avalanche network', mode: 'accum', role: 'gauge', group: 'albion', color: '#009E73' },
-  { id: 'UTALC', name: 'Alta, highway', short: 'Alta hwy', elev: 8537, lat: 40.5891, lon: -111.6452, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'albion', color: '#56B4E9' },
-  { id: 'ATB', name: 'Alta base area', short: 'Alta base', elev: 8560, lat: 40.5890, lon: -111.6370, net: 'Alta avalanche network', mode: 'hour', role: 'gauge', group: 'albion', color: '#E69F00' },
+  { id: 'UTALC', name: 'Alta, highway', short: 'Alta hwy', elev: 8537, lat: 40.5891, lon: -111.6452, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'albion', color: '#56B4E9', unheated: true },
+  { id: 'ATB', name: 'Alta base area', short: 'Alta base', elev: 8560, lat: 40.5890, lon: -111.6370, net: 'Alta avalanche network', mode: 'hour', role: 'gauge', group: 'albion', color: '#E69F00', precipOut: 'its precipitation sensor has recorded nothing since October 2025' },
   { id: 'ATH20', name: 'Atwater study plot', short: 'Atwater plot', elev: 8752, lat: 40.5915, lon: -111.6378, net: 'University of Utah', mode: null, role: 'met', group: 'albion', color: '#ffffff' },
   { id: 'HDP', name: 'Hidden Peak summit', short: 'Hidden Peak', elev: 11000, lat: 40.5611, lon: -111.6452, net: 'Snowbird resort', mode: null, role: 'met', group: 'canyon', color: '#7d8a99' },
-  { id: 'UTWLC', name: 'White Pine trailhead', short: 'White Pine', elev: 7680, lat: 40.5761, lon: -111.6819, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#8e9bab' },
+  { id: 'UTWLC', name: 'White Pine trailhead', short: 'White Pine', elev: 7680, lat: 40.5761, lon: -111.6819, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#8e9bab', unheated: true },
   { id: 'ELBUT', name: 'Elberts, mid canyon', short: 'Elberts', elev: 7600, lat: 40.5758, lon: -111.6877, net: 'UDOT avalanche', mode: 'accum', role: 'gauge', group: 'canyon', color: '#a7b2bf' },
-  { id: 'UTPLC', name: 'Powerhouse, canyon mouth', short: 'Powerhouse', elev: 6049, lat: 40.5710, lon: -111.7437, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#c2cad3' },
-  { id: 'PC056', name: 'Brighton, Big Cottonwood', short: 'Brighton', elev: 8693, lat: 40.6107, lon: -111.5790, net: 'PacifiCorp', mode: 'ten', role: 'neighbor', group: 'bcc', color: '#b5b3ab' },
+  { id: 'UTPLC', name: 'Powerhouse, canyon mouth', short: 'Powerhouse', elev: 6049, lat: 40.5710, lon: -111.7437, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#c2cad3', unheated: true },
+  { id: 'PC056', name: 'Brighton, Big Cottonwood', short: 'Brighton', elev: 8693, lat: 40.6107, lon: -111.5790, net: 'PacifiCorp', mode: 'ten', role: 'neighbor', group: 'bcc', color: '#b5b3ab', unheated: true },
   { id: 'SPC', name: 'Spruces, Big Cottonwood', short: 'Spruces', elev: 7402, lat: 40.6410, lon: -111.6360, net: 'UDOT avalanche', mode: 'accum', role: 'neighbor', group: 'bcc', color: '#cfccc3' },
 ];
 const STN = Object.fromEntries(STATIONS.map(s => [s.id, s]));
@@ -368,13 +371,16 @@ const PLACES = [...RADAR_PTS, { name: 'the canyon mouth', lat: 40.5730, lon: -11
    steps of the validated reference palette), orange for radar, gray for comparison. */
 const RAMP = ['#86b6ef', '#6da7ec', '#5598e7', '#3987e5', '#2a78d6', '#256abf', '#1c5cab', '#184f95', '#104281', '#0d366b'];
 function elevColor(ftv) { const f = Math.max(0, Math.min(1, (ftv - 6000) / 5000)); return RAMP[Math.round(f * (RAMP.length - 1))]; }
-const INK = '#111111', INK2 = '#444444', INK3 = '#7a7a7a', RADAR = '#D55E00', NEIGHBOR = '#9a988f';
+const INK = '#111111', INK2 = '#444444', INK3 = '#6b6b6b', RADAR = '#D55E00', NEIGHBOR = '#9a988f';
 const stColor = s => s.color || elevColor(s.elev);
 const isFocus = s => s.group === 'albion';
 // An Alta gauge reading exactly 0 while two or more other Alta gauges caught >= 1 mm is a failed gauge
 // for that interval (ATB on 10/7 and 10/8/2026); it stays in the table, flagged, but not in summary ranges.
+// ATB's precipitation sensor has read 0 all water year 2026 (QA 10/9/2026); while it still reads 0 it is "sensor out".
+function precipOut(id, a, b) { const s = STN[id]; if (!s || !s.precipOut) return false; const r = sumPrecip(S.P[id], a, b); return r.status !== 'nodata' && r.mm === 0; }
 function suspectZero(id, a, b) {
   const s = STN[id]; if (!s || !isFocus(s)) return false;
+  if (precipOut(id, a, b)) return true;
   const me = sumPrecip(S.P[id], a, b); if (me.status === 'nodata' || me.mm > 0) return false;
   return GAUGES.filter(g => isFocus(g) && g.id !== id).filter(g => { const r = sumPrecip(S.P[g.id], a, b); return r.status !== 'nodata' && r.mm >= 1; }).length >= 2;
 }
@@ -540,7 +546,25 @@ function flagCounts(p, a, b) {
   if (p) for (const inc of p.incs) if (inc.t > a && inc.t <= b) for (const f of inc.flags) if (f in c) c[f]++;
   return c;
 }
-function lastTip(p, b) { if (!p) return null; for (let i = p.incs.length - 1; i >= 0; i--) { const x = p.incs[i]; if (x.t <= b && x.include && x.mm > 0) return x; } return null; }
+function lastTip(p, b) { if (!p) return null; for (let i = p.incs.length - 1; i >= 0; i--) { const x = p.incs[i]; if (x.t <= b && x.include && !x.melt && x.mm > 0) return x; } return null; }
+// Unheated tipping buckets hold snow and tip when it melts, often at midday in clear weather.
+// A tip from an unheated gauge counts for storm detection only if the gauge's own air temperature
+// stayed at or above 1 °C for the previous 24 h, so no snow can be sitting in the funnel. Over
+// water year 2026 this cut storms on days SNOTEL saw under 0.5 mm from 31 to 11 and missed none
+// of the 65 days with 5 mm or more. Melt tips stay in each gauge's own total.
+const MELT_LOOKBACK = 24 * HOUR;
+function markMelt(p, st) {
+  if (!p) return;
+  const T = st && st.v.air_temp;
+  for (const inc of p.incs) {
+    if (!(inc.mm > 0)) continue;
+    let n = 0, cold = false;
+    if (T) for (let j = bisectRight(st.t, inc.t - MELT_LOOKBACK); j < st.t.length && st.t[j] <= inc.t; j++) { const v = T[j]; if (v == null) continue; n++; if (v < RAIN_C) { cold = true; break; } }
+    inc.melt = cold || n < 12; // too few temperatures to rule snow out
+    if (inc.melt && !inc.flags.includes('melt?')) inc.flags.push('melt?');
+  }
+}
+function sumNoMelt(p, a, b) { let mm = 0; if (p) for (const inc of p.incs) if (inc.t > a && inc.t <= b && inc.include && !inc.melt) mm += inc.mm; return r3(mm); }
 
 /* ======================================================================
    Snow depth QC
@@ -569,7 +593,7 @@ function qcSnowDepth(st) {
    ====================================================================== */
 function detectEvents(P, detIds, gapMs, minMm) {
   const tips = [];
-  for (const id of detIds) if (P[id]) for (const inc of P[id].incs) if (inc.include && inc.mm > 0) tips.push({ ...inc, id });
+  for (const id of detIds) if (P[id]) for (const inc of P[id].incs) if (inc.include && !inc.melt && inc.mm > 0) tips.push({ ...inc, id });
   tips.sort((x, y) => x.t - y.t);
   const groups = [];
   for (const tp of tips) { const g = groups[groups.length - 1]; if (g && tp.t - g.lastT <= gapMs) { g.tips.push(tp); g.lastT = tp.t; } else groups.push({ tips: [tp], lastT: tp.t }); }
@@ -616,9 +640,20 @@ function seriesResolution(s) {
   let r = Infinity; for (let i = 1; i < u.length; i++) r = Math.min(r, u[i] - u[i - 1]);
   return isFinite(r) ? Math.max(r, 0.01) : 0.01;
 }
-function qcFlow(s) {
+// The county feed sometimes sends two or three different values within the same minute
+// (9.55, 67.99 and 64.47 cfs at 10:43 PM on 10/8/2026); keep their median.
+function collapseDup(s) {
+  const t = [], v = [];
+  for (let i = 0; i < s.t.length;) {
+    let j = i; const g = []; while (j < s.t.length && s.t[j] - s.t[i] < MIN) g.push(s.v[j++]);
+    g.sort((x, y) => x - y); t.push(s.t[i]); v.push(g.length % 2 ? g[g.length >> 1] : (g[g.length / 2 - 1] + g[g.length / 2]) / 2); i = j;
+  }
+  return { ...s, t, v, dups: s.t.length - t.length };
+}
+function qcFlow(s0) {
   const t = [], v = [], spikes = [];
-  if (!s || !s.t.length) return { ...s, t, v, spikes, res: 0.01 };
+  if (!s0 || !s0.t.length) return { ...s0, t, v, spikes, res: 0.01 };
+  const s = collapseDup(s0);
   const res = seriesResolution(s), n = s.t.length;
   for (let i = 0; i < n; i++) {
     const nb = []; for (let j = Math.max(0, i - 5); j <= Math.min(n - 1, i + 5); j++) if (j !== i) nb.push(s.v[j]); // 5 a side survives a small cluster of bad reports
@@ -631,6 +666,17 @@ function qcFlow(s) {
   }
   return { ...s, t, v, spikes, res };
 }
+// Stage at small mountain gauges is ice affected in cold months: ice backs water up and raises
+// stage with no change in flow (USGS). The county data is provisional and has no ice flag, so
+// flow from November to March is marked "ice possible" after a below-freezing day nearby.
+const ICE_IDS = ['UTWLC', 'ELBUT'];
+function icePossible(t) {
+  const m = tzParts(t).m; if (m > 3 && m < 11) return false;
+  if (!S.syn) return m === 12 || m <= 2;
+  for (const id of ICE_IDS) { const st = S.syn[id]; if (!st || !st.v.air_temp) continue; let a = 0, k = 0; for (let j = bisectRight(st.t, t - DAY); j < st.t.length && st.t[j] <= t; j++) { const x = st.v.air_temp[j]; if (x != null) { a += x; k++; } } if (k >= 12) return a / k < 0; }
+  return m === 12 || m <= 2;
+}
+const RESP_STEPS = 3, RESP_FRAC = 0.05, LAG_MAX_H = 12;
 function flowResponse(ev, nextStart, s) {
   if (!s || !s.t.length) return null;
   const base = twMean(s, ev.start - 6 * HOUR, ev.start);
@@ -644,11 +690,14 @@ function flowResponse(ev, nextStart, s) {
   for (let j = bisectRight(s.t, ev.start); j < s.t.length && s.t[j] <= W; j++) if (s.v[j] > peak) { peak = s.v[j]; tpk = s.t[j]; }
   if (tpk == null || base == null) return { base, peak: tpk == null ? null : peak, tpk, dQ: null, lag: null, clear: false, flags: [...flags, base == null ? 'no baseline data' : 'no data after start'] };
   const dQ = peak - base, res = s.res || seriesResolution(s);
-  let clear = dQ > 2 * res + 1e-9;
+  // A clear rise must beat 3 gauge steps (the 0.32 cfs flicker is constant) and 5% of baseline.
+  let clear = dQ >= Math.max(RESP_STEPS * res, RESP_FRAC * base) - 1e-9;
   const pre = twMean(s, ev.start - 30 * MIN, ev.start); // 30 min mean, so a single stage step does not count
   if (clear && pre != null && pre - base > 2 * res + 1e-9) flags.push('already rising at start');
   let lag = clear ? (tpk - ev.centroid) / HOUR : null;
   if (lag != null && lag < 0) { flags.push('peak before centroid, from earlier precip'); lag = null; clear = false; }
+  if (lag != null && lag > LAG_MAX_H) { flags.push(`peak ${lag.toFixed(0)} h after the rain, likely not this storm`); lag = null; clear = false; }
+  if (s.ice !== false && icePossible(ev.start)) flags.push('ice possible: stage may not reflect flow');
   return { base, peak, tpk, dQ, res, clear, lag, flags };
 }
 
@@ -693,13 +742,18 @@ const RZ = 10;
 function tileXY(lat, lon, z = RZ) { const n = 2 ** z, x = (lon + 180) / 360 * n, la = lat * Math.PI / 180; return [x, (1 - Math.log(Math.tan(la) + 1 / Math.cos(la)) / Math.PI) / 2 * n]; }
 function pixLatLon(tx, ty, px, py, z = RZ) { const n = 2 ** z, x = tx + (px + 0.5) / 256, y = ty + (py + 0.5) / 256; return [Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI, x / n * 360 - 180]; }
 function inPoly(lon, lat, ring) { let ins = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [xi, yi] = ring[i], [xj, yj] = ring[j]; if ((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) ins = !ins; } return ins; }
+// Ground clutter: on 19 dry days (9/8 to 10/8/2026) the watershed maximum sat on the same ridge
+// pixels in 794 frames. Tile pixels within 4 of those spots are left out (same list as scripts/fetch_radar.py).
+const CLUTTER = { tile: '194,385', r: 4, px: [[93, 117], [43, 155], [51, 174], [94, 117], [46, 170], [53, 117], [47, 160], [51, 169], [96, 116], [100, 115], [54, 155], [51, 160], [47, 169], [48, 165], [46, 160], [51, 150]] };
+const isClutter = (key, px, py) => key === CLUTTER.tile && CLUTTER.px.some(([x, y]) => (px - x) ** 2 + (py - y) ** 2 <= CLUTTER.r ** 2);
+const CELL_MIN_PX = 30; // about two mosaic cells (one covers ~17 tile pixels); a cell needs this at 35 dBZ or more
 const RTILES = (() => {
   const ks = new Map();
   for (const [lon, lat] of BASIN) { const [x, y] = tileXY(lat, lon); ks.set(`${Math.floor(x)},${Math.floor(y)}`, [Math.floor(x), Math.floor(y)]); }
   for (const p of RADAR_PTS) { const [x, y] = tileXY(p.lat, p.lon); ks.set(`${Math.floor(x)},${Math.floor(y)}`, [Math.floor(x), Math.floor(y)]); }
   return [...ks.values()].map(([tx, ty]) => {
     const mask = [];
-    for (let py = 0; py < 256; py++) for (let px = 0; px < 256; px++) { const [la, lo] = pixLatLon(tx, ty, px, py); if (inPoly(lo, la, BASIN)) mask.push(py * 256 + px); }
+    for (let py = 0; py < 256; py++) for (let px = 0; px < 256; px++) { const [la, lo] = pixLatLon(tx, ty, px, py); if (inPoly(lo, la, BASIN) && !isClutter(`${tx},${ty}`, px, py)) mask.push(py * 256 + px); }
     return { tx, ty, mask };
   }).filter(T => T.mask.length >= 200 || RADAR_PTS.some(p => { const [x, y] = tileXY(p.lat, p.lon); return Math.floor(x) === T.tx && Math.floor(y) === T.ty; }));
 })();
@@ -720,8 +774,8 @@ async function radarFrame(ms) {
       for (let i = 0; i < 65536; i++) idx[i] = d[i * 4 + 3] < 128 ? 0 : rgbToIdx(d[i * 4], d[i * 4 + 1], d[i * 4 + 2]);
       grids[`${T.tx},${T.ty}`] = idx;
     }
-    let sumR = 0, nPix = 0, maxDbz = null, maxAt = null;
-    for (const T of RTILES) { const g = grids[`${T.tx},${T.ty}`]; for (const i of T.mask) { const dbz = idxToDbz(g[i]); sumR += zrRate(dbz); nPix++; if (dbz != null && (maxDbz == null || dbz > maxDbz)) { maxDbz = dbz; maxAt = pixLatLon(T.tx, T.ty, i % 256, Math.floor(i / 256)); } } }
+    let sumR = 0, nPix = 0, maxDbz = null, maxAt = null, n35 = 0;
+    for (const T of RTILES) { const g = grids[`${T.tx},${T.ty}`]; for (const i of T.mask) { const dbz = idxToDbz(g[i]); sumR += zrRate(dbz); nPix++; if (dbz != null && dbz >= 35) n35++; if (dbz != null && (maxDbz == null || dbz > maxDbz)) { maxDbz = dbz; maxAt = pixLatLon(T.tx, T.ty, i % 256, Math.floor(i / 256)); } } }
     const pts = {};
     for (const p of RADAR_PTS) {
       const [x, y] = tileXY(p.lat, p.lon), tx = Math.floor(x), ty = Math.floor(y), g = grids[`${tx},${ty}`]; if (!g) { pts[p.key] = null; continue; }
@@ -729,11 +783,24 @@ async function radarFrame(ms) {
       let m = null; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const X = cx + dx, Y = cy + dy; if (X < 0 || Y < 0 || X > 255 || Y > 255) continue; const v = idxToDbz(g[Y * 256 + X]); if (v != null && (m == null || v > m)) m = v; }
       pts[p.key] = m;
     }
-    const r = { t: ms, basinRate: nPix ? sumR / nPix : 0, maxDbz, maxAt, pts };
+    const r = { t: ms, basinRate: nPix ? sumR / nPix : 0, maxDbz, maxAt, pts, n35, v: 2 };
     radarCache.set(ms, r); return r;
   } catch (e) { return null; } // not cached, so a later load retries it
 }
-const RADAR_BASE = COUNTY_BASE.replace('county/', 'radar/');
+const RADAR_BASE = COUNTY_BASE.replace('county/', 'radar/'), MRMS_BASE = COUNTY_BASE.replace('county/', 'mrms/');
+// MRMS one hour radar QPE (NOAA, via IEM), copied hourly by the Action: rows { t: hour end, mm: watershed mean, pts }.
+const mrmsMonthCache = new Map();
+async function loadMrms(a, b) {
+  const man = await fetchJSON(MRMS_BASE + 'manifest.json?v=' + Math.floor(Date.now() / 60000));
+  const recent = new Set(monthsBetween(Date.now() - 4 * DAY, Date.now())), rows = [];
+  await pool(monthsBetween(a, b + HOUR).filter(m => man.months.includes(m)), 3, async m => {
+    const url = `${MRMS_BASE}${m}.json` + (recent.has(m) ? `?v=${encodeURIComponent(man.updated_utc)}` : '');
+    let d = mrmsMonthCache.get(url); if (!d) { d = await fetchJSON(url); mrmsMonthCache.set(url, d); }
+    for (let i = 0; i < d.t.length; i++) { const t = d.t[i] * 1000; if (t <= a || t > b + HOUR || d.b[i] == null) continue; const pts = {}; for (const k of Object.keys(d.p)) pts[k] = d.p[k][i] == null ? null : d.p[k][i] / 100; rows.push({ t, mm: d.b[i] / 100, pts }); }
+  });
+  rows.sort((x, y) => x.t - y.t);
+  return { rows, last: man.last_utc ? Date.parse(man.last_utc) : null };
+}
 const radarMonthCache = new Map();
 async function loadRadar(a, b, progress) {
   const end = Math.min(b, Date.now() - 6 * MIN);
@@ -745,7 +812,7 @@ async function loadRadar(a, b, progress) {
     for (let i = 0; i < d.t.length; i++) {
       const t = d.t[i] * 1000; if (t < a || t > end) continue;
       const pts = {}; for (const p of RADAR_PTS) pts[p.key] = d.p[p.key] ? d.p[p.key][i] : null;
-      frames.push({ t, basinRate: d.r[i] / 1000, maxDbz: d.mx[i], maxAt: d.ll[i], pts });
+      frames.push({ t, basinRate: d.r[i] / 1000, maxDbz: d.mx[i], maxAt: d.ll[i], pts, n35: d.n ? d.n[i] : null, v: d.v ? d.v[i] : 1 });
     }
   });
   frames.sort((x, y) => x.t - y.t);
@@ -759,15 +826,18 @@ async function loadRadar(a, b, progress) {
   if (first == null || first > a + HOUR) notes.push(first == null ? 'no stored radar for this window' : `stored radar starts ${fmtDT(first, { wd: false })}`);
   return { frames, note: notes.join('; ') };
 }
+// Frames stored before the clutter mask (v 1) carry no footprint; a max on a clutter pixel is dropped for them.
+const frameClutter = f => f.v !== 2 && f.maxAt && (() => { const [x, y] = tileXY(f.maxAt[0], f.maxAt[1]); const tx = Math.floor(x), ty = Math.floor(y); return isClutter(`${tx},${ty}`, Math.floor((x - tx) * 256), Math.floor((y - ty) * 256)); })();
 function radarCells(frames, events) {
   const cells = []; let cur = null;
   for (const f of frames) {
-    if (!f || f.maxDbz == null || f.maxDbz < 35) continue;
-    if (cur && f.t - cur.end <= 15 * MIN) { cur.end = f.t; if (f.maxDbz > cur.peak) { cur.peak = f.maxDbz; cur.peakT = f.t; cur.at = f.maxAt; } }
-    else { if (cur) cells.push(cur); cur = { start: f.t, end: f.t, peak: f.maxDbz, peakT: f.t, at: f.maxAt }; }
+    if (!f || f.maxDbz == null || f.maxDbz < 35 || frameClutter(f)) continue;
+    const n = f.n35;
+    if (cur && f.t - cur.end <= 15 * MIN) { cur.end = f.t; if (n != null) cur.maxPx = Math.max(cur.maxPx || 0, n); if (f.maxDbz > cur.peak) { cur.peak = f.maxDbz; cur.peakT = f.t; cur.at = f.maxAt; } }
+    else { if (cur) cells.push(cur); cur = { start: f.t, end: f.t, peak: f.maxDbz, peakT: f.t, at: f.maxAt, maxPx: n }; }
   }
   if (cur) cells.push(cur);
-  return cells.filter(c => c.end - c.start >= 10 * MIN).map(c => ({ ...c, inStorm: events.some(e => c.start <= e.end + HOUR && c.end >= e.start - HOUR) }));
+  return cells.filter(c => c.end - c.start >= 10 * MIN && (c.maxPx == null || c.maxPx >= CELL_MIN_PX)).map(c => ({ ...c, inStorm: events.some(e => c.start <= e.end + HOUR && c.end >= e.start - HOUR) }));
 }
 function nearestPlace(lat, lon) { // phrase that reads after "near"
   let best = null, bd = Infinity; for (const p of PLACES) { const d = Math.hypot((p.lat - lat) * 111, (p.lon - lon) * 84.5); if (d < bd) { bd = d; best = p; } }
@@ -845,7 +915,7 @@ function parseUploadCSV(text) {
    ====================================================================== */
 const S = {
   win: { preset: '72h', a: 0, b: 0 }, det: [...ALTA], gapH: 3, minMm: 1.0,
-  syn: null, P: {}, county: null, usgs: null, upload: null, snotel: null, radar: [], radarFrames: [],
+  syn: null, P: {}, county: null, usgs: null, upload: null, snotel: null, radar: [], radarFrames: [], mrms: null,
   status: {}, events: [], minor: [], cells: [], fl: [], hoverX: null, loadedAt: null, radarT: null, view: null, drag: null, selStorm: null,
 };
 function windowFromPreset(p) { const now = Date.now(), spans = { '24h': DAY, '72h': 3 * DAY, '7d': 7 * DAY, '30d': 30 * DAY }; return p === 'wy' ? { a: waterYearStart(now), b: now } : { a: now - (spans[p] || 3 * DAY), b: now }; }
@@ -858,7 +928,7 @@ function readHash() {
   const w = h.get('w') || '72h'; S.win = { preset: w, ...windowFromPreset(w) };
 }
 function writeHash() { const st = x => localInput(x).replace(/[-T:]/g, ''); history.replaceState(null, '', location.pathname + location.search + '#' + (S.win.preset === 'custom' ? `s=${st(S.win.a)}&e=${st(S.win.b)}` : `w=${S.win.preset}`)); }
-const SRC = { syn: ['MesoWest', 'https://mesowest.utah.edu/'], radar: ['Radar', 'https://mesonet.agron.iastate.edu/docs/nexrad_mosaic/'], county: ['County gauges', 'https://rain-flow.saltlakecounty.gov/'], usgs: ['USGS', 'https://waterdata.usgs.gov/monitoring-location/USGS-10168000/'], snotel: ['SNOTEL', 'https://www.nrcs.usda.gov/resources/data-and-reports/snow-and-water-interactive-map'] };
+const SRC = { syn: ['MesoWest', 'https://mesowest.utah.edu/'], radar: ['Radar', 'https://mesonet.agron.iastate.edu/docs/nexrad_mosaic/'], mrms: ['MRMS', 'https://mesonet.agron.iastate.edu/docs/mrms/'], county: ['County gauges', 'https://rain-flow.saltlakecounty.gov/'], usgs: ['USGS', 'https://waterdata.usgs.gov/monitoring-location/USGS-10168000/'], snotel: ['SNOTEL', 'https://www.nrcs.usda.gov/resources/data-and-reports/snow-and-water-interactive-map'] };
 function setStatus(k, cls, msg) { S.status[k] = { cls, msg }; document.getElementById('status').innerHTML = Object.entries(S.status).map(([k2, s]) => `<span class="${s.cls}"><a href="${SRC[k2][1]}" target="_blank" rel="noopener">${SRC[k2][0]}</a> ${s.msg}</span>`).join(' '); }
 
 /* ======================================================================
@@ -1016,7 +1086,7 @@ function renderSummary() {
   const rl = o.rLast;
   tiles.push(['Radar now, upper canyon', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', '', rl && rl.maxDbz >= 35]);
   tiles.push(['Air temperature', o.ta != null ? `${o.ta.toFixed(1)} °C` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : '']);
-  tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
+  tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${icePossible(o.q.t) ? 'ice possible, ' : ''}${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
   tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${o.at ? `; Atwater ${o.at.v.toFixed(1)} in` : ''}` : '']);
   const ACC = ['#0072B2', '#0072B2', '#D55E00', '#CC79A7', '#111111', '#009E73'];
   document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al], i) => `<div class="tile${al ? ' alert' : ''}" style="--acc:${ACC[i]}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
@@ -1034,10 +1104,13 @@ function summaryText() {
   return L.join(' ');
 }
 
+// Precipitating near this time (a non-melt tip at a heated Alta gauge within 3 h): the rain line is
+// checked against Salt Lake soundings only then (within ~600 ft); on clear nights cold slopes pull it low.
+function wetHour(t) { if (!S.syn) return false; return ['AGD', 'CLN', 'PC064', 'UTALC'].some(id => sumNoMelt(S.P[id], t - 3 * HOUR, t + 3 * HOUR) >= 0.25); }
 function hourlyAlta() {
   const out = [], h0 = Math.floor(S.win.a / HOUR) * HOUR;
   for (let h = h0; h < S.win.b; h += HOUR) {
-    const v = []; for (const id of ALTA) { const r = sumPrecip(S.P[id], h, h + HOUR); if (r.status !== 'nodata') v.push(r.mm); }
+    const v = []; for (const id of ALTA) { const r = sumPrecip(S.P[id], h, h + HOUR); if (r.status !== 'nodata') v.push(sumNoMelt(S.P[id], h, h + HOUR)); }
     if (v.length) out.push({ t: h + HOUR / 2, mean: v.reduce((x, y) => x + y, 0) / v.length, max: Math.max(...v) });
   }
   return out;
@@ -1051,9 +1124,14 @@ function renderFig1() {
     { type: 'bar', label: 'Alta gauges, wettest', data: hu.filter(x => x.max > 0).map(x => ({ x: x.t, y: x.max })), backgroundColor: '#bdbdbd', barThickness: barW, grouped: false, order: 3 },
     { type: 'bar', label: 'Alta gauges, mean', data: hu.filter(x => x.mean > 0).map(x => ({ x: x.t, y: x.mean })), backgroundColor: INK, barThickness: barW, grouped: false, order: 2 },
   ];
-  if (document.getElementById('show-radar').checked && S.radar.some(Boolean)) {
-    const hr = new Map(); for (const f of S.radar) if (f) { const h = Math.floor(f.t / HOUR) * HOUR, o = hr.get(h) || { s: 0, n: 0 }; o.s += f.basinRate; o.n++; hr.set(h, o); }
-    ds.push({ type: 'line', label: 'Radar rain rate - whole canyon mean', data: [...hr].sort((p, q) => p[0] - q[0]).map(([h, o]) => ({ x: h + HOUR / 2, y: o.s / o.n })), borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, stepped: 'middle', order: 1 });
+  let radarFrom5 = null;
+  if (document.getElementById('show-radar').checked && (S.radar.some(Boolean) || (S.mrms && S.mrms.rows.length))) {
+    const pts = new Map();
+    if (S.mrms) for (const r of S.mrms.rows) if (r.t > S.win.a && r.t - HOUR < S.win.b) pts.set(r.t - HOUR, r.mm);
+    const mLast = S.mrms && S.mrms.last != null ? S.mrms.last : -Infinity;
+    const hr = new Map(); for (const f of S.radar) if (f) { const h = Math.floor(f.t / HOUR) * HOUR; if (h + HOUR <= mLast) continue; const o = hr.get(h) || { s: 0, n: 0 }; o.s += f.basinRate; o.n++; hr.set(h, o); }
+    for (const [h, o] of hr) if (!pts.has(h)) { pts.set(h, o.s / o.n); if (radarFrom5 == null || h < radarFrom5) radarFrom5 = h; }
+    ds.push({ type: 'line', label: 'Radar rain rate - whole canyon mean', data: [...pts].sort((p, q) => p[0] - q[0]).map(([h, y]) => ({ x: h + HOUR / 2, y })), borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, stepped: 'middle', order: 1 });
   }
   timeChart('p-hr', ds, { type: 'bar', legend: true, rightPad: RIGHT_PAD, yTitle: 'mm per hour', y2: { title: 'in per hour', conv: v => v / 25.4 }, paper: { ...sh, labels: true }, y: { beginAtZero: true, suggestedMax: 1 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm/h (${(c.parsed.y / 25.4).toFixed(3)} in/h)` });
 
@@ -1064,7 +1142,8 @@ function renderFig1() {
     const pts = [{ x: Math.max(S.win.a, first - 10 * MIN), y: 0 }]; let c = 0;
     for (const inc of p.incs) if (inc.include && inc.mm > 0 && inc.t > S.win.a && inc.t <= S.win.b) { c = r3(c + inc.mm); pts.push({ x: inc.t, y: c }); }
     const lastObs = p.obs[bisectRight(p.obs, S.win.b) - 1]; if (lastObs > pts[pts.length - 1].x) pts.push({ x: lastObs, y: c });
-    cum.push({ label: `${s.short} (${s.id}), ${ft(s.elev)} ft, ${s.net}`, endLabel: `${s.short} ${mmStr(c, 1)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, stepped: true, borderDash: s.role === 'neighbor' ? [3, 2] : undefined, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
+    const out = precipOut(s.id, S.win.a, S.win.b);
+    cum.push({ label: `${s.short} (${s.id}), ${ft(s.elev)} ft, ${s.net}${out ? ', precipitation sensor out' : ''}`, endLabel: out ? `${s.short}: sensor out` : `${s.short} ${mmStr(c, 1)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, stepped: true, borderDash: s.role === 'neighbor' ? [3, 2] : out ? [2, 3] : undefined, borderWidth: out ? 1.2 : isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
   timeChart('p-cum', cum, { endLabels: true, decimate: false, paper: sh, yTitle: 'Total, mm', y2: { title: 'in', conv: v => v / 25.4 }, y: { beginAtZero: true }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm (${(c.parsed.y / 25.4).toFixed(2)} in)` });
 
@@ -1077,7 +1156,8 @@ function renderFig1() {
   timeChart('p-temp', tds, { endLabels: true, reserveY2: true, yTitle: 'Air temp, °C', paper: { ...sh, hlines: [{ y: 0, label: '0 °C', color: INK2 }, { y: 1, color: '#b9b7af', dash: [1, 3] }] }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} °C` });
 
   const flp = S.fl.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.fl == null ? null : Math.max(4000, Math.min(18000, x.fl)) }));
-  timeChart('p-fl', [{ label: 'Rain line', data: flp, borderColor: '#0072B2', backgroundColor: '#0072B2', spanGaps: false }], { rightPad: RIGHT_PAD, reserveY2: true, yTitle: 'Elevation, ft',
+  const FL_DRY = 'rgba(0,114,178,0.32)';
+  timeChart('p-fl', [{ label: 'Rain line', data: flp, borderColor: '#0072B2', backgroundColor: '#0072B2', spanGaps: false, segment: { borderColor: c => wetHour(c.p0.parsed.x) || wetHour(c.p1.parsed.x) ? '#0072B2' : FL_DRY } }], { rightPad: RIGHT_PAD, reserveY2: true, yTitle: 'Elevation, ft',
     paper: { ...sh, hlines: [{ y: 9026, label: 'Albion Basin 9,026 ft', color: INK }, { y: 7117, label: 'Tanners Flat 7,117 ft', color: INK3 }] },
     y: { min: 4000, max: 18000, afterBuildTicks: sc => { sc.ticks = [4000, 8000, 12000, 16000].map(value => ({ value })); }, ticks: { color: INK, font: { size: 10.5, weight: '600' }, callback: v => ft(v) } }, tooltipLabel: c => `Rain line: ${c.parsed.y >= 18000 ? 'above 18,000' : ft(c.parsed.y)} ft` });
 
@@ -1095,12 +1175,12 @@ function renderFig1() {
 
   document.getElementById('ts-range').textContent = `${fmtDT(va)} to ${fmtDT(vb, { tz: true })}${S.view ? ' (zoomed)' : ''}`;
   document.getElementById('cap1').innerHTML =
-    `<b>a</b> <b>Precipitation:</b> hourly. Black bars are the mean of the four Alta gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy); gray bars the wettest of them. The orange line is the rain rate radar predicts, averaged over the whole upper canyon above the canyon mouth (70.8 km², not just Albion or Alta; echoes ≥ 30 dBZ, uncalibrated).<br>` +
-    `<b>b</b> <b>Running total:</b> at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood.<br>` +
-    `<b>c</b> <b>Creek flow:</b> Tanners Flat, the only gauge in the canyon (above the diversions)${nsp ? `; × marks ${nsp} sensor dropout${nsp === 1 ? '' : 's'} removed` : ''}.<br>` +
+    `<b>a</b> <b>Precipitation:</b> hourly. Black bars are the mean of the four Alta gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy); gray bars the wettest of them. Melt tips from the unheated gauges are left out of the bars. The orange line is the rain rate radar predicts, averaged over the whole upper canyon above the canyon mouth (70.8 km², not just Albion or Alta): NOAA MRMS hourly${radarFrom5 != null ? `, and the 5 min reflectivity estimate from ${fmtTime(radarFrom5)} on until MRMS arrives (about 1 h)` : ''}. Radar runs low in snow.<br>` +
+    `<b>b</b> <b>Running total:</b> at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood.${precipOut('ATB', S.win.a, S.win.b) ? ` Alta base is dotted at 0: ${STN.ATB.precipOut}.` : ''} Albion Basin, Alta hwy, White Pine and Powerhouse are unheated; in cold weather they hold snow and tip later as it melts.<br>` +
+    `<b>c</b> <b>Creek flow:</b> Tanners Flat, the only gauge in the canyon (above the diversions); county data, provisional${nsp ? `; × marks ${nsp} bad report${nsp === 1 ? '' : 's'} removed` : ''}.<br>` +
     `<b>d</b> <b>Air temperature:</b> Albion Basin (blue), Hidden Peak summit, and Powerhouse near the canyon mouth (gray); dashed line 0 °C, dotted line 1 °C.<br>` +
-    `<b>e</b> <b>Rain line:</b> the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Gaps are inversions.<br>` +
-    `<b>Bands:</b> gray "Storm N" is a storm the gauges recorded (≥ ${S.minMm} mm at an Alta gauge); orange "Radar N" is a burst radar saw that the gauges barely caught.`;
+    `<b>e</b> <b>Rain line:</b> the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Solid while it is precipitating, when it matches Salt Lake soundings within about 600 ft; faint when dry, since cold slopes on clear nights pull it low. Gaps are inversions.<br>` +
+    `<b>Bands:</b> gray "Storm N" is a storm the gauges recorded (≥ ${S.minMm} mm at an Alta gauge); orange "Radar N" is a burst radar saw that the gauges barely caught (fixed ridge clutter removed).`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
 
@@ -1125,13 +1205,14 @@ function panelBullets(va, vb) {
       const cold = st.t.map((t, i) => [t, st.v.air_temp[i]]).filter(([t, v]) => v != null && t >= va && t <= vb && v < RAIN_C);
       if (cold.length) D.push(`Below ${RAIN_C} °C at Albion Basin ${fmtSpan(cold[0][0], cold[cold.length - 1][0])}: precipitation there likely snow`);
     }
-    const fl = S.fl.filter(x => x.fl != null && x.t >= va && x.t <= vb && x.fl < 9026);
+    const fl = S.fl.filter(x => x.fl != null && x.t >= va && x.t <= vb && x.fl < 9026 && wetHour(x.t));
     if (fl.length) E.push(`Rain line below Albion Basin ${fmtSpan(fl[0].t, fl[fl.length - 1].t)}, lowest ${flTxt(Math.min(...fl.map(x => x.fl)))}: snow at Alta`);
   }
+  if (S.county && S.county.lcc_tanners_q && icePossible(Math.min(vb, Date.now()))) C.push('<span class="flag">Ice possible at the gauge: winter stage can rise with no change in flow</span>');
   for (const e of evs) {
     const r = e.resp && e.resp.lcc_tanners_q, k = S.events.indexOf(e) + 1;
     if (r && r.clear) C.push(`Storm ${k}: rose ${cfs(r.base)} → ${cfs(r.peak)} cfs (+${cfs(r.dQ)}), peak ${r.lag.toFixed(1)} h after the rain`);
-    else if (r && r.base != null && r.peak != null) C.push(`Storm ${k}: no clear rise above the gauge's 0.3 cfs steps`);
+    else if (r && r.base != null && r.peak != null) C.push(`Storm ${k}: no clear rise (needs ${cfs(Math.max(RESP_STEPS * r.res, RESP_FRAC * r.base))} cfs or more within ${LAG_MAX_H} h)`);
   }
   put('kb-a', A); put('kb-b', B); put('kb-c', C); put('kb-d', D); put('kb-e', E);
 }
@@ -1162,6 +1243,15 @@ function computeEvents() {
   S.events.forEach(e => { const nx = r.events.find(x => x.start > e.end); e.nextStart = nx ? nx.start : null; e.beforeWindow = e.start < S.win.a; });
 }
 function flowSeries() { const out = {}; if (S.county) Object.assign(out, S.county); if (S.usgs) out.usgs_10168000 = { ...S.usgs, units: 'cfs' }; if (S.upload) out.upload = { ...S.upload, units: 'cfs' }; return out; }
+function mrmsSum(a, b) {
+  if (!S.mrms || !S.mrms.rows.length) return null;
+  const h0 = Math.ceil(a / HOUR) * HOUR, h1 = Math.ceil(b / HOUR) * HOUR; // hours ending after a, through the one holding b
+  if (S.mrms.last == null || S.mrms.last < h1) return null;
+  const have = new Map(S.mrms.rows.map(r => [r.t, r.mm])); let mm = 0;
+  for (let h = h0 + (h0 === a ? HOUR : 0); h <= h1; h += HOUR) { if (!have.has(h)) return null; mm += have.get(h); }
+  return mm;
+}
+function radarAmount(a, b) { const m = mrmsSum(a, b), r = radarSum(a, b); return m != null ? { mm: m, src: 'MRMS', maxDbz: r ? r.maxDbz : null } : r ? { ...r, src: '5 min' } : null; }
 function radarSum(a, b) {
   const fr = S.radar.filter(f => f && f.t > a && f.t <= b); if (!fr.length) return null;
   let mm = 0; for (let i = 0; i < fr.length; i++) { const dt = i ? Math.min(fr[i].t - fr[i - 1].t, 15 * MIN) : (S.radarFrames.length > 1 ? S.radarFrames[1] - S.radarFrames[0] : 5 * MIN); mm += fr[i].basinRate * dt / HOUR; }
@@ -1194,14 +1284,17 @@ function renderStorms() {
     const pk = GAUGES.map(g => ({ id: g.id, ...stats[g.id] })).filter(x => x.peak > 0).sort((x, y) => y.peak - x.peak)[0];
     const temps = S.det.map(id => stats[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((x, y) => x + y.meanT, 0) / temps.length : null;
     let flags = '';
-    const dry = GAUGES.filter(g => stats[g.id].hasData && stats[g.id].tot === 0 && stats[g.id].meanT != null && stats[g.id].meanT < 1);
+    const dry = GAUGES.filter(g => !STN[g.id].precipOut && stats[g.id].hasData && stats[g.id].tot === 0 && stats[g.id].meanT != null && stats[g.id].meanT < 1);
     if (dry.length && vals.length && Math.max(...vals) >= S.minMm) flags += fn(`Storm ${i + 1}: ${dry.map(g => g.short).join(', ')} caught nothing below 1 °C, likely snow sitting in unheated buckets; expect delayed melt tips.`);
+    const melt = GAUGES.filter(g => g.unheated && S.P[g.id] && S.P[g.id].incs.some(x => x.melt && x.include && x.mm > 0 && x.t > e.start && x.t <= e.end));
+    if (melt.length) flags += fn(`Storm ${i + 1}: ${melt.map(g => g.short).join(', ')} ${melt.length === 1 ? 'is' : 'are'} unheated and had been below 1 °C; ${melt.length === 1 ? 'its' : 'their'} total may include melt of earlier snow.`);
     const wet = GAUGES.filter(g => stats[g.id].tot >= 0.5); e.singleGauge = wet.length === 1;
     if (e.singleGauge) flags += fn('Only one gauge recorded 0.5 mm or more: an isolated cell or delayed melt.');
     if (e.beforeWindow) flags += fn('Began before the window.');
     const r = e.resp.lcc_tanners_q;
     if (r) for (const f of r.flags) flags += fn(`Tanners Flat: ${f}.`);
-    const rd = radarSum(e.start - 30 * MIN, e.end + 30 * MIN);
+    const rd = radarAmount(e.start - 30 * MIN, e.end + 30 * MIN);
+    if (rd && rd.src !== 'MRMS') flags += fn('Radar amount from the 5 min reflectivity estimate (MRMS hourly not in yet); it runs low in steady rain.');
     rows.push(`<tr class="click" data-s="${e.start}" data-e="${e.end}" data-t="${e.start + (e.end - e.start) / 2}"><td class="l"><b>Storm ${i + 1}</b>${flags}</td><td class="l">${fmtSpan(e.start, e.end)}</td><td>${durTxt(e.end - e.start)}</td>
       <td>${alta.length ? `${mmStr(Math.min(...alta), 1)}–${mmStr(Math.max(...alta), 1)}` : '—'}</td><td>${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)}` : '—'}</td>
       <td>${pk ? `${pk.peak.toFixed(2)} <span class="muted">${STN[pk.id].short}</span>` : '—'}</td><td>${rd ? `${rd.mm.toFixed(1)}${rd.maxDbz != null ? ` <span class="muted">${rd.maxDbz.toFixed(0)} dBZ</span>` : ''}` : '<span class="muted">n/a</span>'}</td>
@@ -1209,7 +1302,7 @@ function renderStorms() {
       <td>${r && r.base != null && r.peak != null ? `${cfs(r.base)} → ${cfs(r.peak)}` : '—'}</td><td>${r && r.dQ != null ? (r.dQ >= 0 ? '+' : '') + cfs(r.dQ) : '—'}</td><td>${r && r.clear ? r.lag.toFixed(1) : '—'}</td></tr>`);
   });
   S.cells.filter(c => !c.inStorm).forEach((c, i) => {
-    const ga = ALTA.map(id => sumPrecip(S.P[id], c.start - 30 * MIN, c.end + 30 * MIN)).filter(x => x.status !== 'nodata').map(x => x.mm), rd = radarSum(c.start - 30 * MIN, c.end + 30 * MIN);
+    const ga = ALTA.map(id => sumPrecip(S.P[id], c.start - 30 * MIN, c.end + 30 * MIN)).filter(x => x.status !== 'nodata').map(x => x.mm), rd = radarAmount(c.start - 30 * MIN, c.end + 30 * MIN);
     rows.push(`<tr class="click" data-s="${c.start}" data-e="${c.end}" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>Radar cell ${i + 1}</b>${fn('Radar cell: a burst of 35 dBZ or more somewhere over the upper canyon with no gauge storm. Gauges sit between cells, and tipping buckets miss much of the rain and hail in short convective bursts.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
       <td>${ga.length ? `${mmStr(Math.min(...ga), 1)}–${mmStr(Math.max(...ga), 1)}` : '—'}</td><td>—</td><td>—</td><td>${rd ? rd.mm.toFixed(1) : '—'} <span class="muted">${c.peak.toFixed(0)} dBZ</span></td>
       <td class="l">near ${nearestPlace(c.at[0], c.at[1])}</td><td colspan="3" class="l muted">peak ${fmtTime(c.peakT)}</td></tr>`);
@@ -1218,7 +1311,7 @@ function renderStorms() {
     `<tbody>${rows.join('') || `<tr><td class="l muted" colspan="11">No storms or radar cells in this window.</td></tr>`}</tbody>`;
   note.innerHTML = notes.map((n, i) => `<sup class="f">${String.fromCharCode(97 + i)}</sup> ${n}`).join('<br>') + (notes.length ? '<br>' : '') +
     (S.minor.length ? `${S.minor.length} lighter tip group${S.minor.length === 1 ? '' : 's'} below ${S.minMm} mm not listed. ` : '') +
-    `Each row is a storm the gauges recorded or a radar cell they missed. Ranges run from the driest to the wettest gauge; the Alta gauges are Collins Gulch, Albion Basin, Guard House, and Alta hwy. Radar is the amount radar predicts averaged over the whole upper canyon, with the peak reflectivity anywhere in it. Tanners Flat columns give flow before → peak, the rise, and the lag from the middle of the rain to the peak. Click a row to zoom the charts and set the map's radar to it.`;
+    `Each row is a storm the gauges recorded or a radar cell they missed. Ranges run from the driest to the wettest gauge; the Alta gauges are Collins Gulch, Albion Basin, Guard House, and Alta hwy. Radar is the amount radar predicts averaged over the whole upper canyon (NOAA MRMS hourly when available), with the peak reflectivity anywhere in it. Tanners Flat columns give flow before → peak, the rise, and the lag from the middle of the rain to the peak. Click a row to zoom the charts and set the map's radar to it.`;
   const nR = S.cells.filter(c => !c.inStorm).length;
   document.getElementById('storm-def').textContent = `${S.events.length} storm${S.events.length === 1 ? '' : 's'}${nR ? ` and ${nR} radar cell${nR === 1 ? '' : 's'}` : ''} in the window`;
   tb.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => {
@@ -1289,7 +1382,7 @@ function updateRadarLayer() {
 }
 function renderElev() {
   const pts = [];
-  if (S.syn) for (const s of PRECIP_ALL) { const w = sumPrecip(S.P[s.id], S.win.a, S.win.b); if (w.status !== 'nodata') pts.push({ x: w.mm, y: s.elev, s, partial: w.status === 'partial' }); }
+  if (S.syn) for (const s of PRECIP_ALL) { const w = sumPrecip(S.P[s.id], S.win.a, S.win.b); if (w.status !== 'nodata' && !precipOut(s.id, S.win.a, S.win.b)) pts.push({ x: w.mm, y: s.elev, s, partial: w.status === 'partial' }); }
   const ax = axisStyle();
   const cfg = {
     type: 'scatter',
@@ -1324,7 +1417,7 @@ function renderStationTable() {
   const tb = document.getElementById('t-stations');
   if (!S.syn) { tb.innerHTML = `<tbody><tr><td class="l bad">MesoWest data unavailable.</td></tr></tbody>`; return; }
   const T = T_END(), mid = midnightDenver(T);
-  const cell = r => r.status === 'nodata' ? '<span class="muted">no data</span>' : `${mmStr(r.mm)}<span class="inch"> ${inStr(r.mm)}</span>${r.status === 'partial' ? '<sup class="f">p</sup>' : ''}`;
+  const cell = (r, out) => out ? '<span class="bad">sensor out</span>' : r.status === 'nodata' ? '<span class="muted">no data</span>' : `${mmStr(r.mm)}<span class="inch"> ${inStr(r.mm)}</span>${r.status === 'partial' ? '<sup class="f">p</sup>' : ''}`;
   const row = s => {
     const p = S.P[s.id], st = S.syn[s.id];
     const w = sumPrecip(p, S.win.a, S.win.b), r24 = sumPrecip(p, T - DAY, T), rm = sumPrecip(p, mid, T);
@@ -1333,10 +1426,12 @@ function renderStationTable() {
     if (fc.reset) qc.push(`${fc.reset} reset`); if (fc.gap) qc.push(`${fc.gap} gap`); if (fc.excluded) qc.push(`<span class="bad">${fc.excluded} suspect out (${mmStr(w.excluded)} mm)</span>`); if (fc.corroborated) qc.push(`${fc.corroborated} suspect kept`);
     if (sd && sd.flag) qc.push(`depth: ${sd.flag}`);
     if (s.mode && w.status !== 'nodata' && w.mm === 0) { const nb = ALTA.filter(id => id !== s.id).map(id => sumPrecip(S.P[id], S.win.a, S.win.b)).filter(x => x.status !== 'nodata').map(x => x.mm); if (nb.length && Math.max(...nb) >= 1) qc.push('<span class="bad">caught nothing while the other Alta gauges did</span>'); }
+    if (s.unheated && p) { const nm = p.incs.filter(x => x.melt && x.include && x.mm > 0 && x.t > S.win.a && x.t <= S.win.b); if (nm.length) qc.push(`unheated: ${mmStr(r3(nm.reduce((a2, x) => a2 + x.mm, 0)))} mm after sub 1 °C air, not used to find storms`); }
+    const out = precipOut(s.id, S.win.a, S.win.b); if (out) qc.length = 0;
     const stale = last && Date.now() - last > 2 * HOUR && S.win.b > Date.now() - HOUR;
-    return `<tr class="${isFocus(s) ? '' : 'ctx'}"><td class="l"><span class="sw" style="background:${s.mode ? stColor(s) : '#fff'};border:0.75px solid ${isFocus(s) ? '#111' : '#9a988f'}"></span>${s.name} <span class="op">${s.net} · ${stA(s)}</span></td><td>${ft(s.elev)}</td>
-      <td>${s.mode ? cell(w) : '—'}</td><td>${s.mode ? cell(r24) : '—'}</td><td>${s.mode ? cell(rm) : '—'}</td><td>${ta == null ? '—' : ta.toFixed(1)}</td>
-      <td>${sd && sd.qc != null ? (sd.qc / 25.4).toFixed(1) : '—'}</td><td class="${stale ? 'flag' : ''}">${last ? fmtWhen(last) : '<span class="muted">none</span>'}</td><td class="l muted">${qc.join(', ') || 'clean'}</td></tr>`;
+    return `<tr class="${isFocus(s) ? '' : 'ctx'}"><td class="l"><span class="sw" style="background:${s.mode ? stColor(s) : '#fff'};border:0.75px solid ${isFocus(s) ? '#111' : '#9a988f'}"></span>${s.name} <span class="op">${s.net}${s.unheated ? ' · unheated' : ''} · ${stA(s)}</span></td><td>${ft(s.elev)}</td>
+      <td>${s.mode ? cell(w, out) : '—'}</td><td>${s.mode ? cell(r24, out) : '—'}</td><td>${s.mode ? cell(rm, out) : '—'}</td><td>${ta == null ? '—' : ta.toFixed(1)}</td>
+      <td>${sd && sd.qc != null ? (sd.qc / 25.4).toFixed(1) : '—'}</td><td class="${stale ? 'flag' : ''}">${last ? fmtWhen(last) : '<span class="muted">none</span>'}</td><td class="l muted">${out ? STN[s.id].precipOut + '; temperature still used' : qc.join(', ') || 'clean'}</td></tr>`;
   };
   tb.innerHTML = `<thead><tr><th class="l">Station, operator</th><th>Elev<br>ft</th><th>Window<br>mm <span class="inch">in</span></th><th>Last 24 h<br>mm <span class="inch">in</span></th><th>Since midnight<br>mm <span class="inch">in</span></th><th>Air<br>°C</th><th>Snow<br>in</th><th>Last<br>report</th><th class="l">QC</th></tr></thead><tbody>` +
     `<tr class="grp"><td colspan="9">Albion Basin and Alta</td></tr>` + STATIONS.filter(isFocus).map(row).join('') +
@@ -1392,7 +1487,7 @@ function buildReadout() {
   S.events.forEach((e, i) => {
     const parts = GAUGES.filter(g => e.stats && e.stats[g.id].hasData).map(g => `${g.id} ${mmStr(e.stats[g.id].tot)}`);
     L.push(`  S${i + 1} ${fmtSpan(e.start, e.end)} (${durTxt(e.end - e.start)}): ${parts.join(', ')} mm${e.singleGauge ? ' [one gauge]' : ''}`);
-    const ph = S.det.filter(id => e.stats && e.stats[id] && e.stats[id].meanT != null).map(id => `${id} ${e.stats[id].meanT.toFixed(1)} C`), rd = radarSum(e.start - 30 * MIN, e.end + 30 * MIN);
+    const ph = S.det.filter(id => e.stats && e.stats[id] && e.stats[id].meanT != null).map(id => `${id} ${e.stats[id].meanT.toFixed(1)} C`), rd = radarAmount(e.start - 30 * MIN, e.end + 30 * MIN);
     L.push(`     ${ph.join(', ')}${rd ? `; radar watershed ${rd.mm.toFixed(1)} mm` : ''}`);
     const r = e.resp && e.resp.lcc_tanners_q;
     if (r && r.base != null && r.peak != null) L.push(`     Tanners Flat ${cfs(r.base)} to ${cfs(r.peak)} cfs (${r.dQ >= 0 ? '+' : ''}${cfs(r.dQ)})${r.clear ? `, lag ${r.lag.toFixed(1)} h` : ', no clear response'}${r.flags.length ? ' [' + r.flags.join('; ') + ']' : ''}`);
@@ -1412,8 +1507,8 @@ function exportCSV(kind) {
   if (kind === 'precip') { const rows = [['station', 'elev_ft', 'interval_start_utc', 'time_utc', 'time_local', 'mm', 'included', 'flags']]; for (const s of PRECIP_ALL) { const p = S.P[s.id]; if (p) for (const inc of p.incs) if (inc.t > S.win.a && inc.t <= S.win.b) rows.push([s.id, s.elev, iso(inc.t0), iso(inc.t), loc(inc.t), inc.mm.toFixed(3), inc.include ? 1 : 0, inc.flags.join(';')]); } download(`alta_precip_${stamp()}.csv`, rows); }
   else if (kind === 'events') {
     const rows = [['id', 'start_local', 'end_local', 'hours', 'centroid_local', ...GAUGES.flatMap(g => [`${g.id}_mm`, `${g.id}_peak10_mm`, `${g.id}_meanT_C`]), 'radar_watershed_mm', 'tanners_base_cfs', 'tanners_peak_cfs', 'tanners_dQ_cfs', 'tanners_lag_h', 'notes']];
-    S.events.forEach((e, i) => { const r = e.resp && e.resp.lcc_tanners_q, rd = radarSum(e.start - 30 * MIN, e.end + 30 * MIN); rows.push([`S${i + 1}`, loc(e.start), loc(e.end), ((e.end - e.start) / HOUR).toFixed(2), loc(e.centroid), ...GAUGES.flatMap(g => { const x = e.stats && e.stats[g.id]; return x ? [x.hasData ? x.tot.toFixed(3) : '', x.peak ? x.peak.toFixed(3) : '', x.meanT == null ? '' : x.meanT.toFixed(2)] : ['', '', '']; }), rd ? rd.mm.toFixed(2) : '', r && r.base != null ? r.base.toFixed(3) : '', r && r.peak != null ? r.peak.toFixed(3) : '', r && r.dQ != null ? r.dQ.toFixed(3) : '', r && r.lag != null ? r.lag.toFixed(2) : '', r ? r.flags.join(';') : '']); });
-    S.cells.filter(c => !c.inStorm).forEach((c, i) => { const rd = radarSum(c.start - 30 * MIN, c.end + 30 * MIN); rows.push([`R${i + 1}`, loc(c.start), loc(c.end), ((c.end - c.start) / HOUR).toFixed(2), loc(c.peakT), ...GAUGES.flatMap(() => ['', '', '']), rd ? rd.mm.toFixed(2) : '', '', '', '', '', `radar cell ${c.peak} dBZ, no gauge storm`]); });
+    S.events.forEach((e, i) => { const r = e.resp && e.resp.lcc_tanners_q, rd = radarAmount(e.start - 30 * MIN, e.end + 30 * MIN); rows.push([`S${i + 1}`, loc(e.start), loc(e.end), ((e.end - e.start) / HOUR).toFixed(2), loc(e.centroid), ...GAUGES.flatMap(g => { const x = e.stats && e.stats[g.id]; return x ? [x.hasData ? x.tot.toFixed(3) : '', x.peak ? x.peak.toFixed(3) : '', x.meanT == null ? '' : x.meanT.toFixed(2)] : ['', '', '']; }), rd ? rd.mm.toFixed(2) : '', r && r.base != null ? r.base.toFixed(3) : '', r && r.peak != null ? r.peak.toFixed(3) : '', r && r.dQ != null ? r.dQ.toFixed(3) : '', r && r.lag != null ? r.lag.toFixed(2) : '', r ? r.flags.join(';') : '']); });
+    S.cells.filter(c => !c.inStorm).forEach((c, i) => { const rd = radarAmount(c.start - 30 * MIN, c.end + 30 * MIN); rows.push([`R${i + 1}`, loc(c.start), loc(c.end), ((c.end - c.start) / HOUR).toFixed(2), loc(c.peakT), ...GAUGES.flatMap(() => ['', '', '']), rd ? rd.mm.toFixed(2) : '', '', '', '', '', `radar cell ${c.peak} dBZ, no gauge storm`]); });
     download(`alta_storms_${stamp()}.csv`, rows);
   } else if (kind === 'flow') { const F = flowSeries(), rows = [['series', 'time_utc', 'time_local', 'value', 'units']]; for (const f of FLOW) { const s = F[f.key]; if (s) s.t.forEach((t, i) => { if (t >= S.win.a && t <= S.win.b) rows.push([f.key, iso(t), loc(t), s.v[i], 'cfs']); }); } const tw = S.county && S.county.lcc_tanners_tw; if (tw) tw.t.forEach((t, i) => { if (t >= S.win.a && t <= S.win.b) rows.push(['lcc_tanners_tw', iso(t), loc(t), tw.v[i], 'F']); }); download(`alta_flow_${stamp()}.csv`, rows); }
   else if (kind === 'radar') { const rows = [['time_utc', 'time_local', 'watershed_mean_rate_mm_h', 'watershed_max_dbz', ...RADAR_PTS.map(p => `${p.key}_dbz`)]]; for (const f of S.radar) if (f) rows.push([iso(f.t), loc(f.t), f.basinRate.toFixed(3), f.maxDbz == null ? '' : f.maxDbz, ...RADAR_PTS.map(p => f.pts[p.key] == null ? '' : f.pts[p.key])]); download(`alta_radar_${stamp()}.csv`, rows); }
@@ -1425,7 +1520,7 @@ function exportCSV(kind) {
    ====================================================================== */
 function processAll() {
   S.P = {};
-  if (S.syn) { for (const s of PRECIP_ALL) S.P[s.id] = processPrecip(S.syn[s.id], s.mode); corroborate(S.P, PRECIP_ALL.map(g => g.id)); S.fl = freezingLevel(S.syn, S.win.a, S.win.b); }
+  if (S.syn) { for (const s of PRECIP_ALL) S.P[s.id] = processPrecip(S.syn[s.id], s.mode); corroborate(S.P, PRECIP_ALL.map(g => g.id)); for (const s of PRECIP_ALL) if (s.unheated) markMelt(S.P[s.id], S.syn[s.id]); S.fl = freezingLevel(S.syn, S.win.a, S.win.b); }
   computeEvents();
   S.cells = radarCells(S.radar, S.events);
 }
@@ -1443,9 +1538,9 @@ async function loadAll() {
   if (S.win.preset !== 'custom') Object.assign(S.win, windowFromPreset(S.win.preset));
   writeHash();
   const { a, b } = S.win, now = Date.now();
-  const pa = Math.min(a - 12 * HOUR, b - DAY - HOUR, midnightDenver(Math.min(b, now)) - HOUR), fa = a - 12 * HOUR, fb = Math.min(now, b + 48 * HOUR);
-  S.radar = []; S.radarFrames = []; S.cells = []; S.view = null; document.getElementById('zoom-reset').classList.add('hidden');
-  for (const k of ['syn', 'radar', 'county', 'usgs', 'snotel']) setStatus(k, 'loading', 'loading');
+  const pa = Math.min(a - 12 * HOUR - MELT_LOOKBACK, b - DAY - HOUR, midnightDenver(Math.min(b, now)) - HOUR), fa = a - 12 * HOUR, fb = Math.min(now, b + 48 * HOUR);
+  S.radar = []; S.radarFrames = []; S.mrms = null; S.cells = []; S.view = null; document.getElementById('zoom-reset').classList.add('hidden');
+  for (const k of ['syn', 'radar', 'mrms', 'county', 'usgs', 'snotel']) setStatus(k, 'loading', 'loading');
   renderAll();
   const done = () => { if (seq === loadSeq) { safe(processAll, 'process'); renderAll(); } };
   const syn = loadSynoptic(pa, b).then(d => { if (seq !== loadSeq) return; S.syn = d; const have = STATIONS.filter(s => d[s.id]).length; setStatus('syn', have === STATIONS.length ? 'ok' : 'warn', `${have}/${STATIONS.length} stations`); })
@@ -1454,6 +1549,7 @@ async function loadAll() {
     syn,
     loadCounty(fa, fb).then(d => { if (seq !== loadSeq) return; S.county = d; const up = Date.parse(countyManifest.updated_utc); setStatus('county', now - up > 90 * MIN ? 'warn' : 'ok', `copied ${ago(up)}`); }).catch(e => { if (seq === loadSeq) { S.county = null; setStatus('county', 'err', e.message); } }),
     loadUSGS(fa, fb).then(d => { if (seq !== loadSeq) return; S.usgs = d; setStatus('usgs', d.t.length ? 'ok' : 'warn', d.t.length ? 'provisional' : 'no data'); }).catch(e => { if (seq === loadSeq) { S.usgs = null; setStatus('usgs', 'err', e.message); } }),
+    loadMrms(a, Math.min(b, now)).then(d => { if (seq !== loadSeq) return; S.mrms = d; setStatus('mrms', d.rows.length ? 'ok' : 'warn', d.rows.length ? `hourly to ${fmtWhen(d.last)}` : 'none for this window'); }).catch(e => { if (seq === loadSeq) { S.mrms = null; setStatus('mrms', 'err', e.message); } }),
     loadSnotel(a, b).then(d => { if (seq !== loadSeq) return; S.snotel = d; setStatus('snotel', 'ok', 'daily'); }).catch(e => { if (seq === loadSeq) { S.snotel = null; setStatus('snotel', 'err', e.message); } }),
   ];
   jobs.forEach(j => j.then(done));
@@ -1517,6 +1613,21 @@ async function runSelfTests() {
   const flt = (() => { const syn = {}, h = Date.UTC(2026, 0, 2, 12); for (const id of TEMP_IDS) syn[id] = { t: [h - 30 * MIN], v: { air_temp: [10 - (STN[id].elev - 6000) * 0.002] } }; return freezingLevel(syn, h - 30 * MIN, h)[0]; })();
   ok('rain line (1 °C) from a 2 °C per 1,000 ft profile = 10,500 ft', flt && near(flt.fl, 10500, 1));
   ok('radar palette inverts (index 133 = 34 dBZ)', rgbToIdx(...PAL.arr[133]) === 133 && idxToDbz(133) === 34);
+  const cd = collapseDup({ t: [t0, t0 + 20e3, t0 + 40e3, t0 + 5 * MIN], v: [9.55, 67.99, 64.47, 9.55] });
+  ok('flow QC: values within one minute collapse to their median', cd.t.length === 2 && cd.v[0] === 64.47);
+  const sR = { t: [0, 1, 2, 3, 4].map(h => t0 + h * HOUR), v: [10, 10, 10, 10.64, 10], res: 0.32, ice: false };
+  ok('response: a 2 step rise is not clear (needs 3 steps and 5%)', flowResponse({ start: t0 + 2 * HOUR, end: t0 + 2.5 * HOUR, centroid: t0 + 2.2 * HOUR }, null, sR).clear === false);
+  const sL = { t: [0, 6, 7, 20, 21].map(h => t0 + h * HOUR), v: [10, 10, 10, 14, 10], res: 0.32, ice: false };
+  const fl12 = flowResponse({ start: t0 + 6.5 * HOUR, end: t0 + 7 * HOUR, centroid: t0 + 6.8 * HOUR }, null, sL);
+  ok('response: a peak more than 12 h after the rain gets no lag', fl12.clear === false && fl12.lag == null && fl12.flags.some(f => f.includes('likely not this storm')));
+  const mp = { obs: [], incs: [{ t0: t0 + 30 * HOUR - 10 * MIN, t: t0 + 30 * HOUR, mm: 0.254, flags: [], include: true }, { t0: t0 + 60 * HOUR - 10 * MIN, t: t0 + 60 * HOUR, mm: 0.254, flags: [], include: true }] };
+  const mt = []; for (let h = 0; h <= 60; h += 0.5) mt.push(h); markMelt(mp, { t: mt.map(h => t0 + h * HOUR), v: { air_temp: mt.map(h => h < 20 ? -3 : 4) } });
+  ok('unheated gauge: tip within 24 h of sub 1 °C air is melt, after 24 h warm it counts', mp.incs[0].melt === true && mp.incs[1].melt === false);
+  const T0 = RTILES.find(T => T.tx === 194 && T.ty === 385);
+  ok('radar clutter mask: 349 ridge pixels left out of the watershed tile', !!T0 && T0.mask.length === 4910, T0 ? `${T0.mask.length} pixels` : 'tile missing');
+  lines.push(''); lines.push('Data feed freshness:');
+  try { const m = await fetchJSON(COUNTY_BASE + 'manifest.json?v=' + Date.now()), age = (Date.now() - Date.parse(m.updated_utc)) / HOUR; ok('county gauges copied within 2 h', age <= 2, `last copy ${ago(Date.parse(m.updated_utc))}`); } catch (e) { ok('county gauges copied within 2 h', false, e.message); }
+  try { const m = await fetchJSON(MRMS_BASE + 'manifest.json?v=' + Date.now()), age = (Date.now() - Date.parse(m.last_utc)) / HOUR; ok('MRMS hourly within 3 h', age <= 3, `newest hour ends ${ago(Date.parse(m.last_utc))}`); } catch (e) { ok('MRMS hourly within 3 h', false, e.message); }
   lines.push(''); lines.push('Live reference check (Synoptic, 10/7 06:00 to 10/8 16:00 MDT):');
   try {
     const D = mergeStations([await fetchSynChunk(Date.UTC(2026, 9, 7, 12), Date.UTC(2026, 9, 8, 22))]);

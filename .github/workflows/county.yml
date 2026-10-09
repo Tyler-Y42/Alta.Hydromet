@@ -18,6 +18,10 @@ on:
         description: "Radar backfill from YYYY-MM-DD (blank = since last frame)"
         required: false
         default: ""
+      mrms_since:
+        description: "MRMS hourly backfill from YYYY-MM-DD (blank = since last hour)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -55,6 +59,12 @@ jobs:
           pip install --quiet pillow
           RS="${{ github.event.inputs.radar_since }}"
           python3 main/scripts/fetch_radar.py --out databr ${RS:+--since "$RS"}
+
+      - name: MRMS hourly
+        continue-on-error: true
+        run: |
+          MS="${{ github.event.inputs.mrms_since }}"
+          python3 main/scripts/fetch_mrms.py --out databr ${MS:+--since "$MS"}
 
       - name: Publish data branch
         working-directory: databr

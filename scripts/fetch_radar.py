@@ -8,6 +8,10 @@ reflectivity with the n0q palette, and stores:
     mx  watershed maximum reflectivity, dBZ (null when no echo)
     ll  [lat, lon] of that maximum
     p   reflectivity at named points (max of a 5 x 5 pixel box, about +/- 230 m)
+    n   number of watershed pixels at 35 dBZ or more (one mosaic cell covers about 17 tile pixels)
+Ground clutter: on 19 dry days (Sep 8 to Oct 8 2026, SNOTEL 0) the watershed maximum sat on the
+same ridge pixels in 794 frames. Pixels within 4 of those spots (CLUTTER) are left out of every
+field. Month files carry mask_v; frames stored under an older mask are refetched when in range.
 Output: radar/<YYYY-MM>.json (UTC months) and radar/manifest.json. The page reads these
 instead of pulling hundreds of tiles itself, which keeps load on IEM low.
 
@@ -45,6 +49,10 @@ PAL_HEX = ("00000085718f85728f86738d87758b87768b887789897987897a878a7b858b7d848b
            "0049da0049ca0038e90038d90038c90037e80037d80036f70036e70036d70025f60025e60024f50024e50024d50023f40023e40023d40013030012f30012"
            "020011f20011e203a67b53a66b53a65b53a64b53a63b53a62b5")
 BASIN = [[-111.5982,40.578],[-111.5988,40.5844],[-111.6081,40.5865],[-111.6093,40.5977],[-111.6144,40.6016],[-111.626,40.5983],[-111.6461,40.6007],[-111.6528,40.595],[-111.6847,40.5885],[-111.7059,40.593],[-111.7162,40.5906],[-111.7223,40.5937],[-111.7281,40.588],[-111.7358,40.5855],[-111.7468,40.5859],[-111.7513,40.5822],[-111.7664,40.5801],[-111.7733,40.582],[-111.7806,40.58],[-111.7938,40.5809],[-111.7987,40.5793],[-111.8005,40.5748],[-111.7981,40.5708],[-111.7405,40.5556],[-111.7316,40.5449],[-111.7316,40.538],[-111.7352,40.5357],[-111.7351,40.5327],[-111.7204,40.5252],[-111.7131,40.5327],[-111.6982,40.5357],[-111.6847,40.5313],[-111.6758,40.5328],[-111.6726,40.5378],[-111.664,40.5413],[-111.6614,40.55],[-111.6501,40.5513],[-111.6378,40.5681],[-111.6057,40.5645],[-111.602,40.5696],[-111.6024,40.5751],[-111.5982,40.578]]
+CLUTTER = [(93, 117), (43, 155), (51, 174), (94, 117), (46, 170), (53, 117), (47, 160), (51, 169), (96, 116), (100, 115),
+           (54, 155), (51, 160), (47, 169), (48, 165), (46, 160), (51, 150)]
+CLUTTER_R = 4
+MASK_V = 2
 POINTS = {"albion": (40.5850, -111.6180), "alta": (40.5905, -111.6380), "snowbird": (40.5640, -111.6550), "tanners": (40.5700, -111.7007)}
 
 PAL = [tuple(int(PAL_HEX[i * 6 + k * 2:i * 6 + k * 2 + 2], 16) for k in range(3)) for i in range(256)]
@@ -100,7 +108,12 @@ def in_poly(lon, lat, ring):
     return ins
 
 
-MASK = [(px, py) for py in range(256) for px in range(256) if in_poly(pix_latlon(px, py)[1], pix_latlon(px, py)[0], BASIN)]
+def clutter(px, py):
+    return any((px - cx) ** 2 + (py - cy) ** 2 <= CLUTTER_R ** 2 for cx, cy in CLUTTER)
+
+
+BASIN_PIX = [(px, py) for py in range(256) for px in range(256) if in_poly(pix_latlon(px, py)[1], pix_latlon(px, py)[0], BASIN)]
+MASK = [q for q in BASIN_PIX if not clutter(*q)]
 PT_PIX = {}
 for k, (la, lo) in POINTS.items():
     x, y = tile_xy(la, lo)
@@ -127,10 +140,12 @@ def fetch_frame(t, tries=4):
                     idx[key] = 0 if a < 128 else rgb_to_idx((r, g, b))
                 return idx[key]
 
-            s, mx, ll = 0.0, None, None
+            s, mx, ll, n35 = 0.0, None, None, 0
             for (x, y) in MASK:
                 d = dbz_of(at(x, y))
                 s += rate(d)
+                if d is not None and d >= 35:
+                    n35 += 1
                 if d is not None and (mx is None or d > mx):
                     mx, ll = d, pix_latlon(x, y)
             pts = {}
@@ -145,7 +160,7 @@ def fetch_frame(t, tries=4):
                                 m = d
                 pts[key] = m
             return {"t": int(t.timestamp()), "r": int(round(s / len(MASK) * 1000)), "mx": mx,
-                    "ll": [round(ll[0], 4), round(ll[1], 4)] if ll else None, "p": pts}
+                    "ll": [round(ll[0], 4), round(ll[1], 4)] if ll else None, "p": pts, "n": n35, "v": MASK_V}
         except Exception:
             time.sleep(2 * (k + 1))
     return None
@@ -156,7 +171,9 @@ def load_month(out, tag):
     if os.path.exists(path):
         with open(path) as f:
             d = json.load(f)
-        return {d["t"][i]: {"t": d["t"][i], "r": d["r"][i], "mx": d["mx"][i], "ll": d["ll"][i],
+        n = d.get("n") or [None] * len(d["t"])
+        v = d.get("v") or [1] * len(d["t"])
+        return {d["t"][i]: {"t": d["t"][i], "r": d["r"][i], "mx": d["mx"][i], "ll": d["ll"][i], "n": n[i], "v": v[i],
                             "p": {k: d["p"][k][i] for k in POINTS}} for i in range(len(d["t"]))}
     return {}
 
@@ -164,8 +181,9 @@ def load_month(out, tag):
 def save_month(out, tag, rows):
     ts = sorted(rows)
     d = {"t": ts, "r": [rows[t]["r"] for t in ts], "mx": [rows[t]["mx"] for t in ts], "ll": [rows[t]["ll"] for t in ts],
+         "n": [rows[t].get("n") for t in ts], "v": [rows[t].get("v", 1) for t in ts],
          "p": {k: [rows[t]["p"][k] for t in ts] for k in POINTS},
-         "floor_dbz": FLOOR, "tile": [Z, TX, TY], "basin_pixels": len(MASK)}
+         "floor_dbz": FLOOR, "tile": [Z, TX, TY], "basin_pixels": len(MASK), "clutter_pixels": len(BASIN_PIX) - len(MASK), "mask_v": MASK_V}
     os.makedirs(os.path.join(out, "radar"), exist_ok=True)
     with open(os.path.join(out, "radar", f"{tag}.json"), "w") as f:
         json.dump(d, f, separators=(",", ":"))
@@ -202,7 +220,10 @@ def main():
         tag = f.strftime("%Y-%m")
         if tag not in months:
             months[tag] = load_month(a.out, tag)
-    todo = [f for f in frames if int(f.timestamp()) not in months[f.strftime("%Y-%m")]]
+    def stored(f):
+        row = months[f.strftime("%Y-%m")].get(int(f.timestamp()))
+        return row is not None and row.get("v", 1) >= MASK_V
+    todo = [f for f in frames if not stored(f)]
     print(f"{len(frames)} frames in range, {len(todo)} to fetch")
     got = 0
     with cf.ThreadPoolExecutor(a.workers) as ex:
@@ -217,7 +238,8 @@ def main():
     last = max((max(v) for v in months.values() if v), default=None)
     man.update({"months": all_months, "updated_utc": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "last_utc": dt.datetime.fromtimestamp(last, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if last else man.get("last_utc"),
-                "points": {k: list(v) for k, v in POINTS.items()}, "floor_dbz": FLOOR,
+                "points": {k: list(v) for k, v in POINTS.items()}, "floor_dbz": FLOOR, "mask_v": MASK_V,
+                "clutter": {"tile": [Z, TX, TY], "centers_px": CLUTTER, "radius_px": CLUTTER_R},
                 "source": "https://mesonet.agron.iastate.edu/docs/nexrad_mosaic/"})
     os.makedirs(os.path.dirname(man_path), exist_ok=True)
     with open(man_path, "w") as f:
