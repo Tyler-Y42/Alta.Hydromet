@@ -228,16 +228,14 @@
 <details class="drawer">
   <summary>Data, export, and methods</summary>
   <details>
-    <summary>Field-notes readout and CSV export</summary>
+    <summary>CSV export</summary>
     <div class="controls">
-      <button class="btn" id="copy-readout">Copy readout</button>
       <button class="btn" data-export="precip">Precip CSV</button>
       <button class="btn" data-export="events">Storms CSV</button>
       <button class="btn" data-export="flow">Flow CSV</button>
       <button class="btn" data-export="radar">Radar CSV</button>
       <button class="btn" data-export="snotel">SNOTEL CSV</button>
     </div>
-    <textarea class="readout" id="readout" readonly spellcheck="false"></textarea>
   </details>
   <details>
     <summary>Storm detection settings</summary>
@@ -1437,7 +1435,6 @@ function renderAll() {
   document.getElementById('meta').textContent = S.loadedAt ? `loaded ${fmtTime(S.loadedAt)}` : 'loading…';
   safe(renderStorms, 'storms'); safe(renderSummary, 'summary'); safe(renderFig1, 'fig1'); safe(renderMap, 'map'); safe(renderElev, 'elev');
   safe(renderStationTable, 'stations'); safe(renderSWE, 'swe'); safe(renderValley, 'valley');
-  safe(() => { document.getElementById('readout').value = buildReadout(); }, 'readout');
 }
 let loadSeq = 0;
 async function loadAll() {
@@ -1559,7 +1556,6 @@ function initUI() {
   document.getElementById('map-radar').onchange = () => updateRadarLayer();
   document.getElementById('radar-t').oninput = e => { const f = S.radar.filter(Boolean)[+e.target.value]; if (f) { S.radarT = f.t; updateRadarLayer(); } };
   document.querySelectorAll('[data-export]').forEach(b => b.onclick = () => exportCSV(b.dataset.export));
-  document.getElementById('copy-readout').onclick = async () => { const ta = document.getElementById('readout'); try { await navigator.clipboard.writeText(ta.value); } catch { ta.select(); document.execCommand('copy'); } const b = document.getElementById('copy-readout'); b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy readout', 1500); };
   document.getElementById('upload').onchange = async e => { const f = e.target.files[0]; if (!f) return; const r = parseUploadCSV(await f.text()); S.upload = r.t.length ? qcFlow(r) : null; document.getElementById('upload-status').textContent = r.t.length ? `${r.t.length} rows, ${fmtDT(r.t[0])} to ${fmtDT(r.t[r.t.length - 1])}${r.bad ? `, ${r.bad} skipped` : ''}` : 'No usable rows.'; safe(processAll, 'process'); renderAll(); };
   document.getElementById('run-tests').onclick = () => runSelfTests();
   document.getElementById('zoom-reset').onclick = () => { setView(null); document.querySelectorAll('#t-storms tr.sel').forEach(x => x.classList.remove('sel')); };
