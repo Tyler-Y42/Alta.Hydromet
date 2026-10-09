@@ -1,4 +1,4 @@
-name: County stream gauges
+name: County gauges and radar
 
 # Salt Lake County's Contrail portal can't be read cross-origin from a browser, so this
 # job copies the gauges into JSON on the `data` branch (served via raw.githubusercontent.com).
@@ -11,7 +11,11 @@ on:
   workflow_dispatch:
     inputs:
       since:
-        description: "Backfill from YYYY-MM (blank = last 3 days)"
+        description: "County backfill from YYYY-MM (blank = last 3 days)"
+        required: false
+        default: ""
+      radar_since:
+        description: "Radar backfill from YYYY-MM-DD (blank = since last frame)"
         required: false
         default: ""
 
@@ -25,7 +29,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,6 +48,13 @@ jobs:
         run: |
           SINCE="${{ github.event.inputs.since }}"
           python3 main/scripts/fetch_county.py --out databr ${SINCE:+--since "$SINCE"}
+
+      - name: Radar series
+        continue-on-error: true
+        run: |
+          pip install --quiet pillow
+          RS="${{ github.event.inputs.radar_since }}"
+          python3 main/scripts/fetch_radar.py --out databr ${RS:+--since "$RS"}
 
       - name: Publish data branch
         working-directory: databr
