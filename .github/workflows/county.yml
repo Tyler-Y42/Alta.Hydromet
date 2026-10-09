@@ -1,0 +1,56 @@
+name: County stream gauges
+
+# Salt Lake County's Contrail portal can't be read cross-origin from a browser, so this
+# job copies the gauges into JSON on the `data` branch (served via raw.githubusercontent.com).
+# The data branch is rewritten as a single commit each run so 15-minute updates don't pile
+# up history; unchanged monthly files are reused as-is.
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"   # GitHub delays scheduled runs; expect 15-45 min latency
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Backfill from YYYY-MM (blank = last 3 days)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: county-data
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: main
+
+      - name: Get current data branch
+        run: |
+          if git ls-remote --exit-code --heads "https://github.com/${GITHUB_REPOSITORY}.git" data >/dev/null; then
+            git clone --depth 1 --branch data "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" databr
+          else
+            mkdir databr && git -C databr init -q -b data
+            git -C databr remote add origin "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git"
+          fi
+
+      - name: Fetch gauges
+        run: |
+          SINCE="${{ github.event.inputs.since }}"
+          python3 main/scripts/fetch_county.py --out databr ${SINCE:+--since "$SINCE"}
+
+      - name: Publish data branch
+        working-directory: databr
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git checkout -q --orphan snapshot
+          git add -A
+          git commit -q -m "County gauge snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q -f origin snapshot:data
