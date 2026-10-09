@@ -14,7 +14,7 @@
 <style>
   :root {
     color-scheme: light;
-    --paper: #eef0f2;
+    --paper: #e9edf1;
     --card: #ffffff;
     --ink: #161616;
     --ink2: #4a4a48;
@@ -28,9 +28,9 @@
     --good: #2e7d32;
     --link: #1c5cab;
   }
-  html { background-color: var(--paper); }
+  html { background-color: var(--paper); background-image: linear-gradient(180deg, #e3e9ef 0%, #eef1f4 320px, #eef1f4 100%); background-attachment: fixed; min-height: 100%; }
   body {
-    margin: 0; color: var(--ink); background-color: var(--paper);
+    margin: 0; color: var(--ink); background-color: transparent;
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; font-size: 14px; line-height: 1.4;
     padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
              max(20px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
@@ -40,7 +40,19 @@
   a { color: var(--link); text-decoration: none; }
   a:hover { text-decoration: underline; }
   /* top bar */
-  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 2px 0 8px; border-bottom: 1.5px solid var(--rule); margin-bottom: 10px; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 12px 16px; margin-bottom: 12px; color: #fff; border-radius: 10px;
+    background-color: #0d2236; background-image: linear-gradient(115deg, #0b1d2e 0%, #133251 55%, #1b4a72 100%); box-shadow: 0 6px 18px rgba(11, 29, 46, 0.25); }
+  .bar .seg { background: transparent; border-color: rgba(255,255,255,0.45); }
+  .bar .seg button { color: #fff; border-right-color: rgba(255,255,255,0.3); }
+  .bar .seg button.on { background: #fff; color: #0b1d2e; font-weight: 700; }
+  .bar .btn { background: transparent; color: #fff; border-color: rgba(255,255,255,0.45); }
+  .bar input { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.35); color-scheme: dark; }
+  .bar .custom { color: rgba(255,255,255,0.85); }
+  .bar .zoomnote { color: rgba(255,255,255,0.7); }
+  .bar .status { color: rgba(255,255,255,0.72); }
+  .bar .status a { color: #9fd3ff; }
+  .bar .brand { display: flex; flex-direction: column; margin-right: 8px; }
+  .bar .brand small { font-size: 0.72rem; color: rgba(255,255,255,0.7); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
   .bar h1 { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.015em; margin-right: 6px; }
   .bar .grow { flex: 1 1 auto; }
   .seg { display: inline-flex; border: 0.75px solid var(--rule); border-radius: 3px; overflow: hidden; background: var(--card); }
@@ -58,7 +70,8 @@
   .status .ok::before { color: var(--good); } .status .warn::before { color: var(--flag); } .status .err::before { color: var(--bad); } .status .loading::before { color: var(--ink3); }
   /* tiles */
   .tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
-  .tile { background: var(--card); border: 1px solid var(--edge); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); padding: 8px 11px 9px; min-width: 0; border-top: 3px solid var(--ink); }
+  .tile { position: relative; background: var(--card); border: 1px solid var(--edge); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 6px 16px rgba(11,29,46,0.06); padding: 9px 12px 6px; min-width: 0; border-top: 4px solid var(--acc, var(--ink)); }
+  .tile .spark { display: block; width: 100%; height: 26px; margin-top: 4px; }
   .tile .k { font-size: 0.68rem; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
   .tile .v { font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tile .s { font-size: 0.74rem; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -73,7 +86,10 @@
   .col { display: grid; gap: 8px; min-width: 0; }
   .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
   @media (max-width: 980px) { .dash, .row3 { grid-template-columns: minmax(0, 1fr); } }
-  .card { background: var(--card); border: 1px solid var(--edge); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.04); padding: 10px 12px 12px; min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--edge); border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 8px 22px rgba(11,29,46,0.07); padding: 12px 14px 14px; min-width: 0; }
+  .ch { padding-bottom: 8px; border-bottom: 1px solid var(--hair); margin-bottom: 4px; }
+  .ch h3 .fl { color: #0072B2; }
+  .inch { color: var(--ink3); font-size: 0.86em; font-weight: 600; }
   .ch { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
   .ch h3 { margin: 0; font-size: 0.98rem; font-weight: 800; letter-spacing: -0.005em; }
   .ch .u { font-size: 0.76rem; color: var(--ink2); }
@@ -83,13 +99,17 @@
   .info > summary::-webkit-details-marker { display: none; }
   .info[open] > summary { color: #fff; background: var(--ink); border-color: var(--ink); }
   .info .pop { font-size: 0.78rem; color: var(--ink2); line-height: 1.5; background: #fff; border: 0.75px solid var(--rule); padding: 8px 10px; margin: 6px 0 4px; }
-  .plab { font-size: 0.8rem; color: var(--ink); margin: 10px 0 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-  .plab b { font-weight: 800; font-size: 1.25rem; line-height: 1; }
-  .plab .pt { font-weight: 700; }
+  .plab { font-size: 0.86rem; color: var(--ink); margin: 14px 0 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .plab .pt { font-weight: 800; font-size: 0.95rem; }
+  ul.kb { margin: 3px 0 0; padding-left: 1.15rem; font-size: 0.82rem; font-weight: 600; color: var(--ink); }
+  ul.kb:empty { display: none; }
+  ul.kb li { margin: 1px 0; }
+  ul.kb li::marker { color: #0072B2; }
+  ul.kb .flag { color: #D55E00; }
   .plab .u { color: var(--ink2); }
-  .cbox { position: relative; height: 112px; touch-action: pan-y; }
-  .cbox.hr { height: 140px; } .cbox.cum { height: 140px; } .cbox.q { height: 128px; } .cbox.side { height: 210px; }
-  @media (max-width: 600px) { .cbox { height: 104px; } .cbox.hr, .cbox.cum { height: 128px; } .cbox.q { height: 118px; } }
+  .cbox { position: relative; height: 136px; touch-action: pan-y; }
+  .cbox.hr { height: 168px; } .cbox.cum { height: 168px; } .cbox.q { height: 150px; } .cbox.side { height: 236px; }
+  @media (max-width: 600px) { .cbox { height: 128px; } .cbox.hr, .cbox.cum { height: 156px; } .cbox.q { height: 140px; } }
   .zoomnote { font-size: 0.74rem; color: var(--ink3); }
   p.cap { font-size: 0.78rem; color: var(--ink2); line-height: 1.5; margin: 6px 0 0; }
   p.cap b { color: var(--ink); }
@@ -143,7 +163,7 @@
 <div class="page">
 
 <div class="bar">
-  <h1>Alta Hydromet</h1>
+  <div class="brand"><h1>Alta Hydromet</h1><small>Little Cottonwood Canyon · live</small></div>
   <span class="seg" id="presets"><button data-p="24h">24 h</button><button data-p="72h">72 h</button><button data-p="7d">7 d</button><button data-p="30d">30 d</button><button data-p="wy">WY</button></span>
   <span class="custom"><input type="datetime-local" id="cs" aria-label="Start"> to <input type="datetime-local" id="ce" aria-label="End"> <button class="btn" id="apply-custom">Go</button></span>
   <button class="btn" id="refresh">Refresh</button>
@@ -158,21 +178,20 @@
 <div class="dash">
   <div class="col">
     <div class="card">
-      <div class="ch"><h3>Figure 1 | Upper Little Cottonwood Canyon</h3><span class="u" id="ts-range"></span>
+      <div class="ch"><h3>Upper Little Cottonwood Canyon</h3><span class="u" id="ts-range"></span>
         <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden" id="zoom-reset">Full window</button></span></div>
-      <div class="plab"><b>a</b><span class="pt" id="pt-a">Precipitation</span><span class="u">mm h⁻¹</span></div><div class="cbox hr"><canvas id="p-hr"></canvas></div>
-      <div class="plab"><b>b</b><span class="pt" id="pt-b">Running total by gauge</span><span class="u">mm</span></div><div class="cbox cum"><canvas id="p-cum"></canvas></div>
-      <div class="plab"><b>c</b><span class="pt" id="pt-c">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><div class="cbox q"><canvas id="p-q"></canvas></div>
-      <div class="plab"><b>d</b><span class="pt" id="pt-d">Air temperature</span><span class="u">°C</span></div><div class="cbox"><canvas id="p-temp"></canvas></div>
-      <div class="plab"><b>e</b><span class="pt" id="pt-e">Rain line</span><span class="u">ft; rain below, snow above</span></div><div class="cbox"><canvas id="p-fl"></canvas></div>
-      <p class="key" id="key1"></p>
+      <div class="plab"><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
+      <div class="plab"><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
+      <div class="plab"><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
+      <div class="plab"><span class="pt">Air temperature</span><span class="u">°C</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
+      <div class="plab"><span class="pt">Rain line</span><span class="u">ft; rain below, snow above</span></div><ul class="kb" id="kb-e"></ul><div class="cbox"><canvas id="p-fl"></canvas></div>
       <p class="cap" id="cap1"></p>
       <div class="zoomnote">Drag across a chart to zoom; double-click to reset. Click a storm to zoom to it.</div>
     </div>
   </div>
   <div class="col">
     <div class="card">
-      <div class="ch"><h3>Figure 2 | Stations and radar</h3><span class="u">LCC headwaters, 70.8 km²</span>
+      <div class="ch"><h3>Stations and radar</h3><span class="u">LCC headwaters, 70.8 km²</span>
         </div>
       <div id="map"></div>
       <div class="radar-ctl"><button class="btn" id="radar-play" aria-label="Play radar">▶</button><label><input type="checkbox" id="map-radar" checked> Radar</label>
@@ -181,12 +200,12 @@
       <p class="cap" id="cap2"></p>
     </div>
     <div class="card">
-      <div class="ch"><h3>Table 1 | Storms and radar cells</h3><span class="u" id="storm-def"></span></div>
+      <div class="ch"><h3>Storms and radar cells</h3><span class="u" id="storm-def"></span></div>
       <div class="tscroll"><table id="t-storms"></table></div>
       <p class="cap" id="t-storms-note"></p>
     </div>
     <div class="card">
-      <div class="ch"><h3>Table 2 | Stations</h3><span class="u" id="st-asof"></span></div>
+      <div class="ch"><h3>Stations</h3><span class="u" id="st-asof"></span></div>
       <div class="tscroll"><table id="t-stations"></table></div>
       <p class="cap" id="t-stations-note"></p>
     </div>
@@ -195,17 +214,17 @@
 
 <div class="row3">
   <div class="card">
-    <div class="ch"><h3>Figure 3 | Precipitation and elevation</h3><span class="u">window total</span></div>
+    <div class="ch"><h3>Precipitation and elevation</h3><span class="u">window total</span></div>
     <div class="cbox side"><canvas id="p-elev"></canvas></div>
-    <p class="key" id="key-elev"></p><p class="cap" id="cap-elev"></p>
+    <ul class="kb" id="kb-elev"></ul><p class="cap" id="cap-elev"></p>
   </div>
   <div class="card">
-    <div class="ch"><h3>Figure 4 | Snowpack</h3><span class="u">SWE since Oct 1, in</span></div>
+    <div class="ch"><h3>Snowpack</h3><span class="u">SWE since Oct 1, in</span></div>
     <div class="cbox side"><canvas id="p-swe"></canvas></div>
-    <p class="key" id="key-swe"></p><p class="cap" id="cap3"></p>
+    <ul class="kb" id="kb-swe"></ul><p class="cap" id="cap3"></p>
   </div>
   <div class="card">
-    <div class="ch"><h3>Figure 5 | Valley streamflow</h3><span class="u">below diversions, cfs</span></div>
+    <div class="ch"><h3>Valley streamflow</h3><span class="u">below diversions, cfs</span></div>
     <div class="cbox side"><canvas id="p-valley"></canvas></div>
     <p class="cap" id="cap-s1"></p>
   </div>
@@ -248,7 +267,7 @@
     <ul>
       <li><b>Gauges along the canyon.</b> Seven precipitation gauges from the ridge to the canyon mouth: Alta Collins (CLN, 9,662 ft, the Alta avalanche program's storm plot, hourly), Albion Basin (PC064, PacifiCorp), Alta Guard House (AGD), Alta RWIS (UTALC, UDOT), White Pine (UTWLC, UDOT), Elberts (ELBUT), and Powerhouse (UTPLC, 6,049 ft, near the mouth). Brighton (PC056) and Spruces (SPC) are over the ridge in Big Cottonwood and are shown for comparison only.</li>
       <li><b>How the gauges compare:</b> from 9 August to 8 October 2026, PC064 and AGD caught 144.3 and 144.0 mm, the other canyon gauges 127 to 136 mm, and Spruces 140 mm. CLN caught 94 mm and was missing about 19% of its hourly reports, so treat CLN as a timing check rather than a total.</li>
-      <li><b>Not used:</b> Alta Base (ATB) recorded 0 mm in both the 10/7 and 10/8/2026 storms while its neighbors tipped. Hidden Peak (HDP) is used for ridge temperature only, and Atwater Study Plot (ATH20) for snow depth.</li>
+      <li><b>Alta base area (ATB)</b> recorded 0 mm in both the 10/7 and 10/8/2026 storms while its neighbors tipped. It is shown, flagged in Table 2 whenever it reads zero while the other Alta gauges catch 1 mm or more, and left out of storm detection. Hidden Peak (HDP) is used for ridge temperature only, and the Atwater study plot (ATH20) for snow depth.</li>
       <li><b>Snowpack:</b> SNOTEL Atwater (1308, in Alta since 2022), Snowbird (766, record since 1989, with a median), Brighton (366, Big Cottonwood). Daily values only; hourly SNOTEL precipitation has 0.1 in steps and thermal noise.</li>
       <li><b>Streamflow:</b> Salt Lake County Flood Control gauge 220 at Tanners Flat (7,117 ft) is the only active gauge in the canyon, above the Salt Lake City and Metropolitan Water District diversions. The old canyon-mouth gauge (USGS 10167500, CBRFC LCTU1) closed in 2008. Valley gauges are in the supplement.</li>
       <li><b>Radar:</b> the NEXRAD national mosaic (IEM, 5 min). It shows convective cells that fall between gauges, as on 10/8/2026 when a hail-producing cell sat over Albion Basin from about 12:25 to 1:45 PM while PC064 recorded 0.76 mm.</li>
@@ -312,6 +331,7 @@ const STATIONS = [
   { id: 'PC064', name: 'Albion Basin', short: 'Albion Basin', elev: 9026, lat: 40.5929, lon: -111.6244, net: 'PacifiCorp', mode: 'ten', role: 'gauge', group: 'albion', color: '#0072B2' },
   { id: 'AGD', name: 'Alta Guard House', short: 'Guard House', elev: 8799, lat: 40.5905, lon: -111.6380, net: 'Alta avalanche network', mode: 'accum', role: 'gauge', group: 'albion', color: '#009E73' },
   { id: 'UTALC', name: 'Alta, highway', short: 'Alta hwy', elev: 8537, lat: 40.5891, lon: -111.6452, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'albion', color: '#56B4E9' },
+  { id: 'ATB', name: 'Alta base area', short: 'Alta base', elev: 8560, lat: 40.5890, lon: -111.6370, net: 'Alta avalanche network', mode: 'hour', role: 'gauge', group: 'albion', color: '#E69F00' },
   { id: 'ATH20', name: 'Atwater study plot', short: 'Atwater plot', elev: 8752, lat: 40.5915, lon: -111.6378, net: 'University of Utah', mode: null, role: 'met', group: 'albion', color: '#ffffff' },
   { id: 'HDP', name: 'Hidden Peak summit', short: 'Hidden Peak', elev: 11000, lat: 40.5611, lon: -111.6452, net: 'Snowbird resort', mode: null, role: 'met', group: 'canyon', color: '#7d8a99' },
   { id: 'UTWLC', name: 'White Pine trailhead', short: 'White Pine', elev: 7680, lat: 40.5761, lon: -111.6819, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#8e9bab' },
@@ -358,6 +378,13 @@ function elevColor(ftv) { const f = Math.max(0, Math.min(1, (ftv - 6000) / 5000)
 const INK = '#111111', INK2 = '#444444', INK3 = '#7a7a7a', RADAR = '#D55E00', NEIGHBOR = '#9a988f';
 const stColor = s => s.color || elevColor(s.elev);
 const isFocus = s => s.group === 'albion';
+// An Alta gauge reading exactly 0 while two or more other Alta gauges caught >= 1 mm is a failed gauge
+// for that interval (ATB on 10/7 and 10/8/2026); it stays in the table, flagged, but not in summary ranges.
+function suspectZero(id, a, b) {
+  const s = STN[id]; if (!s || !isFocus(s)) return false;
+  const me = sumPrecip(S.P[id], a, b); if (me.status === 'nodata' || me.mm > 0) return false;
+  return GAUGES.filter(g => isFocus(g) && g.id !== id).filter(g => { const r = sumPrecip(S.P[g.id], a, b); return r.status !== 'nodata' && r.mm >= 1; }).length >= 2;
+}
 
 /* ======================================================================
    Time helpers (math in UTC ms, calendar and display in Denver)
@@ -388,6 +415,8 @@ function parseLocalInput(v) { const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}
    ====================================================================== */
 const r3 = x => Math.round(x * 1000) / 1000;
 const mmStr = (mm, d = 2) => (mm == null || !isFinite(mm)) ? '—' : mm.toFixed(d);
+const inStr = mm => (mm == null || !isFinite(mm)) ? '—' : (mm / 25.4).toFixed(2);
+const mmIn = (mm, d = 1) => (mm == null || !isFinite(mm)) ? '—' : `${mm.toFixed(d)} mm (${(mm / 25.4).toFixed(2)} in)`;
 const cfs = q => (q == null || !isFinite(q)) ? '—' : (q >= 100 ? q.toFixed(0) : q >= 10 ? q.toFixed(1) : q.toFixed(2));
 const fToC = f => (f - 32) * 5 / 9;
 const ft = n => Math.round(n).toLocaleString('en-US');
@@ -822,18 +851,18 @@ function parseUploadCSV(text) {
    State
    ====================================================================== */
 const S = {
-  win: { preset: '7d', a: 0, b: 0 }, det: [...ALTA], gapH: 3, minMm: 1.0,
+  win: { preset: '72h', a: 0, b: 0 }, det: [...ALTA], gapH: 3, minMm: 1.0,
   syn: null, P: {}, county: null, usgs: null, upload: null, snotel: null, radar: [], radarFrames: [],
   status: {}, events: [], minor: [], cells: [], fl: [], hoverX: null, loadedAt: null, radarT: null, view: null, drag: null, selStorm: null,
 };
-function windowFromPreset(p) { const now = Date.now(), spans = { '24h': DAY, '72h': 3 * DAY, '7d': 7 * DAY, '30d': 30 * DAY }; return p === 'wy' ? { a: waterYearStart(now), b: now } : { a: now - (spans[p] || 7 * DAY), b: now }; }
+function windowFromPreset(p) { const now = Date.now(), spans = { '24h': DAY, '72h': 3 * DAY, '7d': 7 * DAY, '30d': 30 * DAY }; return p === 'wy' ? { a: waterYearStart(now), b: now } : { a: now - (spans[p] || 3 * DAY), b: now }; }
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.get('s') && h.get('e')) {
     const p = x => { const m = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(x); return m ? denverToUtc(+m[1], +m[2], +m[3], +m[4], +m[5]) : null; };
     const a = p(h.get('s')), b = p(h.get('e')); if (a && b && b > a) { S.win = { preset: 'custom', a, b }; return; }
   }
-  const w = h.get('w') || '7d'; S.win = { preset: w, ...windowFromPreset(w) };
+  const w = h.get('w') || '72h'; S.win = { preset: w, ...windowFromPreset(w) };
 }
 function writeHash() { const st = x => localInput(x).replace(/[-T:]/g, ''); history.replaceState(null, '', location.pathname + location.search + '#' + (S.win.preset === 'custom' ? `s=${st(S.win.a)}&e=${st(S.win.b)}` : `w=${S.win.preset}`)); }
 const SRC = { syn: ['MesoWest', 'https://mesowest.utah.edu/'], radar: ['Radar', 'https://mesonet.agron.iastate.edu/docs/nexrad_mosaic/'], county: ['County gauges', 'https://rain-flow.saltlakecounty.gov/'], usgs: ['USGS', 'https://waterdata.usgs.gov/monitoring-location/USGS-10168000/'], snotel: ['SNOTEL', 'https://www.nrcs.usda.gov/resources/data-and-reports/snow-and-water-interactive-map'] };
@@ -846,7 +875,7 @@ Chart.defaults.color = INK2;
 Chart.defaults.font.family = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
 Chart.defaults.font.weight = '600';
 Chart.defaults.font.size = 10.5;
-const AXIS_W = 48, RIGHT_PAD = 100;
+const AXIS_W = 66, Y2_W = 46, RIGHT_PAD = 112;
 Chart.register({
   id: 'paper',
   beforeDatasetsDraw(chart, _a, o) {
@@ -864,7 +893,8 @@ Chart.register({
       chart.data.datasets.forEach((ds, i) => { if (!chart.isDatasetVisible(i) || !ds.endLabel || !ds.data.length) return; const last = ds.data[ds.data.length - 1]; if (last.y == null) return; items.push({ y: chart.scales.y.getPixelForValue(last.y), text: ds.endLabel, color: ds.labelColor || ds.borderColor }); });
       items.sort((p, q) => p.y - q.y); for (let i = 1; i < items.length; i++) if (items[i].y - items[i - 1].y < 11) items[i].y = items[i - 1].y + 11;
       ctx.save(); ctx.font = '700 10.5px Arial, Helvetica'; ctx.textBaseline = 'middle';
-      for (const it of items) { ctx.fillStyle = it.color === '#ffffff' ? INK : it.color; ctx.fillText(it.text, ca.right + 4, Math.min(ca.bottom + 8, Math.max(ca.top - 4, it.y))); }
+      const lx = (chart.scales.y2 ? chart.scales.y2.right : ca.right) + 4;
+      for (const it of items) { ctx.fillStyle = it.color === '#ffffff' ? INK : it.color; ctx.fillText(it.text, lx, Math.min(ca.bottom + 8, Math.max(ca.top - 4, it.y))); }
       ctx.restore();
     }
     if (o && o.sync && S.drag && S.drag.x1 != null) { const x0 = x.getPixelForValue(S.drag.v0), x1 = x.getPixelForValue(S.drag.v1); ctx.save(); ctx.fillStyle = 'rgba(28,92,171,0.12)'; ctx.fillRect(Math.min(x0, x1), ca.top, Math.abs(x1 - x0), ca.bottom - ca.top); ctx.restore(); }
@@ -907,7 +937,7 @@ const axisStyle = () => ({ border: { display: true, color: INK, width: 1.25 }, g
 const timeGrid = () => ({ display: true, drawOnChartArea: true, drawTicks: true, tickLength: 5, tickColor: INK, lineWidth: c => c.tick && c.tick.major ? 1 : 1.25, color: c => c.tick && c.tick.major ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0)' });
 const charts = {};
 function redrawSynced(except) { for (const c of Object.values(charts)) if (c !== except && c.options.plugins.paper && c.options.plugins.paper.sync) c.draw(); }
-function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, legend = false, paper = {}, type = 'line', tooltipLabel, xRange, decimate = true, rightPad } = {}) {
+function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, legend = false, paper = {}, type = 'line', tooltipLabel, xRange, decimate = true, rightPad, yTitle = '', y2 = null, reserveY2 = false } = {}) {
   const [a, b] = xRange || VIEW(), span = b - a;
   const cfg = {
     type, data: { datasets },
@@ -924,9 +954,16 @@ function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, leg
         paper: { sync: true, events: [], cells: [], ...paper, endLabels },
       },
       scales: {
-        x: { type: 'linear', min: a, max: b, offset: false, ...axisStyle(), grid: timeGrid(), afterBuildTicks: s => { s.ticks = timeTicks(s.min, s.max, Math.max(120, s.chart.width - AXIS_W - (rightPad != null ? rightPad : endLabels ? RIGHT_PAD : 10))); },
+        x: { type: 'linear', min: a, max: b, offset: false, ...axisStyle(), grid: timeGrid(), title: { display: true, text: `Date and time (${zoneAbbr(b)})`, color: INK, font: { size: 10.5, weight: '700' }, padding: { top: 1 } },
+             afterBuildTicks: s => { s.ticks = timeTicks(s.min, s.max, Math.max(120, s.chart.width - AXIS_W - (y2 || reserveY2 ? Y2_W : 0) - (rightPad != null ? rightPad : endLabels ? RIGHT_PAD : 10))); },
              ticks: { display: true, color: INK, maxRotation: 0, autoSkip: false, padding: 3, font: c => ({ size: 10.5, weight: c.tick && c.tick.major ? '800' : '600' }), callback: (v, i, ts) => tickLabel(v, span, ts[i]) } },
-        y: { ...axisStyle(), afterFit: s => { s.width = AXIS_W; }, ticks: { color: INK, maxTicksLimit: 5, font: { size: 10.5, weight: '600' } }, ...y },
+        y: { ...axisStyle(), afterFit: s => { s.width = AXIS_W; }, title: { display: !!yTitle, text: yTitle, color: INK, font: { size: 10.5, weight: '700' }, padding: { bottom: 2 } }, ticks: { color: INK, maxTicksLimit: 5, font: { size: 10.5, weight: '600' } }, ...y },
+        ...(y2 || reserveY2 ? { y2: y2 ? {
+          position: 'right', ...axisStyle(), grid: { display: false, drawTicks: true, tickLength: 5, tickColor: INK }, afterFit: s => { s.width = Y2_W; },
+          afterDataLimits: s => { const yy = s.chart.scales.y; s.min = y2.conv(yy.min); s.max = y2.conv(yy.max); },
+          title: { display: true, text: y2.title, color: INK, font: { size: 10.5, weight: '700' } },
+          ticks: { color: INK, maxTicksLimit: 5, font: { size: 10.5, weight: '600' }, callback: v => (+v).toFixed(y2.dec != null ? y2.dec : 2) } }
+          : { position: 'right', display: true, border: { display: false }, grid: { display: false, drawTicks: false }, ticks: { display: false }, afterFit: s => { s.width = Y2_W; } } } : {}),
       },
       elements: { point: { radius: 0, hitRadius: 5, hoverRadius: 3 }, line: { borderWidth: 2 } },
     },
@@ -978,16 +1015,44 @@ const phaseTxt = fl => fl == null ? '' : fl > 9800 ? 'rain even on the ridges' :
 function renderSummary() {
   const o = summaryParts(), tiles = [];
   tiles.push(['Precip now', o.wet ? 'Falling' : o.lastTip ? `Dry ${durTxt(T_END() - o.lastTip)}` : 'Dry', o.lastTip ? `last tip ${fmtWhen(o.lastTip)}, Alta gauges` : 'no tips this window']);
-  tiles.push(['Last 24 h, Alta', o.r24 ? (o.r24[0] === o.r24[1] ? `${mmStr(o.r24[0], 1)} mm` : `${mmStr(o.r24[0], 1)}–${mmStr(o.r24[1], 1)} mm`) : '—', o.r24 ? `range over ${o.r24[2]} gauges` : 'no data']);
+  tiles.push(['Last 24 h, Alta', o.r24 ? (o.r24[0] === o.r24[1] ? `${mmStr(o.r24[0], 1)} mm` : `${mmStr(o.r24[0], 1)}–${mmStr(o.r24[1], 1)} mm`) : '—', o.r24 ? `${inStr(o.r24[0])}–${inStr(o.r24[1])} in across ${o.r24[2]} gauges` : 'no data']);
   const rl = o.rLast;
-  tiles.push(['Radar now', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `near ${nearestPlace(rl.maxAt[0], rl.maxAt[1])}, ${fmtTime(rl.t)}` : `nothing over the watershed, ${fmtTime(rl.t)}`) : 'window ended or no frames', rl && rl.maxDbz >= 35]);
-  tiles.push(['Air at Alta', o.ta != null ? `${o.ta.toFixed(1)} °C` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : 'rain line not resolved (inversion)']);
+  tiles.push(['Radar now', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', '', rl && rl.maxDbz >= 35]);
+  tiles.push(['Air temperature', o.ta != null ? `${o.ta.toFixed(1)} °C` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : '']);
   tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
-  tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${o.sb.med != null ? `, median ${o.sb.med.toFixed(1)} in` : ''}${o.at ? `; Atwater ${o.at.v.toFixed(1)}` : ''}` : 'no data']);
-  document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al]) => `<div class="tile${al ? ' alert' : ''}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
+  tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${o.at ? `; Atwater ${o.at.v.toFixed(1)} in` : ''}` : '']);
+  const ACC = ['#0072B2', '#0072B2', '#D55E00', '#CC79A7', '#111111', '#009E73'];
+  document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al], i) => `<div class="tile${al ? ' alert' : ''}" style="--acc:${ACC[i]}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div><canvas class="spark" id="spark-${i}"></canvas></div>`).join('');
+  safe(drawSparks, 'sparks');
   const m = o.missed;
   document.getElementById('alertline').innerHTML = !S.syn ? `<span class="bad">MesoWest data unavailable: ${S.status.syn ? S.status.syn.msg : ''}</span>` :
     m.length ? `Radar showed ${m.length} convective cell${m.length === 1 ? '' : 's'} the gauges barely recorded; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, up to ${m[m.length - 1].peak.toFixed(0)} dBZ near ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])} (orange bands, rows R in Storms).` : '';
+}
+// 24 h sparklines under each tile (snowpack: water year)
+function drawSpark(id, pts, color, { fill = false, zero = false } = {}) {
+  const c = document.getElementById(id); if (!c || pts.length < 2) return;
+  const dpr = window.devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight; c.width = w * dpr; c.height = h * dpr;
+  const g = c.getContext('2d'); g.scale(dpr, dpr);
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs);
+  let y0 = zero ? 0 : Math.min(...ys), y1 = Math.max(...ys); if (y1 - y0 < 1e-6) { y1 = y0 + 1; }
+  const X = x => 1 + (x - x0) / (x1 - x0 || 1) * (w - 2), Y = y => h - 2 - (y - y0) / (y1 - y0) * (h - 4);
+  g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(X(p[0]), Y(p[1])) : g.moveTo(X(p[0]), Y(p[1])));
+  g.strokeStyle = color; g.lineWidth = 1.6; g.stroke();
+  if (fill) { g.lineTo(X(x1), h); g.lineTo(X(x0), h); g.closePath(); g.globalAlpha = 0.15; g.fillStyle = color; g.fill(); g.globalAlpha = 1; }
+  const l = pts[pts.length - 1]; g.beginPath(); g.arc(X(l[0]), Y(l[1]), 2.2, 0, 7); g.fillStyle = color; g.fill();
+}
+function drawSparks() {
+  const T = T_END(), a = T - DAY;
+  if (S.syn) {
+    const cum = []; let c = 0; const tips = [];
+    for (const id of ALTA) { const p = S.P[id]; if (p) for (const inc of p.incs) if (inc.include && inc.mm > 0 && inc.t > a && inc.t <= T) tips.push([inc.t, inc.mm / ALTA.length]); }
+    tips.sort((x, y) => x[0] - y[0]); cum.push([a, 0]); for (const [t, m] of tips) { c += m; cum.push([t, c]); } cum.push([T, c]);
+    drawSpark('spark-0', cum, '#0072B2', { fill: true, zero: true }); drawSpark('spark-1', cum, '#0072B2', { fill: true, zero: true });
+    const st = S.syn.PC064; if (st && st.v.air_temp) drawSpark('spark-3', st.t.map((t, i) => [t, st.v.air_temp[i]]).filter(([t, v]) => v != null && t > a && t <= T), '#CC79A7');
+  }
+  const rf = S.radar.filter(f => f && f.t > a && f.t <= T); if (rf.length) drawSpark('spark-2', rf.map(f => [f.t, f.basinRate]), '#D55E00', { fill: true, zero: true }); // clutter-filtered (>= 30 dBZ), flat when clear
+  const tf = S.county && S.county.lcc_tanners_q; if (tf) drawSpark('spark-4', tf.t.map((t, i) => [t, tf.v[i]]).filter(([t]) => t > a && t <= T), '#111111');
+  const sw = S.snotel && S.snotel['766:UT:SNTL'] && (S.snotel['766:UT:SNTL'].WTEQ || []).filter(x => x.v != null && x.t >= waterYearStart(T)); if (sw && sw.length) drawSpark('spark-5', sw.map(x => [x.t, x.v]), '#009E73', { fill: true, zero: true });
 }
 function summaryText() {
   const o = summaryParts(), L = [];
@@ -1020,7 +1085,7 @@ function renderFig1() {
     const hr = new Map(); for (const f of S.radar) if (f) { const h = Math.floor(f.t / HOUR) * HOUR, o = hr.get(h) || { s: 0, n: 0 }; o.s += f.basinRate; o.n++; hr.set(h, o); }
     ds.push({ type: 'line', label: 'Radar, watershed mean', data: [...hr].sort((p, q) => p[0] - q[0]).map(([h, o]) => ({ x: h + HOUR / 2, y: o.s / o.n })), borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, stepped: 'middle', order: 1 });
   }
-  timeChart('p-hr', ds, { type: 'bar', legend: true, rightPad: RIGHT_PAD, paper: { ...sh, labels: true }, y: { beginAtZero: true, suggestedMax: 1 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm/h` });
+  timeChart('p-hr', ds, { type: 'bar', legend: true, rightPad: RIGHT_PAD, yTitle: 'mm per hour', y2: { title: 'in per hour', conv: v => v / 25.4 }, paper: { ...sh, labels: true }, y: { beginAtZero: true, suggestedMax: 1 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm/h (${(c.parsed.y / 25.4).toFixed(3)} in/h)` });
 
   const cum = [];
   if (S.syn) for (const s of [...GAUGES.filter(isFocus), ...GAUGES.filter(g => !isFocus(g)), ...STATIONS.filter(x => x.role === 'neighbor')]) {
@@ -1031,7 +1096,7 @@ function renderFig1() {
     const lastObs = p.obs[bisectRight(p.obs, S.win.b) - 1]; if (lastObs > pts[pts.length - 1].x) pts.push({ x: lastObs, y: c });
     cum.push({ label: `${s.short}, ${ft(s.elev)} ft (${s.net})`, endLabel: `${s.short} ${mmStr(c, 1)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, stepped: true, borderDash: s.role === 'neighbor' ? [3, 2] : undefined, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
-  timeChart('p-cum', cum, { endLabels: true, decimate: false, paper: sh, y: { beginAtZero: true }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm` });
+  timeChart('p-cum', cum, { endLabels: true, decimate: false, paper: sh, yTitle: 'Total, mm', y2: { title: 'in', conv: v => v / 25.4 }, y: { beginAtZero: true }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm (${(c.parsed.y / 25.4).toFixed(2)} in)` });
 
   const tds = [];
   if (S.syn) for (const id of TEMP_SHOW) {
@@ -1039,12 +1104,12 @@ function renderFig1() {
     st.t.forEach((t, i) => { const v = st.v.air_temp[i]; if (v != null && t >= S.win.a && t <= S.win.b) pts.push({ x: t, y: v }); });
     if (pts.length) tds.push({ label: `${s.short}, ${ft(s.elev)} ft`, endLabel: `${s.short} ${ft(s.elev)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
-  timeChart('p-temp', tds, { endLabels: true, paper: { ...sh, hlines: [{ y: 0, label: '0 °C', color: INK2 }, { y: 1, color: '#b9b7af', dash: [1, 3] }] }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} °C` });
+  timeChart('p-temp', tds, { endLabels: true, reserveY2: true, yTitle: 'Air temp, °C', paper: { ...sh, hlines: [{ y: 0, label: '0 °C', color: INK2 }, { y: 1, color: '#b9b7af', dash: [1, 3] }] }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} °C` });
 
   const flp = S.fl.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.fl == null ? null : Math.max(4000, Math.min(18000, x.fl)) }));
-  timeChart('p-fl', [{ label: 'Rain line', data: flp, borderColor: '#0072B2', backgroundColor: '#0072B2', spanGaps: false }], { rightPad: RIGHT_PAD,
+  timeChart('p-fl', [{ label: 'Rain line', data: flp, borderColor: '#0072B2', backgroundColor: '#0072B2', spanGaps: false }], { rightPad: RIGHT_PAD, reserveY2: true, yTitle: 'Elevation, ft',
     paper: { ...sh, hlines: [{ y: 9026, label: 'Albion Basin 9,026 ft', color: INK }, { y: 7117, label: 'Tanners Flat 7,117 ft', color: INK3 }] },
-    y: { min: 4000, max: 18000, afterBuildTicks: sc => { sc.ticks = [4000, 8000, 12000, 16000].map(value => ({ value })); }, ticks: { color: INK, callback: v => `${v / 1000}k` } }, tooltipLabel: c => `Rain line: ${c.parsed.y >= 18000 ? 'above 18,000' : ft(c.parsed.y)} ft` });
+    y: { min: 4000, max: 18000, afterBuildTicks: sc => { sc.ticks = [4000, 8000, 12000, 16000].map(value => ({ value })); }, ticks: { color: INK, font: { size: 10.5, weight: '600' }, callback: v => ft(v) } }, tooltipLabel: c => `Rain line: ${c.parsed.y >= 18000 ? 'above 18,000' : ft(c.parsed.y)} ft` });
 
   const F = flowSeries(), tf = F.lcc_tanners_q, qd = [];
   let nsp = 0, yq = {};
@@ -1056,58 +1121,59 @@ function renderFig1() {
     const sp = (tf.spikes || []).filter(x => x.t >= S.win.a && x.t <= S.win.b); nsp = sp.length;
     if (sp.length) qd.push({ label: 'Removed by QC', data: sp.map(x => ({ x: x.t, y: yq.min != null ? yq.min : x.v, raw: x.v })), showLine: false, pointRadius: 3.5, pointStyle: 'crossRot', borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, clip: false });
   }
-  timeChart('p-q', qd, { rightPad: RIGHT_PAD, paper: sh, y: yq, tooltipLabel: c => c.dataset.label === 'Removed by QC' ? `Removed by QC: ${cfs(c.raw.raw)} cfs` : `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
+  timeChart('p-q', qd, { rightPad: RIGHT_PAD, reserveY2: true, yTitle: 'Discharge, cfs', paper: sh, y: yq, tooltipLabel: c => c.dataset.label === 'Removed by QC' ? `Removed by QC: ${cfs(c.raw.raw)} cfs` : `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
 
   document.getElementById('ts-range').textContent = `${fmtDT(va)} to ${fmtDT(vb, { tz: true })}${S.view ? ' (zoomed)' : ''}`;
   document.getElementById('cap1').innerHTML =
-    `<b>a</b> Hourly precipitation: black is the mean of the four Alta gauges (CLN, PC064, AGD, UTALC), gray the wettest of them, orange the radar estimate over the watershed (echoes ≥ 30 dBZ, uncalibrated). ` +
-    `<b>b</b> Running total at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood. ` +
-    `<b>c</b> Creek flow at Tanners Flat, the only gauge in the canyon (above the diversions)${nsp ? `; × marks ${nsp} sensor dropout${nsp === 1 ? '' : 's'} removed` : ''}. ` +
-    `<b>d</b> Air temperature at Albion Basin (blue), Hidden Peak summit, and Powerhouse near the canyon mouth (gray); dashed line 0 °C, dotted line 1 °C. ` +
-    `<b>e</b> Rain line: the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Gaps are inversions. ` +
+    `<b>Precipitation:</b> hourly; black is the mean of the four Alta gauges (CLN, PC064, AGD, UTALC), gray the wettest of them, orange the radar estimate over the watershed (echoes ≥ 30 dBZ, uncalibrated). ` +
+    `<b>Running total:</b> at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood. ` +
+    `<b>Creek flow:</b> Tanners Flat, the only gauge in the canyon (above the diversions)${nsp ? `; × marks ${nsp} sensor dropout${nsp === 1 ? '' : 's'} removed` : ''}. ` +
+    `<b>Air temperature:</b> Albion Basin (blue), Hidden Peak summit, and Powerhouse near the canyon mouth (gray); dashed line 0 °C, dotted line 1 °C. ` +
+    `<b>Rain line:</b> the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Gaps are inversions. ` +
     `Gray bands S are storms (≥ ${S.minMm} mm at an Alta gauge); orange bands R are radar cells with no gauge storm.`;
-  document.getElementById('key1').innerHTML = fig1Takeaway(va, vb);
-  safe(() => panelTitles(va, vb), 'titles');
+  safe(() => panelBullets(va, vb), 'bullets');
 }
 
-// One bold sentence per panel saying what it shows right now.
-function panelTitles(va, vb) {
-  const set = (id, t) => { document.getElementById(id).textContent = t; };
+// Key takeaways as bullets under each panel title; empty when there is nothing notable.
+function panelBullets(va, vb) {
+  const put = (id, items) => { const el = document.getElementById(id); if (el) el.innerHTML = items.filter(Boolean).map(t => `<li>${t}</li>`).join(''); };
   const inV = e => e.end > va && e.start < vb;
   const evs = S.events.filter(inV), cells = S.cells.filter(c => !c.inStorm && inV(c));
+  const A = [], B = [], C = [], D = [], E = [];
   if (S.syn) {
-    const tot = GAUGES.map(g => ({ g, r: sumPrecip(S.P[g.id], va, vb) })).filter(x => x.r.status !== 'nodata');
-    const wet = tot.length ? tot.reduce((x, y) => y.r.mm > x.r.mm ? y : x) : null;
-    const big = evs.length ? evs.reduce((x, y) => (Math.max(...Object.values(y.det)) > Math.max(...Object.values(x.det)) ? y : x)) : null;
-    set('pt-a', !wet || wet.r.mm < 0.25 ? (cells.length ? `Gauges dry, but radar saw ${cells.length} cell${cells.length === 1 ? '' : 's'}` : 'No measurable precipitation')
-      : `${evs.length} storm${evs.length === 1 ? '' : 's'}${big ? `, the largest ${fmtDT(big.start, { wd: true }).replace(/ \d+:\d+ [AP]M$/, '')}` : ''}${cells.length ? `; radar saw ${cells.length} more cell${cells.length === 1 ? '' : 's'} the gauges missed` : ''}`);
-    const al = tot.filter(x => isFocus(x.g));
-    set('pt-b', wet && wet.r.mm >= 0.25 ? `Alta and Albion ${al.length ? `${mmStr(Math.min(...al.map(x => x.r.mm)), 1)}–${mmStr(Math.max(...al.map(x => x.r.mm)), 1)} mm` : 'no data'}; wettest ${wet.g.short} ${mmStr(wet.r.mm, 1)} mm` : 'Running total by gauge');
-    const st = S.syn.PC064, temps = st && st.v.air_temp ? st.t.map((t, i) => [t, st.v.air_temp[i]]).filter(([t, v]) => v != null && t >= va && t <= vb) : [];
-    if (temps.length) { const lo = Math.min(...temps.map(x => x[1])), hi = Math.max(...temps.map(x => x[1])), now = temps[temps.length - 1][1];
-      set('pt-d', `Albion Basin ${lo.toFixed(0)} to ${hi.toFixed(0)} °C, ${lo < RAIN_C ? 'dipping below the rain/snow threshold' : 'above freezing throughout'}; now ${now.toFixed(0)} °C`); }
-    const fl = S.fl.filter(x => x.fl != null && x.t >= va && x.t <= vb);
-    if (fl.length) { const last = fl[fl.length - 1].fl, lo = Math.min(...fl.map(x => x.fl));
-      set('pt-e', `Rain line ${flTxt(last)} now${lo < 9026 ? `; dropped to ${flTxt(lo)}, below Albion Basin` : ', above Albion Basin all window: rain, not snow'}`); }
-    else set('pt-e', 'Rain line not resolved (inversions)');
+    for (const e of evs.slice(-2)) {
+      const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).map(g => st[g.id].tot);
+      if (vals.length) A.push(`S${k}, ${fmtSpan(e.start, e.end)}: up to ${mmIn(Math.max(...vals))}`);
+    }
+    if (cells.length) A.push(`<span class="flag">Radar saw ${cells.length} cell${cells.length === 1 ? '' : 's'} the gauges missed (orange bands)</span>`);
+    const tot = GAUGES.map(g => ({ g, r: sumPrecip(S.P[g.id], va, vb) })).filter(x => x.r.status !== 'nodata' && !suspectZero(x.g.id, va, vb));
+    const al = tot.filter(x => isFocus(x.g)), ot = tot.filter(x => !isFocus(x.g));
+    if (al.length && ot.length) { const am = Math.max(...al.map(x => x.r.mm)), ow = ot.reduce((x, y) => y.r.mm > x.r.mm ? y : x);
+      if (ow.r.mm >= 1 && ow.r.mm > 1.5 * am) B.push(`Lower canyon wetter than Alta: ${ow.g.short} ${mmIn(ow.r.mm)} vs ${mmIn(am)} at the wettest Alta gauge`); }
+    const st = S.syn.PC064;
+    if (st && st.v.air_temp) {
+      const cold = st.t.map((t, i) => [t, st.v.air_temp[i]]).filter(([t, v]) => v != null && t >= va && t <= vb && v < RAIN_C);
+      if (cold.length) D.push(`Below ${RAIN_C} °C at Albion Basin ${fmtSpan(cold[0][0], cold[cold.length - 1][0])}: precipitation there likely snow`);
+    }
+    const fl = S.fl.filter(x => x.fl != null && x.t >= va && x.t <= vb && x.fl < 9026);
+    if (fl.length) E.push(`Rain line below Albion Basin ${fmtSpan(fl[0].t, fl[fl.length - 1].t)}, lowest ${flTxt(Math.min(...fl.map(x => x.fl)))}: snow at Alta`);
   }
-  const tf = S.county && S.county.lcc_tanners_q;
-  if (tf && tf.t.length) {
-    const v = tf.t.map((t, i) => [t, tf.v[i]]).filter(([t]) => t >= va && t <= vb);
-    if (v.length) { const lo = Math.min(...v.map(x => x[1])), hi = Math.max(...v.map(x => x[1])), pk = v.find(x => x[1] === hi), now = v[v.length - 1][1];
-      const r = evs.length && evs[evs.length - 1].resp && evs[evs.length - 1].resp.lcc_tanners_q;
-      set('pt-c', hi - lo <= 2 * tf.res ? `Steady near ${cfs(now)} cfs` : `Peaked at ${cfs(hi)} cfs ${fmtDT(pk[0])}${r && r.clear ? `, ${r.lag.toFixed(1)} h after the rain` : ''}; now ${cfs(now)} cfs`); }
+  for (const e of evs) {
+    const r = e.resp && e.resp.lcc_tanners_q, k = S.events.indexOf(e) + 1;
+    if (r && r.clear) C.push(`S${k}: rose ${cfs(r.base)} → ${cfs(r.peak)} cfs (+${cfs(r.dQ)}), peak ${r.lag.toFixed(1)} h after the rain`);
+    else if (r && r.base != null && r.peak != null) C.push(`S${k}: no clear rise above the gauge's 0.3 cfs steps`);
   }
+  put('kb-a', A); put('kb-b', B); put('kb-c', C); put('kb-d', D); put('kb-e', E);
 }
 function fig1Takeaway(va, vb) {
   if (!S.syn) return '';
-  const tot = GAUGES.map(g => ({ g, r: sumPrecip(S.P[g.id], va, vb) })).filter(x => x.r.status !== 'nodata');
+  const tot = GAUGES.map(g => ({ g, r: sumPrecip(S.P[g.id], va, vb) })).filter(x => x.r.status !== 'nodata' && !suspectZero(x.g.id, va, vb));
   if (!tot.length) return '';
   const wet = tot.reduce((x, y) => y.r.mm > x.r.mm ? y : x), dry = tot.reduce((x, y) => y.r.mm < x.r.mm ? y : x);
-  const parts = [wet.r.mm < 0.25 ? `No measurable precipitation at the canyon gauges${S.view ? ' in this view' : ''}.` : `Gauges caught ${mmStr(dry.r.mm, 1)} to ${mmStr(wet.r.mm, 1)} mm (wettest ${wet.g.id}, ${ft(wet.g.elev)} ft).`];
+  const parts = [wet.r.mm < 0.25 ? `No measurable precipitation at the canyon gauges${S.view ? ' in this view' : ''}.` : `Gauges caught ${mmStr(dry.r.mm, 1)} to ${mmStr(wet.r.mm, 1)} mm (${inStr(dry.r.mm)} to ${inStr(wet.r.mm)} in); wettest ${wet.g.short}, ${ft(wet.g.elev)} ft.`];
   const evs = S.events.filter(e => e.end > va && e.start < vb);
   for (const e of evs.slice(-2)) {
-    const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.map(g => st[g.id]).filter(x => x && x.hasData).map(x => x.tot);
+    const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).map(g => st[g.id].tot);
     const temps = S.det.map(id => st[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((a, b) => a + b.meanT, 0) / temps.length : null;
     const r = e.resp && e.resp.lcc_tanners_q;
     let t = `S${k} (${fmtSpan(e.start, e.end)}): ${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)} mm` : ''}${mt != null ? ` as ${mt < 1 ? 'mixed rain and snow' : 'rain'} (${mt.toFixed(0)} °C)` : ''}`;
@@ -1153,7 +1219,8 @@ function renderStorms() {
       if (c2 != null) r = flowResponse({ ...e, centroid: c2 }, e.nextStart, F[f.key]);
       e.resp[f.key] = r;
     }
-    const vals = GAUGES.filter(g => stats[g.id].hasData).map(g => stats[g.id].tot), alta = ALTA.filter(id => stats[id].hasData).map(id => stats[id].tot);
+    const okG = g => stats[g.id].hasData && !suspectZero(g.id, e.start, e.end);
+    const vals = GAUGES.filter(okG).map(g => stats[g.id].tot), alta = ALTA.filter(id => okG(STN[id])).map(id => stats[id].tot);
     const pk = GAUGES.map(g => ({ id: g.id, ...stats[g.id] })).filter(x => x.peak > 0).sort((x, y) => y.peak - x.peak)[0];
     const temps = S.det.map(id => stats[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((x, y) => x + y.meanT, 0) / temps.length : null;
     let flags = '';
@@ -1166,7 +1233,7 @@ function renderStorms() {
     if (r) for (const f of r.flags) flags += fn(`Tanners Flat: ${f}.`);
     const rd = radarSum(e.start - 30 * MIN, e.end + 30 * MIN);
     rows.push(`<tr class="click" data-s="${e.start}" data-e="${e.end}" data-t="${e.start + (e.end - e.start) / 2}"><td class="l"><b>S${i + 1}</b>${flags}</td><td class="l">${fmtSpan(e.start, e.end)}</td><td>${durTxt(e.end - e.start)}</td>
-      <td>${alta.length ? `${mmStr(Math.min(...alta), 1)}–${mmStr(Math.max(...alta), 1)}` : '—'}</td><td>${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)}` : '—'}</td>
+      <td>${alta.length ? `${mmStr(Math.min(...alta), 1)}–${mmStr(Math.max(...alta), 1)}<div class="inch">${inStr(Math.min(...alta))}–${inStr(Math.max(...alta))} in</div>` : '—'}</td><td>${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)}<div class="inch">${inStr(Math.min(...vals))}–${inStr(Math.max(...vals))} in</div>` : '—'}</td>
       <td>${pk ? `${pk.peak.toFixed(2)} <span class="muted">${pk.id}</span>` : '—'}</td><td>${rd ? `${rd.mm.toFixed(1)}${rd.maxDbz != null ? ` <span class="muted">${rd.maxDbz.toFixed(0)} dBZ</span>` : ''}` : '<span class="muted">n/a</span>'}</td>
       <td class="l">${mt == null ? '—' : `${mt < 1 ? 'mixed/snow' : 'rain'} <span class="muted">${mt.toFixed(1)} °C</span>`}</td>
       <td>${r && r.base != null && r.peak != null ? `${cfs(r.base)} → ${cfs(r.peak)}` : '—'}</td><td>${r && r.dQ != null ? (r.dQ >= 0 ? '+' : '') + cfs(r.dQ) : '—'}</td><td>${r && r.clear ? r.lag.toFixed(1) : '—'}</td></tr>`);
@@ -1260,10 +1327,10 @@ function renderElev() {
     options: {
       animation: false, responsive: true, maintainAspectRatio: false, layout: { padding: { right: 62, top: 6 } },
       plugins: { legend: { display: false }, decimation: { enabled: false }, paper: { sync: false },
-        tooltip: { backgroundColor: 'rgba(255,255,255,0.96)', titleColor: INK, bodyColor: INK, borderColor: INK, borderWidth: 0.5, callbacks: { title: () => '', label: c => `${c.raw.s.name} (${c.raw.s.net}): ${c.raw.x.toFixed(2)} mm at ${ft(c.raw.y)} ft${c.raw.partial ? ' (partial)' : ''}` } } },
+        tooltip: { backgroundColor: 'rgba(255,255,255,0.96)', titleColor: INK, bodyColor: INK, borderColor: INK, borderWidth: 0.5, callbacks: { title: () => '', label: c => `${c.raw.s.name} (${c.raw.s.net}): ${mmIn(c.raw.x, 2)} at ${ft(c.raw.y)} ft${c.raw.partial ? ' (partial)' : ''}` } } },
       scales: {
-        x: { ...ax, beginAtZero: true, title: { display: true, text: 'Window precipitation (mm)', color: INK, font: { size: 10.5 } }, ticks: { color: INK } },
-        y: { ...ax, min: 5500, max: 10000, title: { display: true, text: 'Elevation (ft)', color: INK, font: { size: 10.5 } }, ticks: { color: INK, callback: v => ft(v) } },
+        x: { ...ax, beginAtZero: true, title: { display: true, text: 'Window precipitation, mm (in)', color: INK, font: { size: 10.5, weight: '700' } }, ticks: { color: INK, font: { size: 10.5, weight: '600' }, callback: v => `${v} (${(v / 25.4).toFixed(2)})` } },
+        y: { ...ax, min: 5500, max: 10000, title: { display: true, text: 'Gauge elevation, ft', color: INK, font: { size: 10.5, weight: '700' } }, ticks: { color: INK, font: { size: 10.5, weight: '600' }, callback: v => ft(v) } },
       },
     },
     plugins: [{ id: 'ptlab', afterDatasetsDraw(ch) { const { ctx } = ch, meta = ch.getDatasetMeta(0); ctx.save(); ctx.font = '700 10.5px Arial, Helvetica'; ctx.fillStyle = INK; ctx.textBaseline = 'middle'; meta.data.forEach((el, i) => { ctx.fillStyle = isFocus(pts[i].s) ? INK : INK3; ctx.fillText(pts[i].s.short + (pts[i].s.role === 'neighbor' ? ' (BCC)' : ''), el.x + 7, el.y); }); ctx.restore(); } }],
@@ -1280,14 +1347,14 @@ function renderElev() {
     const r = sxy / Math.sqrt(sxx * syy || 1), wet = lcc.reduce((a, p) => p.x > a.x ? p : a);
     key = `${r > 0.5 ? 'Totals increase with elevation, the usual orographic pattern.' : r < -0.3 ? '<span class="flag">Lower gauges got more than Alta: cells hit the mid and lower canyon.</span>' : 'No consistent pattern with elevation: showery, cell by cell precipitation.'} Wettest: ${wet.s.id} (${mmStr(wet.x, 1)} mm at ${ft(wet.y)} ft).`;
   }
-  document.getElementById('key-elev').innerHTML = key;
+  document.getElementById('kb-elev').innerHTML = key && !key.startsWith('No consistent') ? `<li>${key}</li>` : '';
 }
 
 function renderStationTable() {
   const tb = document.getElementById('t-stations');
   if (!S.syn) { tb.innerHTML = `<tbody><tr><td class="l bad">MesoWest data unavailable.</td></tr></tbody>`; return; }
   const T = T_END(), mid = midnightDenver(T);
-  const cell = r => r.status === 'nodata' ? '<span class="muted">no data</span>' : `${mmStr(r.mm)}${r.status === 'partial' ? '<sup class="f">p</sup>' : ''}`;
+  const cell = r => r.status === 'nodata' ? '<span class="muted">no data</span>' : `${mmStr(r.mm)}<span class="inch"> ${inStr(r.mm)}</span>${r.status === 'partial' ? '<sup class="f">p</sup>' : ''}`;
   const row = s => {
     const p = S.P[s.id], st = S.syn[s.id];
     const w = sumPrecip(p, S.win.a, S.win.b), r24 = sumPrecip(p, T - DAY, T), rm = sumPrecip(p, mid, T);
@@ -1295,12 +1362,13 @@ function renderStationTable() {
     const sd = qcSnowDepth(st).filter(x => x.t <= T).pop(), fc = flagCounts(p, S.win.a, S.win.b), qc = [];
     if (fc.reset) qc.push(`${fc.reset} reset`); if (fc.gap) qc.push(`${fc.gap} gap`); if (fc.excluded) qc.push(`<span class="bad">${fc.excluded} suspect out (${mmStr(w.excluded)} mm)</span>`); if (fc.corroborated) qc.push(`${fc.corroborated} suspect kept`);
     if (sd && sd.flag) qc.push(`depth: ${sd.flag}`);
+    if (s.mode && w.status !== 'nodata' && w.mm === 0) { const nb = ALTA.filter(id => id !== s.id).map(id => sumPrecip(S.P[id], S.win.a, S.win.b)).filter(x => x.status !== 'nodata').map(x => x.mm); if (nb.length && Math.max(...nb) >= 1) qc.push('<span class="bad">caught nothing while Alta gauges did</span>'); }
     const stale = last && Date.now() - last > 2 * HOUR && S.win.b > Date.now() - HOUR;
     return `<tr class="${isFocus(s) ? '' : 'ctx'}"><td class="l"><span class="sw" style="background:${s.mode ? stColor(s) : '#fff'};border:0.75px solid ${isFocus(s) ? '#111' : '#9a988f'}"></span>${s.name} <span class="op">${s.net} · ${stA(s)}</span></td><td>${ft(s.elev)}</td>
       <td>${s.mode ? cell(w) : '—'}</td><td>${s.mode ? cell(r24) : '—'}</td><td>${s.mode ? cell(rm) : '—'}</td><td>${ta == null ? '—' : ta.toFixed(1)}</td>
       <td>${sd && sd.qc != null ? (sd.qc / 25.4).toFixed(1) : '—'}</td><td class="${stale ? 'flag' : ''}">${last ? fmtWhen(last) : '<span class="muted">none</span>'}</td><td class="l muted">${qc.join(', ') || 'clean'}</td></tr>`;
   };
-  tb.innerHTML = `<thead><tr><th class="l">Station, operator</th><th>Elev<br>ft</th><th>Window<br>mm</th><th>Last 24 h<br>mm</th><th>Since<br>midnight</th><th>Air<br>°C</th><th>Snow<br>in</th><th>Last<br>report</th><th class="l">QC</th></tr></thead><tbody>` +
+  tb.innerHTML = `<thead><tr><th class="l">Station, operator</th><th>Elev<br>ft</th><th>Window<br>mm <span class="inch">in</span></th><th>Last 24 h<br>mm <span class="inch">in</span></th><th>Since midnight<br>mm <span class="inch">in</span></th><th>Air<br>°C</th><th>Snow<br>in</th><th>Last<br>report</th><th class="l">QC</th></tr></thead><tbody>` +
     `<tr class="grp"><td colspan="9">Albion Basin and Alta</td></tr>` + STATIONS.filter(isFocus).map(row).join('') +
     `<tr class="grp ctx"><td colspan="9">Lower canyon and ridge, for context</td></tr>` + STATIONS.filter(s => s.group === 'canyon').map(row).join('') +
     `<tr class="grp ctx"><td colspan="9">Big Cottonwood, for comparison</td></tr>` + STATIONS.filter(s => s.group === 'bcc').map(row).join('') + `</tbody>`;
@@ -1316,7 +1384,7 @@ function renderSWE() {
     const med = ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t >= a && x.med != null);
     if (med.length) ds.push({ label: 'Snowbird median', endLabel: 'median', data: med.map(x => ({ x: x.t, y: x.med })), borderColor: INK3, backgroundColor: INK3, borderWidth: 1, borderDash: [1, 2.5] });
   }
-  timeChart('p-swe', ds, { showX: true, endLabels: true, decimate: false, xRange: [a, b], rightPad: 70, paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 2 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in` });
+  timeChart('p-swe', ds, { showX: true, endLabels: true, decimate: false, xRange: [a, b], rightPad: 78, yTitle: 'SWE, in', y2: { title: 'mm', conv: v => v * 25.4, dec: 0 }, paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 2 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in` });
   const sb = S.snotel && ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t <= T + DAY && x.v != null).pop();
   document.getElementById('cap3').innerHTML = `Daily snow water equivalent (the water held in the snowpack) since 1 October. Atwater is in Alta; Snowbird has the long record, and its median (dotted) is the normal for each date; dashed gray is Brighton in Big Cottonwood. Gray band: the selected window.`;
   const tm = S.snotel && S.snotel['766:UT:SNTL'] && S.snotel['766:UT:SNTL'].timing;
@@ -1325,13 +1393,13 @@ function renderSWE() {
     if (sb.v < 0.5 && (!sb.med || sb.med < 0.5)) ks = `No lasting snowpack yet${tm && tm.medianOnset ? `; Snowbird's median start date is ${tm.medianOnset.month}/${tm.medianOnset.day}` : ''}.`;
     else ks = `Snowbird ${sb.v.toFixed(1)} in, ${sb.med ? `${Math.round(sb.v / sb.med * 100)}% of median (${sb.med.toFixed(1)} in)` : 'no median for this date'}${tm && tm.medianPeak ? `; the median peak is ${tm.medianPeak.value} in around ${tm.medianPeak.month}/${tm.medianPeak.day}` : ''}.`;
   }
-  document.getElementById('key-swe').innerHTML = ks;
+  document.getElementById('kb-swe').innerHTML = ks ? `<li>${ks}</li>` : '';
 }
 
 function renderValley() {
   const F = flowSeries(), ds = [], cols = { bcc_mouth_q: NEIGHBOR, lcc_crestwood_q: '#56B4E9', lcc_300w_q: '#0072B2', usgs_10168000: RADAR, upload: '#009E73' };
   for (const f of FLOW.filter(x => !x.primary)) { const s = F[f.key]; if (!s || !s.t.length) continue; ds.push({ label: f.name, endLabel: f.name.replace(/^USGS 10168000 /, 'USGS ').replace(/@ /, ''), data: s.t.map((t, i) => ({ x: t, y: s.v[i] })).filter(p => p.x >= S.win.a && p.x <= S.win.b), borderColor: cols[f.key], backgroundColor: cols[f.key], stepped: f.src === 'county' }); }
-  timeChart('p-valley', ds, { showX: true, endLabels: true, xRange: [S.win.a, S.win.b], paper: { ...shading(), sync: false }, tooltipLabel: c => `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
+  timeChart('p-valley', ds, { showX: true, endLabels: true, yTitle: 'Discharge, cfs', xRange: [S.win.a, S.win.b], paper: { ...shading(), sync: false }, tooltipLabel: c => `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
   const rows = [];
   S.events.forEach((e, i) => { for (const f of FLOW.filter(x => !x.primary)) { const r = e.resp && e.resp[f.key]; if (r) rows.push(`<tr><td class="l">S${i + 1}</td><td class="l">${f.name} <span class="muted">${f.note}</span></td><td>${cfs(r.base)}</td><td>${cfs(r.peak)}</td><td>${r.dQ == null ? '—' : (r.dQ >= 0 ? '+' : '') + cfs(r.dQ)}</td><td>${r.clear ? r.lag.toFixed(1) : '—'}</td><td class="l muted">${r.flags.join('; ')}</td></tr>`); } });
   document.getElementById('t-valley').innerHTML = `<thead><tr><th class="l">Storm</th><th class="l">Gauge</th><th>Baseline</th><th>Peak</th><th>ΔQ</th><th>Lag h</th><th class="l">Flags</th></tr></thead><tbody>${rows.join('') || '<tr><td class="l muted" colspan="7">No storms in the window.</td></tr>'}</tbody>`;
