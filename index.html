@@ -94,6 +94,8 @@
   .plab .pt { font-weight: 800; font-size: 0.95rem; }
   ul.kb { margin: 3px 0 0; padding-left: 1.15rem; font-size: 0.82rem; font-weight: 600; color: var(--ink); }
   ul.kb:empty { display: none; }
+  .bandkey { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.78rem; font-weight: 600; color: var(--ink2); margin: 8px 0 0; }
+  .bandkey i { display: inline-block; width: 14px; height: 10px; margin-right: 5px; vertical-align: 0; }
   ul.kb li { margin: 1px 0; }
   ul.kb li::marker { color: #0072B2; }
   ul.kb .flag { color: #D55E00; }
@@ -171,6 +173,7 @@
     <div class="card">
       <div class="ch"><h3>Upper Little Cottonwood Canyon</h3><span class="u" id="ts-range"></span>
         <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden" id="zoom-reset">Full window</button></span></div>
+      <div class="bandkey"><span><i style="background:rgba(0,0,0,0.12)"></i>Storm N: recorded by the gauges</span><span><i style="background:rgba(213,94,0,0.22)"></i>Radar N: burst seen by radar, missed by gauges</span><span><i style="background:#D55E00;height:2px"></i>Radar rain rate, whole upper canyon</span></div>
       <div class="plab"><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
       <div class="plab"><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
       <div class="plab"><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
@@ -282,7 +285,7 @@
     <ul><li>Each hour, a straight line is fit to air temperature against elevation for every station reporting (6,049 to 11,000 ft); the freezing level is where that line crosses 0 °C. It is left blank when the fit is poor (r² &lt; 0.6) or temperature rises with height (an inversion). Above about 12,000 ft it is an extrapolation.</li></ul>
     <h3>Storms and response</h3>
     <ul>
-      <li>Tips from the detection gauges (CLN, PC064, AGD, UTALC by default) are pooled in time order; a gap over 3 h starts a new group. A group is a storm when any detection gauge totals at least 1.0 mm.</li>
+      <li>Tips from the detection gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy; MesoWest CLN, PC064, AGD, UTALC) are pooled in time order; a gap over 3 h starts a new group. A group is a storm when any detection gauge totals at least 1.0 mm.</li>
       <li>Rain or snow: precipitation weighted mean of each gauge's own air temperature; below 1 °C is called mixed or snow.</li>
       <li>Tanners Flat response: baseline is the time weighted mean of the 6 h before the start; peak is the maximum up to 48 h after the end, cut at the next storm. Lag runs to the peak from the centroid of the rain that fell before it, at every gauge above Tanners Flat (CLN, PC064, AGD, UTALC, UTWLC, ELBUT); storms with two bursts would otherwise place the centroid after the first peak. A rise of two gauge steps (about 0.3 cfs) or less is no clear response. A peak before the centroid gets no lag, since the rise came from earlier precipitation.</li>
       <li>Flow QC: a report far from the median of its five neighbors on each side is removed (this survives small clusters such as the 64 to 235 cfs readings of 10/8/2026 evening) (Tanners Flat stage dropped from 0.36 to 0.04 ft for one report, twice on 10/8/2026). A wild newest report is held until the next one confirms it.</li>
@@ -872,8 +875,11 @@ Chart.register({
   beforeDatasetsDraw(chart, _a, o) {
     const { ctx, chartArea: ca, scales: { x } } = chart; if (!x || !o) return;
     ctx.save(); ctx.beginPath(); ctx.rect(ca.left, ca.top, ca.right - ca.left, ca.bottom - ca.top); ctx.clip();
-    for (const e of o.events || []) { const x0 = x.getPixelForValue(e.start), x1 = x.getPixelForValue(e.end); ctx.fillStyle = 'rgba(0,0,0,0.085)'; ctx.fillRect(x0, ca.top, Math.max(2, x1 - x0), ca.bottom - ca.top); if (o.labels && e.label) { ctx.fillStyle = INK; ctx.font = '800 11px Arial, Helvetica'; ctx.fillText(e.label, Math.max(ca.left + 1, x0 + 1), ca.top + 9); } }
-    for (const c of o.cells || []) { const x0 = x.getPixelForValue(c.start), x1 = x.getPixelForValue(c.end); ctx.fillStyle = 'rgba(213,94,0,0.14)'; ctx.fillRect(x0, ca.top, Math.max(2, x1 - x0), ca.bottom - ca.top); if (o.labels) { ctx.fillStyle = RADAR; ctx.font = '800 11px Arial, Helvetica'; ctx.fillText(c.label, Math.max(ca.left + 1, x0 + 1), ca.top + 19); } }
+    const placed = [];
+    const lab = (txt, x0, color) => { ctx.font = '800 11px Arial, Helvetica'; const w = ctx.measureText(txt).width, lx = Math.min(ca.right - w - 2, Math.max(ca.left + 1, x0 + 1)); let row = 0; while (placed.some(p => p.row === row && lx < p.x1 + 6 && lx + w > p.x0 - 6)) row++; placed.push({ x0: lx, x1: lx + w, row }); ctx.fillStyle = color; ctx.fillText(txt, lx, ca.top + 10 + row * 12); };
+    for (const e of o.events || []) { const x0 = x.getPixelForValue(e.start), x1 = x.getPixelForValue(e.end); ctx.fillStyle = 'rgba(0,0,0,0.085)'; ctx.fillRect(x0, ca.top, Math.max(2, x1 - x0), ca.bottom - ca.top); }
+    for (const c of o.cells || []) { const x0 = x.getPixelForValue(c.start), x1 = x.getPixelForValue(c.end); ctx.fillStyle = 'rgba(213,94,0,0.14)'; ctx.fillRect(x0, ca.top, Math.max(2, x1 - x0), ca.bottom - ca.top); }
+    if (o.labels) { for (const e of o.events || []) if (e.label) lab(e.label, x.getPixelForValue(e.start), INK); for (const c of o.cells || []) lab(c.label, x.getPixelForValue(c.start), RADAR); }
     for (const h of o.hlines || []) { const y = chart.scales.y.getPixelForValue(h.y); if (y < ca.top || y > ca.bottom) continue; ctx.strokeStyle = h.color || INK3; ctx.setLineDash(h.dash || [3, 3]); ctx.lineWidth = 0.75; ctx.beginPath(); ctx.moveTo(ca.left, y); ctx.lineTo(ca.right, y); ctx.stroke(); ctx.setLineDash([]); if (h.label) { ctx.fillStyle = h.color || INK3; ctx.font = '700 10px Arial, Helvetica'; ctx.fillText(h.label, ca.left + 3, y - 3); } }
     ctx.restore();
   },
@@ -972,7 +978,7 @@ function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, leg
   }
   return charts[id];
 }
-const shading = () => ({ events: S.events.map((e, i) => ({ start: e.start, end: e.end, label: 'S' + (i + 1) })), cells: S.cells.filter(c => !c.inStorm).map((c, i) => ({ start: c.start, end: c.end, label: 'R' + (i + 1) })) });
+const shading = () => ({ events: S.events.map((e, i) => ({ start: e.start, end: e.end, label: 'Storm ' + (i + 1) })), cells: S.cells.filter(c => !c.inStorm).map((c, i) => ({ start: c.start, end: c.end, label: 'Radar ' + (i + 1) })) });
 
 /* ======================================================================
    Rendering
@@ -1008,7 +1014,7 @@ function renderSummary() {
   tiles.push(['Precip now', o.wet ? 'Falling' : o.lastTip ? `Dry ${durTxt(T_END() - o.lastTip)}` : 'Dry', o.lastTip ? `last tip ${fmtWhen(o.lastTip)}, Alta gauges` : 'no tips this window']);
   tiles.push(['Last 24 h, Alta', o.r24 ? (o.r24[0] === o.r24[1] ? `${mmStr(o.r24[0], 1)} mm` : `${mmStr(o.r24[0], 1)}–${mmStr(o.r24[1], 1)} mm`) : '—', o.r24 ? `${inStr(o.r24[0])}–${inStr(o.r24[1])} in across ${o.r24[2]} gauges` : 'no data']);
   const rl = o.rLast;
-  tiles.push(['Radar now', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', '', rl && rl.maxDbz >= 35]);
+  tiles.push(['Radar now, upper canyon', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', '', rl && rl.maxDbz >= 35]);
   tiles.push(['Air temperature', o.ta != null ? `${o.ta.toFixed(1)} °C` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : '']);
   tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
   tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${o.at ? `; Atwater ${o.at.v.toFixed(1)} in` : ''}` : '']);
@@ -1016,7 +1022,7 @@ function renderSummary() {
   document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al], i) => `<div class="tile${al ? ' alert' : ''}" style="--acc:${ACC[i]}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
   const m = o.missed;
   document.getElementById('alertline').innerHTML = !S.syn ? `<span class="bad">MesoWest data unavailable: ${S.status.syn ? S.status.syn.msg : ''}</span>` :
-    m.length ? `Radar showed ${m.length} convective cell${m.length === 1 ? '' : 's'} the gauges barely recorded; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, up to ${m[m.length - 1].peak.toFixed(0)} dBZ near ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])} (orange bands, rows R in Storms).` : '';
+    m.length ? `Radar showed ${m.length} convective cell${m.length === 1 ? '' : 's'} the gauges barely recorded; latest ${fmtSpan(m[m.length - 1].start, m[m.length - 1].end)}, up to ${m[m.length - 1].peak.toFixed(0)} dBZ near ${nearestPlace(m[m.length - 1].at[0], m[m.length - 1].at[1])} (orange "Radar cell" bands and rows).` : '';
 }
 function summaryText() {
   const o = summaryParts(), L = [];
@@ -1042,12 +1048,12 @@ function renderFig1() {
   const w = document.getElementById('p-hr').parentElement.clientWidth - AXIS_W - 20;
   const [va, vb] = VIEW(), barW = Math.max(1, Math.min(14, w / Math.max(1, (vb - va) / HOUR) * 0.8));
   const ds = [
-    { type: 'bar', label: 'Wettest Alta gauge', data: hu.filter(x => x.max > 0).map(x => ({ x: x.t, y: x.max })), backgroundColor: '#bdbdbd', barThickness: barW, grouped: false, order: 3 },
-    { type: 'bar', label: 'Mean of CLN, PC064, AGD, UTALC', data: hu.filter(x => x.mean > 0).map(x => ({ x: x.t, y: x.mean })), backgroundColor: INK, barThickness: barW, grouped: false, order: 2 },
+    { type: 'bar', label: 'Alta gauges, wettest', data: hu.filter(x => x.max > 0).map(x => ({ x: x.t, y: x.max })), backgroundColor: '#bdbdbd', barThickness: barW, grouped: false, order: 3 },
+    { type: 'bar', label: 'Alta gauges, mean', data: hu.filter(x => x.mean > 0).map(x => ({ x: x.t, y: x.mean })), backgroundColor: INK, barThickness: barW, grouped: false, order: 2 },
   ];
   if (document.getElementById('show-radar').checked && S.radar.some(Boolean)) {
     const hr = new Map(); for (const f of S.radar) if (f) { const h = Math.floor(f.t / HOUR) * HOUR, o = hr.get(h) || { s: 0, n: 0 }; o.s += f.basinRate; o.n++; hr.set(h, o); }
-    ds.push({ type: 'line', label: 'Radar, watershed mean', data: [...hr].sort((p, q) => p[0] - q[0]).map(([h, o]) => ({ x: h + HOUR / 2, y: o.s / o.n })), borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, stepped: 'middle', order: 1 });
+    ds.push({ type: 'line', label: 'Radar rate, whole upper canyon', data: [...hr].sort((p, q) => p[0] - q[0]).map(([h, o]) => ({ x: h + HOUR / 2, y: o.s / o.n })), borderColor: RADAR, backgroundColor: RADAR, borderWidth: 2, stepped: 'middle', order: 1 });
   }
   timeChart('p-hr', ds, { type: 'bar', legend: true, rightPad: RIGHT_PAD, yTitle: 'mm per hour', y2: { title: 'in per hour', conv: v => v / 25.4 }, paper: { ...sh, labels: true }, y: { beginAtZero: true, suggestedMax: 1 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm/h (${(c.parsed.y / 25.4).toFixed(3)} in/h)` });
 
@@ -1058,7 +1064,7 @@ function renderFig1() {
     const pts = [{ x: Math.max(S.win.a, first - 10 * MIN), y: 0 }]; let c = 0;
     for (const inc of p.incs) if (inc.include && inc.mm > 0 && inc.t > S.win.a && inc.t <= S.win.b) { c = r3(c + inc.mm); pts.push({ x: inc.t, y: c }); }
     const lastObs = p.obs[bisectRight(p.obs, S.win.b) - 1]; if (lastObs > pts[pts.length - 1].x) pts.push({ x: lastObs, y: c });
-    cum.push({ label: `${s.short}, ${ft(s.elev)} ft (${s.net})`, endLabel: `${s.short} ${mmStr(c, 1)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, stepped: true, borderDash: s.role === 'neighbor' ? [3, 2] : undefined, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
+    cum.push({ label: `${s.short} (${s.id}), ${ft(s.elev)} ft, ${s.net}`, endLabel: `${s.short} ${mmStr(c, 1)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, stepped: true, borderDash: s.role === 'neighbor' ? [3, 2] : undefined, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
   timeChart('p-cum', cum, { endLabels: true, decimate: false, paper: sh, yTitle: 'Total, mm', y2: { title: 'in', conv: v => v / 25.4 }, y: { beginAtZero: true }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm (${(c.parsed.y / 25.4).toFixed(2)} in)` });
 
@@ -1066,7 +1072,7 @@ function renderFig1() {
   if (S.syn) for (const id of TEMP_SHOW) {
     const st = S.syn[id]; if (!st || !st.v.air_temp) continue; const s = STN[id], pts = [];
     st.t.forEach((t, i) => { const v = st.v.air_temp[i]; if (v != null && t >= S.win.a && t <= S.win.b) pts.push({ x: t, y: v }); });
-    if (pts.length) tds.push({ label: `${s.short}, ${ft(s.elev)} ft`, endLabel: `${s.short} ${ft(s.elev)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
+    if (pts.length) tds.push({ label: `${s.short} (${s.id}), ${ft(s.elev)} ft`, endLabel: `${s.short} ${ft(s.elev)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
   timeChart('p-temp', tds, { endLabels: true, reserveY2: true, yTitle: 'Air temp, °C', paper: { ...sh, hlines: [{ y: 0, label: '0 °C', color: INK2 }, { y: 1, color: '#b9b7af', dash: [1, 3] }] }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} °C` });
 
@@ -1089,12 +1095,12 @@ function renderFig1() {
 
   document.getElementById('ts-range').textContent = `${fmtDT(va)} to ${fmtDT(vb, { tz: true })}${S.view ? ' (zoomed)' : ''}`;
   document.getElementById('cap1').innerHTML =
-    `<b>Precipitation:</b> hourly; black is the mean of the four Alta gauges (CLN, PC064, AGD, UTALC), gray the wettest of them, orange the radar estimate over the watershed (echoes ≥ 30 dBZ, uncalibrated). ` +
+    `<b>Precipitation:</b> hourly. Black bars are the mean of the four Alta gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy); gray bars the wettest of them. The orange line is the rain rate radar predicts, averaged over the whole upper canyon above the canyon mouth (70.8 km², not just Albion or Alta; echoes ≥ 30 dBZ, uncalibrated). ` +
     `<b>Running total:</b> at each gauge. Blue lines are Albion Basin and Alta; gray lines are lower in the canyon, dashed gray is Big Cottonwood. ` +
     `<b>Creek flow:</b> Tanners Flat, the only gauge in the canyon (above the diversions)${nsp ? `; × marks ${nsp} sensor dropout${nsp === 1 ? '' : 's'} removed` : ''}. ` +
     `<b>Air temperature:</b> Albion Basin (blue), Hidden Peak summit, and Powerhouse near the canyon mouth (gray); dashed line 0 °C, dotted line 1 °C. ` +
     `<b>Rain line:</b> the elevation where air is 1 °C, from a fit of all eight station temperatures each hour. Below it precipitation falls mostly as rain, above it mostly as snow. Gaps are inversions. ` +
-    `Gray bands S are storms (≥ ${S.minMm} mm at an Alta gauge); orange bands R are radar cells with no gauge storm.`;
+    `<b>Bands:</b> gray "Storm N" is a storm the gauges recorded (≥ ${S.minMm} mm at an Alta gauge); orange "Radar N" is a burst radar saw that the gauges barely caught.`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
 
@@ -1107,9 +1113,9 @@ function panelBullets(va, vb) {
   if (S.syn) {
     for (const e of evs.slice(-2)) {
       const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).map(g => st[g.id].tot);
-      if (vals.length) A.push(`S${k}, ${fmtSpan(e.start, e.end)}: up to ${mmIn(Math.max(...vals))}`);
+      if (vals.length) { const wg = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).reduce((x, y) => st[y.id].tot > st[x.id].tot ? y : x); A.push(`Storm ${k}, ${fmtSpan(e.start, e.end)}: up to ${mmIn(Math.max(...vals))} at ${wg.short}`); }
     }
-    if (cells.length) A.push(`<span class="flag">Radar saw ${cells.length} cell${cells.length === 1 ? '' : 's'} the gauges missed (orange bands)</span>`);
+    if (cells.length) A.push(`<span class="flag">Radar saw ${cells.length} burst${cells.length === 1 ? '' : 's'} the gauges missed (orange bands), the strongest near ${nearestPlace(...cells.reduce((x, y) => y.peak > x.peak ? y : x).at)}</span>`);
     const tot = GAUGES.map(g => ({ g, r: sumPrecip(S.P[g.id], va, vb) })).filter(x => x.r.status !== 'nodata' && !suspectZero(x.g.id, va, vb));
     const al = tot.filter(x => isFocus(x.g)), ot = tot.filter(x => !isFocus(x.g));
     if (al.length && ot.length) { const am = Math.max(...al.map(x => x.r.mm)), ow = ot.reduce((x, y) => y.r.mm > x.r.mm ? y : x);
@@ -1124,8 +1130,8 @@ function panelBullets(va, vb) {
   }
   for (const e of evs) {
     const r = e.resp && e.resp.lcc_tanners_q, k = S.events.indexOf(e) + 1;
-    if (r && r.clear) C.push(`S${k}: rose ${cfs(r.base)} → ${cfs(r.peak)} cfs (+${cfs(r.dQ)}), peak ${r.lag.toFixed(1)} h after the rain`);
-    else if (r && r.base != null && r.peak != null) C.push(`S${k}: no clear rise above the gauge's 0.3 cfs steps`);
+    if (r && r.clear) C.push(`Storm ${k}: rose ${cfs(r.base)} → ${cfs(r.peak)} cfs (+${cfs(r.dQ)}), peak ${r.lag.toFixed(1)} h after the rain`);
+    else if (r && r.base != null && r.peak != null) C.push(`Storm ${k}: no clear rise above the gauge's 0.3 cfs steps`);
   }
   put('kb-a', A); put('kb-b', B); put('kb-c', C); put('kb-d', D); put('kb-e', E);
 }
@@ -1140,7 +1146,7 @@ function fig1Takeaway(va, vb) {
     const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).map(g => st[g.id].tot);
     const temps = S.det.map(id => st[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((a, b) => a + b.meanT, 0) / temps.length : null;
     const r = e.resp && e.resp.lcc_tanners_q;
-    let t = `S${k} (${fmtSpan(e.start, e.end)}): ${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)} mm` : ''}${mt != null ? ` as ${mt < 1 ? 'mixed rain and snow' : 'rain'} (${mt.toFixed(0)} °C)` : ''}`;
+    let t = `Storm ${k} (${fmtSpan(e.start, e.end)}): ${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)} mm` : ''}${mt != null ? ` as ${mt < 1 ? 'mixed rain and snow' : 'rain'} (${mt.toFixed(0)} °C)` : ''}`;
     if (r && r.base != null && r.peak != null) t += r.clear ? `; Tanners Flat rose ${cfs(r.base)} → ${cfs(r.peak)} cfs, peaking ${r.lag.toFixed(1)} h after the rain` : r.flags.some(f => f.startsWith('peak before')) ? `; Tanners Flat had already peaked (${cfs(r.peak)} cfs) from earlier rain` : '; no clear rise at Tanners Flat';
     parts.push(t + '.');
   }
@@ -1189,32 +1195,32 @@ function renderStorms() {
     const temps = S.det.map(id => stats[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((x, y) => x + y.meanT, 0) / temps.length : null;
     let flags = '';
     const dry = GAUGES.filter(g => stats[g.id].hasData && stats[g.id].tot === 0 && stats[g.id].meanT != null && stats[g.id].meanT < 1);
-    if (dry.length && vals.length && Math.max(...vals) >= S.minMm) flags += fn(`S${i + 1}: ${dry.map(g => g.id).join(', ')} caught nothing below 1 °C, likely snow sitting in unheated buckets; expect delayed melt tips.`);
+    if (dry.length && vals.length && Math.max(...vals) >= S.minMm) flags += fn(`Storm ${i + 1}: ${dry.map(g => g.short).join(', ')} caught nothing below 1 °C, likely snow sitting in unheated buckets; expect delayed melt tips.`);
     const wet = GAUGES.filter(g => stats[g.id].tot >= 0.5); e.singleGauge = wet.length === 1;
     if (e.singleGauge) flags += fn('Only one gauge recorded 0.5 mm or more: an isolated cell or delayed melt.');
     if (e.beforeWindow) flags += fn('Began before the window.');
     const r = e.resp.lcc_tanners_q;
     if (r) for (const f of r.flags) flags += fn(`Tanners Flat: ${f}.`);
     const rd = radarSum(e.start - 30 * MIN, e.end + 30 * MIN);
-    rows.push(`<tr class="click" data-s="${e.start}" data-e="${e.end}" data-t="${e.start + (e.end - e.start) / 2}"><td class="l"><b>S${i + 1}</b>${flags}</td><td class="l">${fmtSpan(e.start, e.end)}</td><td>${durTxt(e.end - e.start)}</td>
+    rows.push(`<tr class="click" data-s="${e.start}" data-e="${e.end}" data-t="${e.start + (e.end - e.start) / 2}"><td class="l"><b>Storm ${i + 1}</b>${flags}</td><td class="l">${fmtSpan(e.start, e.end)}</td><td>${durTxt(e.end - e.start)}</td>
       <td>${alta.length ? `${mmStr(Math.min(...alta), 1)}–${mmStr(Math.max(...alta), 1)}<div class="inch">${inStr(Math.min(...alta))}–${inStr(Math.max(...alta))} in</div>` : '—'}</td><td>${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)}<div class="inch">${inStr(Math.min(...vals))}–${inStr(Math.max(...vals))} in</div>` : '—'}</td>
-      <td>${pk ? `${pk.peak.toFixed(2)} <span class="muted">${pk.id}</span>` : '—'}</td><td>${rd ? `${rd.mm.toFixed(1)}${rd.maxDbz != null ? ` <span class="muted">${rd.maxDbz.toFixed(0)} dBZ</span>` : ''}` : '<span class="muted">n/a</span>'}</td>
+      <td>${pk ? `${pk.peak.toFixed(2)} <span class="muted">${STN[pk.id].short}</span>` : '—'}</td><td>${rd ? `${rd.mm.toFixed(1)}${rd.maxDbz != null ? ` <span class="muted">${rd.maxDbz.toFixed(0)} dBZ</span>` : ''}` : '<span class="muted">n/a</span>'}</td>
       <td class="l">${mt == null ? '—' : `${mt < 1 ? 'mixed/snow' : 'rain'} <span class="muted">${mt.toFixed(1)} °C</span>`}</td>
       <td>${r && r.base != null && r.peak != null ? `${cfs(r.base)} → ${cfs(r.peak)}` : '—'}</td><td>${r && r.dQ != null ? (r.dQ >= 0 ? '+' : '') + cfs(r.dQ) : '—'}</td><td>${r && r.clear ? r.lag.toFixed(1) : '—'}</td></tr>`);
   });
   S.cells.filter(c => !c.inStorm).forEach((c, i) => {
     const ga = ALTA.map(id => sumPrecip(S.P[id], c.start - 30 * MIN, c.end + 30 * MIN)).filter(x => x.status !== 'nodata').map(x => x.mm), rd = radarSum(c.start - 30 * MIN, c.end + 30 * MIN);
-    rows.push(`<tr class="click" data-s="${c.start}" data-e="${c.end}" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>R${i + 1}</b>${fn('Radar cell (≥ 35 dBZ over the watershed) with no gauge storm. Gauges sit between cells, and tipping buckets miss much of the rain and hail in short convective bursts.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
+    rows.push(`<tr class="click" data-s="${c.start}" data-e="${c.end}" data-t="${c.peakT}"><td class="l" style="color:${RADAR}"><b>Radar cell ${i + 1}</b>${fn('Radar cell: a burst of 35 dBZ or more somewhere over the upper canyon with no gauge storm. Gauges sit between cells, and tipping buckets miss much of the rain and hail in short convective bursts.')}</td><td class="l">${fmtSpan(c.start, c.end)}</td><td>${durTxt(c.end - c.start + 5 * MIN)}</td>
       <td>${ga.length ? `${mmStr(Math.min(...ga), 1)}–${mmStr(Math.max(...ga), 1)}` : '—'}</td><td>—</td><td>—</td><td>${rd ? rd.mm.toFixed(1) : '—'} <span class="muted">${c.peak.toFixed(0)} dBZ</span></td>
       <td class="l">near ${nearestPlace(c.at[0], c.at[1])}</td><td colspan="3" class="l muted">peak ${fmtTime(c.peakT)}</td></tr>`);
   });
-  tb.innerHTML = `<thead><tr><th class="l"></th><th class="l">Start to end</th><th>Duration</th><th>Alta gauges<br>mm</th><th>All LCC gauges<br>mm</th><th>Peak 10 min<br>mm</th><th>Radar, watershed<br>mm</th><th class="l">Rain or snow</th><th>Tanners Flat<br>cfs</th><th>ΔQ<br>cfs</th><th>Lag<br>h</th></tr></thead>` +
+  tb.innerHTML = `<thead><tr><th class="l"></th><th class="l">Start to end</th><th>Duration</th><th>Alta gauges<br>mm</th><th>All LCC gauges<br>mm</th><th>Peak 10 min<br>mm</th><th>Radar, upper canyon<br>mm</th><th class="l">Rain or snow</th><th>Tanners Flat<br>cfs</th><th>ΔQ<br>cfs</th><th>Lag<br>h</th></tr></thead>` +
     `<tbody>${rows.join('') || `<tr><td class="l muted" colspan="11">No storms or radar cells in this window.</td></tr>`}</tbody>`;
   note.innerHTML = notes.map((n, i) => `<sup class="f">${String.fromCharCode(97 + i)}</sup> ${n}`).join('<br>') + (notes.length ? '<br>' : '') +
     (S.minor.length ? `${S.minor.length} lighter tip group${S.minor.length === 1 ? '' : 's'} below ${S.minMm} mm not listed. ` : '') +
-    `Each row is a storm (S) or a radar cell the gauges missed (R). Ranges run from the driest to the wettest gauge; Alta gauges are CLN, PC064, AGD, UTALC. Radar is the watershed-mean estimate with the peak reflectivity. Tanners Flat columns give flow before → peak, the rise, and the lag from the middle of the rain to the peak. Click a row to zoom the charts and set the map's radar to it.`;
+    `Each row is a storm the gauges recorded or a radar cell they missed. Ranges run from the driest to the wettest gauge; the Alta gauges are Collins Gulch, Albion Basin, Guard House, and Alta hwy. Radar is the amount radar predicts averaged over the whole upper canyon, with the peak reflectivity anywhere in it. Tanners Flat columns give flow before → peak, the rise, and the lag from the middle of the rain to the peak. Click a row to zoom the charts and set the map's radar to it.`;
   const nR = S.cells.filter(c => !c.inStorm).length;
-  document.getElementById('storm-def').textContent = `${S.events.length} storm${S.events.length === 1 ? '' : 's'}${nR ? ` and ${nR} radar-only cell${nR === 1 ? '' : 's'}` : ''} in the window`;
+  document.getElementById('storm-def').textContent = `${S.events.length} storm${S.events.length === 1 ? '' : 's'}${nR ? ` and ${nR} radar cell${nR === 1 ? '' : 's'}` : ''} in the window`;
   tb.querySelectorAll('tr.click').forEach(tr => tr.onclick = () => {
     const a = +tr.dataset.s, b = +tr.dataset.e;
     tb.querySelectorAll('tr.sel').forEach(x => x.classList.remove('sel')); tr.classList.add('sel');
@@ -1291,7 +1297,7 @@ function renderElev() {
     options: {
       animation: false, responsive: true, maintainAspectRatio: false, layout: { padding: { right: 62, top: 6 } },
       plugins: { legend: { display: false }, decimation: { enabled: false }, paper: { sync: false },
-        tooltip: { backgroundColor: 'rgba(255,255,255,0.96)', titleColor: INK, bodyColor: INK, borderColor: INK, borderWidth: 0.5, callbacks: { title: () => '', label: c => `${c.raw.s.name} (${c.raw.s.net}): ${mmIn(c.raw.x, 2)} at ${ft(c.raw.y)} ft${c.raw.partial ? ' (partial)' : ''}` } } },
+        tooltip: { backgroundColor: 'rgba(255,255,255,0.96)', titleColor: INK, bodyColor: INK, borderColor: INK, borderWidth: 0.5, callbacks: { title: () => '', label: c => `${c.raw.s.name} (${c.raw.s.id}, ${c.raw.s.net}): ${mmIn(c.raw.x, 2)} at ${ft(c.raw.y)} ft${c.raw.partial ? ' (partial)' : ''}` } } },
       scales: {
         x: { ...ax, beginAtZero: true, title: { display: true, text: 'Window precipitation, mm (in)', color: INK, font: { size: 10.5, weight: '700' } }, ticks: { color: INK, font: { size: 10.5, weight: '600' }, callback: v => `${v} (${(v / 25.4).toFixed(2)})` } },
         y: { ...ax, min: 5500, max: 10000, title: { display: true, text: 'Gauge elevation, ft', color: INK, font: { size: 10.5, weight: '700' } }, ticks: { color: INK, font: { size: 10.5, weight: '600' }, callback: v => ft(v) } },
@@ -1326,7 +1332,7 @@ function renderStationTable() {
     const sd = qcSnowDepth(st).filter(x => x.t <= T).pop(), fc = flagCounts(p, S.win.a, S.win.b), qc = [];
     if (fc.reset) qc.push(`${fc.reset} reset`); if (fc.gap) qc.push(`${fc.gap} gap`); if (fc.excluded) qc.push(`<span class="bad">${fc.excluded} suspect out (${mmStr(w.excluded)} mm)</span>`); if (fc.corroborated) qc.push(`${fc.corroborated} suspect kept`);
     if (sd && sd.flag) qc.push(`depth: ${sd.flag}`);
-    if (s.mode && w.status !== 'nodata' && w.mm === 0) { const nb = ALTA.filter(id => id !== s.id).map(id => sumPrecip(S.P[id], S.win.a, S.win.b)).filter(x => x.status !== 'nodata').map(x => x.mm); if (nb.length && Math.max(...nb) >= 1) qc.push('<span class="bad">caught nothing while Alta gauges did</span>'); }
+    if (s.mode && w.status !== 'nodata' && w.mm === 0) { const nb = ALTA.filter(id => id !== s.id).map(id => sumPrecip(S.P[id], S.win.a, S.win.b)).filter(x => x.status !== 'nodata').map(x => x.mm); if (nb.length && Math.max(...nb) >= 1) qc.push('<span class="bad">caught nothing while the other Alta gauges did</span>'); }
     const stale = last && Date.now() - last > 2 * HOUR && S.win.b > Date.now() - HOUR;
     return `<tr class="${isFocus(s) ? '' : 'ctx'}"><td class="l"><span class="sw" style="background:${s.mode ? stColor(s) : '#fff'};border:0.75px solid ${isFocus(s) ? '#111' : '#9a988f'}"></span>${s.name} <span class="op">${s.net} · ${stA(s)}</span></td><td>${ft(s.elev)}</td>
       <td>${s.mode ? cell(w) : '—'}</td><td>${s.mode ? cell(r24) : '—'}</td><td>${s.mode ? cell(rm) : '—'}</td><td>${ta == null ? '—' : ta.toFixed(1)}</td>
@@ -1365,7 +1371,7 @@ function renderValley() {
   for (const f of FLOW.filter(x => !x.primary)) { const s = F[f.key]; if (!s || !s.t.length) continue; ds.push({ label: f.name, endLabel: f.name.replace(/^USGS 10168000 /, 'USGS ').replace(/@ /, ''), data: s.t.map((t, i) => ({ x: t, y: s.v[i] })).filter(p => p.x >= S.win.a && p.x <= S.win.b), borderColor: cols[f.key], backgroundColor: cols[f.key], stepped: f.src === 'county' }); }
   timeChart('p-valley', ds, { showX: true, endLabels: true, yTitle: 'Discharge, cfs', xRange: [S.win.a, S.win.b], paper: { ...shading(), sync: false }, tooltipLabel: c => `${c.dataset.label}: ${cfs(c.parsed.y)} cfs` });
   const rows = [];
-  S.events.forEach((e, i) => { for (const f of FLOW.filter(x => !x.primary)) { const r = e.resp && e.resp[f.key]; if (r) rows.push(`<tr><td class="l">S${i + 1}</td><td class="l">${f.name} <span class="muted">${f.note}</span></td><td>${cfs(r.base)}</td><td>${cfs(r.peak)}</td><td>${r.dQ == null ? '—' : (r.dQ >= 0 ? '+' : '') + cfs(r.dQ)}</td><td>${r.clear ? r.lag.toFixed(1) : '—'}</td><td class="l muted">${r.flags.join('; ')}</td></tr>`); } });
+  S.events.forEach((e, i) => { for (const f of FLOW.filter(x => !x.primary)) { const r = e.resp && e.resp[f.key]; if (r) rows.push(`<tr><td class="l">Storm ${i + 1}</td><td class="l">${f.name} <span class="muted">${f.note}</span></td><td>${cfs(r.base)}</td><td>${cfs(r.peak)}</td><td>${r.dQ == null ? '—' : (r.dQ >= 0 ? '+' : '') + cfs(r.dQ)}</td><td>${r.clear ? r.lag.toFixed(1) : '—'}</td><td class="l muted">${r.flags.join('; ')}</td></tr>`); } });
   document.getElementById('t-valley').innerHTML = `<thead><tr><th class="l">Storm</th><th class="l">Gauge</th><th>Baseline</th><th>Peak</th><th>ΔQ</th><th>Lag h</th><th class="l">Flags</th></tr></thead><tbody>${rows.join('') || '<tr><td class="l muted" colspan="7">No storms in the window.</td></tr>'}</tbody>`;
   const up = countyManifest ? Date.parse(countyManifest.updated_utc) : null;
   document.getElementById('cap-s1').innerHTML = `Gauges below the canyon, downstream of the Salt Lake City and Metropolitan Water District diversions and the valley storm drains. Their storm peaks are valley runoff and water operations, not the upper canyon; use Tanners Flat for that. Sources: <a href="https://rain-flow.saltlakecounty.gov/" target="_blank" rel="noopener">Salt Lake County</a>${up ? ` (copied ${ago(up)})` : ''}, <a href="https://waterdata.usgs.gov/monitoring-location/USGS-10168000/" target="_blank" rel="noopener">USGS 10168000</a>.`;
