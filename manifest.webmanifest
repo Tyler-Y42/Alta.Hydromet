@@ -1,0 +1,8 @@
+{
+  "name": "Alta Hydromet",
+  "short_name": "Alta Hydro",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#16213e",
+  "theme_color": "#16213e"
+}

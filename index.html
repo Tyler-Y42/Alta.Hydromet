@@ -1,0 +1,1498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alta Hydromet</title>
+<meta name="description" content="Upper Little Cottonwood Canyon hydromet: QC'd MesoWest precip, storm detection, SNOTEL, and streamflow response.">
+<meta name="theme-color" content="#16213e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A7%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    color-scheme: dark;
+    --accent: #74ebd5;
+    --ink: #ffffff;
+    --ink2: rgba(255, 255, 255, 0.72);
+    --ink3: rgba(255, 255, 255, 0.5);
+    --card: rgba(255, 255, 255, 0.08);
+    --line: rgba(255, 255, 255, 0.12);
+    --grid: rgba(255, 255, 255, 0.07);
+    --good: #0ca30c;
+    --warn: #fab219;
+    --bad: #e66767;
+    /* categorical slots, dark-surface steps of the validated reference palette */
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #9085e9; --s7: #e66767; --s8: #b9b9b9;
+  }
+  /* background-image, NOT the background shorthand: iOS paints safe-area strips with
+     background-color only, and the shorthand would reset it to transparent. */
+  html {
+    background-color: #16213e;
+    background-image: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background-attachment: fixed;
+    min-height: 100%;
+  }
+  body {
+    margin: 0; color: var(--ink); background-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+             max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 1400px; margin: 0 auto; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 12px; }
+  header h1 { margin: 0; font-size: 1.6rem; font-weight: 300; letter-spacing: 1px; }
+  header h1 b { color: var(--accent); font-weight: 500; }
+  header .sub { color: var(--ink3); font-size: 0.85rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 0.875rem;
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    padding: 14px 16px; margin-bottom: 14px; min-width: 0;
+  }
+  .card h2 {
+    font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase; color: var(--ink3);
+    margin: 0 0 10px; font-weight: 600; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px;
+  }
+  .card h2 .src { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 0.78rem; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  .grid2 > .card { margin-bottom: 0; }
+  .gridgap { margin-bottom: 14px; }
+  @media (max-width: 960px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .row + .row { margin-top: 8px; }
+  .btn {
+    background: rgba(116, 235, 213, 0.12); color: var(--accent); border: 1px solid rgba(116, 235, 213, 0.45);
+    border-radius: 0.5rem; padding: 0.35rem 0.7rem; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  }
+  .btn:hover { background: rgba(116, 235, 213, 0.2); }
+  .btn.on { background: rgba(116, 235, 213, 0.32); color: #fff; }
+  .btn.quiet { background: transparent; border-color: var(--line); color: var(--ink2); font-weight: 500; }
+  input, select {
+    background: rgba(0, 0, 0, 0.25); color: var(--ink); border: 1px solid var(--line); border-radius: 0.45rem;
+    padding: 0.3rem 0.45rem; font: inherit; font-size: 0.85rem; max-width: 100%;
+  }
+  input[type=number] { width: 4.2rem; }
+  label { font-size: 0.85rem; color: var(--ink2); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--line); font-size: 0.78rem; color: var(--ink2); }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink3); flex: 0 0 auto; }
+  .chip.ok .dot { background: var(--good); } .chip.warn .dot { background: var(--warn); } .chip.err .dot { background: var(--bad); }
+  .chip.loading .dot { background: var(--accent); animation: pulse 1s infinite alternate; }
+  @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }
+  .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; vertical-align: top; }
+  th { color: var(--ink3); font-weight: 600; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  th:first-child, td:first-child { text-align: left; }
+  td.l, th.l { text-align: left; }
+  td .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .muted { color: var(--ink3); } .small { font-size: 0.78rem; } .ink2 { color: var(--ink2); }
+  .flag { color: var(--warn); } .bad { color: var(--bad); }
+  .tag { display: inline-block; padding: 0 6px; border-radius: 4px; font-size: 0.72rem; border: 1px solid currentColor; margin-left: 4px; }
+  .chart-box { position: relative; height: 290px; }
+  .chart-box.short { height: 220px; }
+  @media (max-width: 600px) { .chart-box { height: 240px; } .chart-box.short { height: 200px; } header h1 { font-size: 1.35rem; } }
+  textarea.readout {
+    width: 100%; min-height: 220px; box-sizing: border-box; resize: vertical; background: rgba(0, 0, 0, 0.28); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 0.5rem; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.78rem; line-height: 1.45; padding: 10px;
+  }
+  .note { font-size: 0.8rem; color: var(--ink2); line-height: 1.5; margin: 8px 0 0; }
+  .note b { color: var(--ink); font-weight: 600; }
+  details { margin-top: 8px; }
+  details > summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
+  .methods { font-size: 0.82rem; color: var(--ink2); line-height: 1.55; }
+  .methods h3 { color: var(--ink); font-size: 0.85rem; margin: 14px 0 4px; }
+  .methods ul { padding-left: 1.1rem; margin: 4px 0; }
+  .test-pass { color: var(--good); } .test-fail { color: var(--bad); }
+  pre.tests { white-space: pre-wrap; font-size: 0.78rem; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; margin: 0; }
+  footer { color: var(--ink3); font-size: 0.78rem; line-height: 1.6; margin-top: 6px; }
+  .hidden { display: none !important; }
+  @media (prefers-reduced-transparency: reduce) { .card { -webkit-backdrop-filter: none; backdrop-filter: none; background: #1d2a4a; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1><b>Alta</b> Hydromet</h1>
+    <div class="sub">Upper Little Cottonwood Canyon: precipitation, snow, and streamflow response. Times are Mountain (America/Denver).</div>
+  </div>
+  <div class="sub" id="asof">Loading…</div>
+</header>
+
+<section class="card">
+  <h2>Window <span class="src" id="win-label"></span></h2>
+  <div class="row" id="presets">
+    <button class="btn" data-p="24h">24 h</button>
+    <button class="btn" data-p="72h">72 h</button>
+    <button class="btn" data-p="7d">7 d</button>
+    <button class="btn" data-p="30d">30 d</button>
+    <button class="btn" data-p="wy">Water year</button>
+    <button class="btn quiet" id="refresh" title="Re-fetch everything (always re-pulls at least the last 72 h)">Refresh</button>
+  </div>
+  <div class="row">
+    <label>From <input type="datetime-local" id="cs"></label>
+    <label>To <input type="datetime-local" id="ce"></label>
+    <button class="btn quiet" id="apply-custom">Apply custom</button>
+  </div>
+  <details>
+    <summary>Storm detection settings</summary>
+    <div class="row" style="margin-top:8px">
+      <span class="small ink2">Detect from:</span>
+      <span id="det-boxes" class="row"></span>
+    </div>
+    <div class="row">
+      <label>Max gap between tips <input type="number" id="gap-h" value="3" min="0.5" max="24" step="0.5"> h</label>
+      <label>Storm threshold <input type="number" id="min-mm" value="1.0" min="0.25" max="50" step="0.25"> mm</label>
+      <button class="btn quiet" id="apply-storm">Recompute</button>
+    </div>
+  </details>
+  <div class="chips" id="status" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+  <h2>Readout <span class="row">
+    <button class="btn quiet" id="copy-readout">Copy</button>
+    <button class="btn quiet" data-export="precip">Precip CSV</button>
+    <button class="btn quiet" data-export="events">Storms CSV</button>
+    <button class="btn quiet" data-export="flow">Flow CSV</button>
+    <button class="btn quiet" data-export="snotel">SNOTEL CSV</button>
+  </span></h2>
+  <textarea class="readout" id="readout" readonly spellcheck="false"></textarea>
+</section>
+
+<section class="card">
+  <h2>Precipitation <span class="src">QC'd from <a href="https://synopticdata.com/" target="_blank" rel="noopener">Synoptic / MesoWest</a> timeseries · totals ±0.25 mm (one tip)</span></h2>
+  <div class="tscroll"><table id="precip-table"></table></div>
+  <p class="note" id="precip-note"></p>
+</section>
+
+<div class="grid2 gridgap">
+  <section class="card">
+    <h2>Cumulative precipitation <span class="src">window total, mm</span></h2>
+    <div class="chart-box"><canvas id="c-cum"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>Precipitation by interval
+      <span class="row">
+        <select id="bar-st" aria-label="Station"></select>
+        <button class="btn quiet" data-bin="600000">10 min</button>
+        <button class="btn quiet" data-bin="3600000">Hourly</button>
+      </span>
+    </h2>
+    <div class="chart-box"><canvas id="c-bar"></canvas></div>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Storms <span class="src" id="storm-def"></span></h2>
+  <div class="tscroll"><table id="event-table"></table></div>
+  <p class="note" id="event-note"></p>
+</section>
+
+<section class="card">
+  <h2>Streamflow
+    <span class="src"><a href="https://rain-flow.saltlakecounty.gov/" target="_blank" rel="noopener">Salt Lake County Flood Control</a> · <a href="https://waterdata.usgs.gov/monitoring-location/USGS-10168000/" target="_blank" rel="noopener">USGS 10168000</a></span>
+  </h2>
+  <div class="chart-box"><canvas id="c-flow"></canvas></div>
+  <div class="tscroll" style="margin-top:10px"><table id="resp-table"></table></div>
+  <p class="note" id="flow-note"></p>
+  <details>
+    <summary>Add a canyon-mouth record (CSV upload)</summary>
+    <p class="note">Two columns: timestamp, cfs. Timestamps with Z or an offset are used as given; plain timestamps
+      (2026-10-08 13:40, or 10/8/2026 1:40 PM) are read as Mountain time. Kept in memory only; it is gone when you close the page.</p>
+    <div class="row"><input type="file" id="upload" accept=".csv,text/csv,text/plain"><span class="small muted" id="upload-status"></span></div>
+  </details>
+</section>
+
+<div class="grid2 gridgap">
+  <section class="card">
+    <h2>Temperature <span class="src">air at each station, water at Tanners Flat, °C</span></h2>
+    <div class="chart-box short"><canvas id="c-temp"></canvas></div>
+  </section>
+  <section class="card">
+    <h2>Latest conditions <span class="src" id="latest-asof"></span></h2>
+    <div class="tscroll"><table id="latest-table"></table></div>
+  </section>
+</div>
+
+<section class="card">
+  <h2>SNOTEL
+    <span class="row">
+      <select id="sn-el" aria-label="SNOTEL element">
+        <option value="WTEQ">Snow water equivalent</option>
+        <option value="SNWD">Snow depth</option>
+        <option value="PRCP">Daily precipitation</option>
+      </select>
+      <span class="src"><a href="https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html" target="_blank" rel="noopener">NRCS AWDB</a> daily</span>
+    </span>
+  </h2>
+  <div class="chart-box short"><canvas id="c-sn"></canvas></div>
+  <div class="tscroll" style="margin-top:10px"><table id="sn-table"></table></div>
+  <p class="note">Daily values only. A value dated D is the NRCS midnight (PST) reading that ends day D, plotted at that midnight. Hourly SNOTEL
+    precipitation has 0.1 in resolution and swings ±0.1 to 0.3 in from thermal effects in the storage gauge, so it is not used.</p>
+</section>
+
+<section class="card">
+  <h2>Methods and QC</h2>
+  <div class="methods">
+    <details open>
+      <summary>Precipitation QC</summary>
+      <ul>
+        <li><b>PacifiCorp (PC064 Albion Basin, PC056 Brighton):</b> sum of <code>precip_accum_ten_minute</code>. Their <code>precip_accum_since_local_midnight</code> resets near 01:00 MDT (midnight standard time) and is never differenced.</li>
+        <li><b>Avalanche network gauges (AGD, ELBUT, SPC):</b> first differences of cumulative <code>precip_accum</code>. Negative steps are bucket dumps or resets and count as 0 (flagged <i>reset</i>). A step spanning more than 30 min is attributed to the later report (flagged <i>gap</i>).</li>
+        <li><b>Suspect jumps:</b> any increment faster than 10 mm per 10 min is flagged. It is shown, but left out of totals unless another gauge recorded precipitation within 30 min of it.</li>
+        <li><b>Resolution:</b> 0.254 mm (0.01 in) per tip, so every total is ±0.25 mm. Totals print to 0.01 mm. Sums are rounded to 0.001 mm to strip floating point noise.</li>
+        <li><b>Intervals:</b> a 10 min value stamped t covers (t − 10 min, t]. A window total includes every report with a time stamp inside (start, end].</li>
+        <li><b>Late data:</b> each station shows its last report. "No data" means no precip report in the interval, which is different from 0.00 mm. A total is marked partial when the last report is more than 25 min before the end of the interval. Every load re-fetches at least the last 72 h because values arrive late and get revised.</li>
+        <li><b>UTALC (Alta RWIS):</b> its <code>precip_accum_ten_minute</code> and present weather text are shown for context only. It is a road weather sensor, not a gauge, so it never enters storm detection or corroboration.</li>
+        <li><b>Undercatch:</b> unshielded tipping buckets undercatch snow, often badly. Treat totals during snow as minimums.</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Snow depth QC</summary>
+      <ul>
+        <li>Values outside 0 to 4000 mm are dropped. UTWLC is never used (it reads an impossible 719 mm in October).</li>
+        <li>A sonic sensor over bare ground returns grass and rocks: ATH20 flips between 0 and 75 to 127 mm hour to hour in early October. Any reading ≤ 150 mm within 3 h of a reading of 0 is treated as bare-ground noise and shown as 0.</li>
+        <li>Single spikes more than 100 mm off the 5 report running median are replaced by the median.</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Storm detection and streamflow response</summary>
+      <ul>
+        <li>Included tips from the detection gauges (default PC064 and AGD) are pooled in time order. A gap longer than the max gap (default 3 h) between consecutive tips starts a new group. A group is a storm when any detection gauge totals at least the threshold (default 1.0 mm) in it.</li>
+        <li>Start is the beginning of the first tip's interval, end is the last tip's report time. Station totals cover (start, end]. Peak intensity is the largest single 10 min increment.</li>
+        <li>Rain or snow: the precipitation weighted mean of each station's own air temperature (nearest report within 20 min of each tip). Below 1 °C is called mixed or snow.</li>
+        <li>Centroid: precipitation weighted mean time of the detection gauges' tips.</li>
+        <li>Baseline Q: time weighted mean (each report held until the next) over the 6 h before the start. Peak Q: maximum from the start to 48 h after the end, cut short at the next storm's start or at the end of the record (flagged). Lag: centroid to the first time the peak is reached.</li>
+        <li>Flow QC: a single report far from the median of its three neighbours on each side (more than half the median and more than 5 resolution steps) is removed and marked on the chart. Tanners Flat stage dropped from 0.36 to 0.04 ft for one report, twice on 10/8/2026. The newest report has no later neighbour, so a wild newest value is held out until the next report confirms it.</li>
+        <li>A peak that comes before the storm centroid gets no lag: the rise came from earlier precipitation (for example a cell that missed the detection gauges). A flow already above baseline at the storm start is flagged too.</li>
+        <li>A rise of no more than two gauge resolution steps (the smallest change between distinct reported values, about 0.3 cfs at Tanners Flat) is reported as no clear response. In spring, daily snowmelt cycles can be larger than a storm response; check the chart before trusting a lag.</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Streamflow sources</summary>
+      <ul>
+        <li><b>LCC @ Tanners Flat</b> (county gauge 220, 7117 ft) is in the canyon above the Salt Lake City and Metropolitan Water District diversions, so it is the closest available record of the upper canyon's response. Discharge is computed from stage at 0.01 ft resolution, so it moves in steps of about 0.3 cfs at low flow.</li>
+        <li><b>Canyon mouth:</b> CBRFC point LCTU1 (the former USGS 10167500 site) closed in 2008 and has no observations. No public canyon-mouth record for LCC is available; the CSV slot above is for one.</li>
+        <li><b>BCC @ Canyon Mouth</b> (county gauge 320) is below the Big Cottonwood water treatment intakes, so low flows reflect diversions.</li>
+        <li><b>LCC @ Crestwood Park, LCC @ 300 West, and USGS 10168000</b> (LCC at the Jordan River) are valley gauges below the diversions and the urban storm drain network. Their storm response reflects valley runoff and operations, not the upper canyon.</li>
+        <li>County data cannot be read cross origin from a browser, so a GitHub Action copies it every 15 min into this site's <a href="https://github.com/Tyler-Y42/Alta.Hydromet/tree/data/county" target="_blank" rel="noopener">data branch</a>. GitHub delays scheduled runs, so expect 15 to 45 min of lag. USGS values are provisional.</li>
+      </ul>
+    </details>
+    <div class="row" style="margin-top:10px"><button class="btn quiet" id="run-tests">Run parser self-test</button><span class="small muted">Unit tests plus a live check against the 10/7 to 10/8/2026 reference values.</span></div>
+    <div id="tests" class="hidden" style="margin-top:10px"><pre class="tests" id="test-out"></pre></div>
+  </div>
+</section>
+
+<footer id="sources"></footer>
+
+</div>
+
+<script src="keys.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script>
+'use strict';
+
+/* ======================================================================
+   Configuration
+   ====================================================================== */
+const TZ = 'America/Denver';
+const TOKEN = (window.WEATHER_KEYS || {}).MESOWEST_TOKEN || '';
+const MIN = 60e3, HOUR = 3600e3, DAY = 86400e3;
+const TIP_MM = 0.254;
+const SUSPECT_MM_PER_10 = 10;        // > 10 mm in 10 min is suspect
+const CORROB_MS = 30 * MIN;          // a neighbour tip within 30 min corroborates
+const GAP_MS = 30 * MIN;             // cumulative step spanning > 30 min is flagged
+const PARTIAL_MS = 25 * MIN;         // last report this far before the end => partial
+const REFETCH_MS = 72 * HOUR;        // always re-pull the last 72 h
+const COUNTY_BASE = 'https://raw.githubusercontent.com/Tyler-Y42/Alta.Hydromet/data/county/';
+const AWDB = 'https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1';
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const mesoLink = id => `https://mesowest.utah.edu/cgi-bin/droman/meso_base_dyn.cgi?stn=${id}`;
+// role: gauge = counts toward totals, storms, corroboration; rwis = context only; met = no precip
+const STATIONS = [
+  { id: 'PC064', name: 'Albion Basin', elev: 9026, net: 'PacifiCorp', mode: 'ten', role: 'gauge', color: '--s1' },
+  { id: 'AGD', name: 'Alta Guard House', elev: 8799, net: 'Avalanche', mode: 'accum', role: 'gauge', color: '--s2' },
+  { id: 'PC056', name: 'Brighton', elev: 8693, net: 'PacifiCorp', mode: 'ten', role: 'gauge', color: '--s3' },
+  { id: 'ELBUT', name: 'UDOT LCC Elberts', elev: 7600, net: 'Avalanche', mode: 'accum', role: 'gauge', color: '--s4' },
+  { id: 'SPC', name: 'Spruces (BCC)', elev: 7402, net: 'Avalanche', mode: 'accum', role: 'gauge', color: '--s5' },
+  { id: 'UTALC', name: 'Alta RWIS', elev: 8537, net: 'UDOT RWIS', mode: 'ten', role: 'rwis', color: '--s6' },
+  { id: 'ATH20', name: 'Atwater Study Plot', elev: 8752, net: 'UUNET', mode: null, role: 'met', color: '--s7' },
+  { id: 'HDP', name: 'Hidden Peak', elev: 11000, net: 'Snowbird', mode: null, role: 'met', color: '--s8' },
+];
+const SNOW_DEPTH_BLOCK = new Set(['UTWLC']);
+const STN = Object.fromEntries(STATIONS.map(s => [s.id, s]));
+const GAUGES = STATIONS.filter(s => s.role === 'gauge');
+const PRECIP_STATIONS = STATIONS.filter(s => s.mode);
+
+const FLOW = [
+  { key: 'lcc_tanners_q', name: 'LCC @ Tanners Flat', note: 'in canyon, above diversions', src: 'county', color: '--s1', primary: true },
+  { key: 'bcc_mouth_q', name: 'BCC @ Canyon Mouth', note: 'below BCC intakes', src: 'county', color: '--s2' },
+  { key: 'lcc_crestwood_q', name: 'LCC @ Crestwood Park', note: 'valley, below diversions', src: 'county', color: '--s3' },
+  { key: 'lcc_300w_q', name: 'LCC @ 300 West', note: 'valley, near Jordan River', src: 'county', color: '--s4' },
+  { key: 'usgs_10168000', name: 'USGS 10168000 LCC @ Jordan R.', note: 'valley, below diversions', src: 'usgs', color: '--s5',
+    link: 'https://waterdata.usgs.gov/monitoring-location/USGS-10168000/' },
+  { key: 'upload', name: 'Uploaded record', note: 'your CSV', src: 'upload', color: '--s6' },
+];
+const FLOWK = Object.fromEntries(FLOW.map(f => [f.key, f]));
+
+const SNOTEL = [
+  { trip: '766:UT:SNTL', name: 'Snowbird', elev: 9170, color: '--s1', num: 766 },
+  { trip: '366:UT:SNTL', name: 'Brighton', elev: 8790, color: '--s2', num: 366 },
+  { trip: '628:UT:SNTL', name: 'Mill-D North', elev: 8940, color: '--s3', num: 628 },
+];
+const snotelLink = n => `https://wcc.sc.egov.usda.gov/nwcc/site?sitenum=${n}`;
+
+/* ======================================================================
+   Time helpers (all math in UTC ms; display and calendar math in Denver)
+   ====================================================================== */
+const _partsFmt = new Intl.DateTimeFormat('en-US', { timeZone: TZ, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', weekday: 'short' });
+function tzParts(ms) {
+  const o = {};
+  for (const p of _partsFmt.formatToParts(new Date(ms))) if (p.type !== 'literal') o[p.type] = p.value;
+  return { y: +o.year, m: +o.month, d: +o.day, h: +o.hour % 24, mi: +o.minute, s: +o.second, wd: o.weekday };
+}
+function tzOffset(ms) { // Denver wall clock minus UTC, in ms (negative)
+  const f = Math.floor(ms / 1000) * 1000, p = tzParts(f);
+  return Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi, p.s) - f;
+}
+function denverToUtc(y, m, d, h = 0, mi = 0) {
+  const g = Date.UTC(y, m - 1, d, h, mi);
+  let t = g - tzOffset(g);
+  const o2 = tzOffset(t);
+  if (g - o2 !== t) t = g - o2;
+  return t;
+}
+const midnightDenver = ms => { const p = tzParts(ms); return denverToUtc(p.y, p.m, p.d); };
+function waterYearStart(ms) { const p = tzParts(ms); return denverToUtc(p.m >= 10 ? p.y : p.y - 1, 10, 1); }
+const hh12 = (h, mi) => `${(h % 12) || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+const zoneAbbr = ms => (tzOffset(ms) === -6 * HOUR ? 'MDT' : 'MST');
+function fmtDT(ms, { wd = true, tz = false } = {}) {
+  if (ms == null || !isFinite(ms)) return '—';
+  const p = tzParts(ms);
+  return `${wd ? p.wd + ' ' : ''}${p.m}/${p.d} ${hh12(p.h, p.mi)}${tz ? ' ' + zoneAbbr(ms) : ''}`;
+}
+function fmtTime(ms) { const p = tzParts(ms); return hh12(p.h, p.mi); }
+function fmtSpan(a, b) { // "Wed 10/7 6:40 PM to 8:50 PM" or across days
+  const pa = tzParts(a), pb = tzParts(b);
+  const same = pa.y === pb.y && pa.m === pb.m && pa.d === pb.d;
+  return `${fmtDT(a)} to ${same ? fmtTime(b) : fmtDT(b)}`;
+}
+function ago(ms) {
+  const d = Date.now() - ms;
+  if (d < 90e3) return 'just now';
+  if (d < 90 * MIN) return `${Math.round(d / MIN)} min ago`;
+  if (d < 36 * HOUR) return `${(d / HOUR).toFixed(1)} h ago`;
+  return `${(d / DAY).toFixed(1)} d ago`;
+}
+const synStamp = ms => new Date(ms).toISOString().replace(/[-:T]/g, '').slice(0, 12);
+const isoMin = ms => new Date(ms).toISOString().slice(0, 16) + 'Z';
+const localDate = ms => { const p = tzParts(ms); return `${p.y}-${String(p.m).padStart(2, '0')}-${String(p.d).padStart(2, '0')}`; };
+const localInput = ms => { const p = tzParts(ms); return `${localDate(ms)}T${String(p.h).padStart(2, '0')}:${String(p.mi).padStart(2, '0')}`; };
+function parseLocalInput(v) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(v || '');
+  return m ? denverToUtc(+m[1], +m[2], +m[3], +m[4], +m[5]) : null;
+}
+
+/* ======================================================================
+   Number helpers
+   ====================================================================== */
+const r3 = x => Math.round(x * 1000) / 1000;
+const mmStr = (mm, d = 2) => (mm == null || !isFinite(mm)) ? '—' : mm.toFixed(d);
+const inStr = mm => (mm / 25.4).toFixed(2);
+const mmIn = mm => (mm == null || !isFinite(mm)) ? '—' : `${mm.toFixed(2)} mm (${inStr(mm)} in)`;
+const cfs = q => (q == null || !isFinite(q)) ? '—' : (q >= 100 ? q.toFixed(0) : q >= 10 ? q.toFixed(1) : q.toFixed(2));
+const fToC = f => (f - 32) * 5 / 9;
+function bisectRight(arr, x) { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] <= x) lo = m + 1; else hi = m; } return lo; }
+
+/* ======================================================================
+   Fetch with retry and timeout
+   ====================================================================== */
+async function fetchJSON(url, { tries = 3, timeout = 45000 } = {}) {
+  let last;
+  for (let i = 0; i < tries; i++) {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), timeout);
+    try {
+      const r = await fetch(url, { signal: ac.signal, cache: 'no-store' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const text = await r.text();
+      return JSON.parse(text); // truncated JSON throws here and retries
+    } catch (e) {
+      last = e.name === 'AbortError' ? new Error('timed out') : e;
+      if (/HTTP 4\d\d/.test(last.message) && !/HTTP 429/.test(last.message)) break;
+      await new Promise(r => setTimeout(r, 700 * 2 ** i));
+    } finally { clearTimeout(timer); }
+  }
+  throw last;
+}
+async function pool(items, n, fn) {
+  const out = new Array(items.length); let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => {
+    while (i < items.length) { const k = i++; out[k] = await fn(items[k], k); }
+  }));
+  return out;
+}
+
+/* ======================================================================
+   Synoptic / MesoWest
+   ====================================================================== */
+const SYN_VARS = 'precip_accum,precip_accum_ten_minute,air_temp,relative_humidity,snow_depth,solar_radiation,wind_speed,wind_gust,weather_cond_code';
+const synCache = new Map(); // chunk key -> parsed STATION array (session only)
+
+function synURL(a, b, ids = STATIONS.map(s => s.id)) {
+  return `https://api.synopticdata.com/v2/stations/timeseries?stid=${ids.join(',')}&start=${synStamp(a)}&end=${synStamp(b)}` +
+         `&vars=${SYN_VARS}&obtimezone=UTC&units=metric&token=${TOKEN}`;
+}
+async function fetchSynChunk(a, b) {
+  const d = await fetchJSON(synURL(a, b));
+  const code = d && d.SUMMARY && d.SUMMARY.RESPONSE_CODE;
+  if (code === 2) return []; // no data in range
+  if (code !== 1) throw new Error((d && d.SUMMARY && d.SUMMARY.RESPONSE_MESSAGE) || 'Synoptic error');
+  return d.STATION || [];
+}
+// Merge raw STATION objects into {id: {meta, t:[], v:{var:[]}}}
+function mergeStations(chunks) {
+  const by = {};
+  for (const list of chunks) for (const S of list) {
+    const id = S.STID, o = S.OBSERVATIONS || {};
+    const rec = by[id] || (by[id] = { id, meta: S, rows: new Map() });
+    const times = o.date_time || [];
+    const keys = Object.keys(o).filter(k => k !== 'date_time');
+    // prefer sensor set_1 over set_2 etc.; keep derived text (_set_1d) for weather condition
+    const pick = {};
+    for (const k of keys) {
+      const m = /^(.*)_set_(\d+)(d?)$/.exec(k); if (!m) continue;
+      const name = m[3] ? m[1] + '_d' : m[1];
+      if (!pick[name] || +m[2] < pick[name].n) pick[name] = { k, n: +m[2] };
+    }
+    times.forEach((ts, i) => {
+      const t = Date.parse(ts);
+      const row = rec.rows.get(t) || {};
+      for (const name in pick) { const v = o[pick[name].k][i]; if (v != null) row[name] = v; }
+      rec.rows.set(t, row);
+    });
+  }
+  const out = {};
+  for (const id in by) {
+    const ts = [...by[id].rows.keys()].sort((x, y) => x - y);
+    const v = {};
+    ts.forEach((t, i) => { const row = by[id].rows.get(t); for (const k in row) (v[k] || (v[k] = new Array(ts.length).fill(null)))[i] = row[k]; });
+    for (const k in v) if (v[k].length < ts.length) v[k].length = ts.length;
+    out[id] = { id, meta: by[id].meta, t: ts, v };
+  }
+  return out;
+}
+async function loadSynoptic(a, b) {
+  if (!TOKEN) throw new Error('no MesoWest token in keys.js');
+  const now = Date.now();
+  const chunks = [];
+  for (let s = Math.floor(a / DAY) * DAY; s < b; s += 14 * DAY) chunks.push([Math.max(a, s), Math.min(b, s + 14 * DAY)]);
+  const lists = await pool(chunks, 3, async ([s, e]) => {
+    const key = `${s}-${e}`;
+    if (e < now - REFETCH_MS && synCache.has(key)) return synCache.get(key);
+    const v = await fetchSynChunk(s, e);
+    synCache.set(key, v);
+    return v;
+  });
+  return mergeStations(lists);
+}
+
+/* ======================================================================
+   Precipitation QC (pure functions, unit tested below)
+   ====================================================================== */
+// st = {t:[ms], v:{precip_accum:[], precip_accum_ten_minute:[]}}
+function processPrecip(st, mode) {
+  const out = { obs: [], incs: [], dropped: 0 };
+  if (!st || !mode) return out;
+  if (mode === 'ten') {
+    const a = st.v.precip_accum_ten_minute; if (!a) return out;
+    for (let i = 0; i < st.t.length; i++) {
+      const v = a[i]; if (v == null || !isFinite(v)) continue;
+      const t = st.t[i]; out.obs.push(t);
+      let mm = r3(v); const flags = [];
+      if (mm < 0) { flags.push('negative'); mm = 0; }
+      if (mm > SUSPECT_MM_PER_10) flags.push('suspect');
+      if (mm > 0 || flags.length) out.incs.push({ t0: t - 10 * MIN, t, mm, flags, include: true });
+    }
+  } else {
+    const a = st.v.precip_accum; if (!a) return out;
+    let prev = null;
+    for (let i = 0; i < st.t.length; i++) {
+      const v = a[i]; if (v == null || !isFinite(v)) continue;
+      if (v < 0 || v > 20000) { out.dropped++; continue; }
+      const t = st.t[i]; out.obs.push(t);
+      if (prev) {
+        let d = r3(v - prev.v); const flags = [];
+        if (d < 0) { flags.push('reset'); d = 0; }
+        else if (d > 0) {
+          if (t - prev.t > GAP_MS) flags.push('gap');
+          if (d / Math.max(1, (t - prev.t) / (10 * MIN)) > SUSPECT_MM_PER_10) flags.push('suspect');
+        }
+        if (d > 0 || flags.length) out.incs.push({ t0: prev.t, t, mm: d, flags, include: true });
+      }
+      prev = { t, v };
+    }
+  }
+  return out;
+}
+// Mark suspect increments included only when another gauge corroborates. P = {id: processed}
+function corroborate(P, gaugeIds) {
+  for (const id of Object.keys(P)) for (const inc of P[id].incs) {
+    if (!inc.flags.includes('suspect')) continue;
+    const ok = gaugeIds.some(o => o !== id && P[o] && P[o].incs.some(j =>
+      j.mm > 0 && !j.flags.includes('suspect') && j.t >= inc.t0 - CORROB_MS && j.t0 <= inc.t + CORROB_MS));
+    inc.include = ok;
+    inc.flags.push(ok ? 'corroborated' : 'excluded');
+  }
+}
+// Total over (a, b] plus coverage info
+function sumPrecip(p, a, b) {
+  if (!p) return { mm: null, n: 0, last: null, status: 'nodata' };
+  let mm = 0, excluded = 0;
+  for (const inc of p.incs) if (inc.t > a && inc.t <= b) { if (inc.include) mm += inc.mm; else excluded += inc.mm; }
+  const i0 = bisectRight(p.obs, a), i1 = bisectRight(p.obs, b);
+  const n = i1 - i0, last = i1 > 0 ? p.obs[i1 - 1] : null;
+  const status = n === 0 ? 'nodata' : (last < b - PARTIAL_MS ? 'partial' : 'ok');
+  return { mm: r3(mm), excluded: r3(excluded), n, last: n ? last : null, status };
+}
+function flagCounts(p, a, b) {
+  const c = { reset: 0, gap: 0, excluded: 0, corroborated: 0, negative: 0 };
+  if (p) for (const inc of p.incs) if (inc.t > a && inc.t <= b) for (const f of inc.flags) if (f in c) c[f]++;
+  return c;
+}
+
+/* ======================================================================
+   Snow depth QC
+   ====================================================================== */
+function qcSnowDepth(st) {
+  if (!st || SNOW_DEPTH_BLOCK.has(st.id) || !st.v.snow_depth) return [];
+  const raw = [];
+  st.t.forEach((t, i) => { const v = st.v.snow_depth[i]; if (v != null && isFinite(v)) raw.push({ t, raw: v }); });
+  const ok = raw.filter(r => r.raw >= 0 && r.raw <= 4000);
+  return ok.map((r, i) => {
+    let qc = r.raw, flag = '';
+    if (r.raw <= 150) {
+      for (let j = i; j >= 0 && ok[j].t >= r.t - 3 * HOUR; j--) if (ok[j].raw <= 5) { qc = 0; flag = 'bare-ground noise'; break; }
+      if (!flag) for (let j = i; j < ok.length && ok[j].t <= r.t + 3 * HOUR; j++) if (ok[j].raw <= 5) { qc = 0; flag = 'bare-ground noise'; break; }
+    }
+    if (!flag) {
+      const w = ok.slice(Math.max(0, i - 2), i + 3).map(x => x.raw).sort((x, y) => x - y);
+      const med = w[w.length >> 1];
+      if (w.length >= 3 && Math.abs(r.raw - med) > 100) { qc = med; flag = 'spike'; }
+    }
+    return { t: r.t, raw: r.raw, qc, flag };
+  });
+}
+
+/* ======================================================================
+   Storm detection and response (pure functions)
+   ====================================================================== */
+function detectEvents(P, detIds, gapMs, minMm) {
+  const tips = [];
+  for (const id of detIds) if (P[id]) for (const inc of P[id].incs) if (inc.include && inc.mm > 0) tips.push({ ...inc, id });
+  tips.sort((x, y) => x.t - y.t);
+  const groups = [];
+  for (const tp of tips) {
+    const g = groups[groups.length - 1];
+    if (g && tp.t - g.lastT <= gapMs) { g.tips.push(tp); g.lastT = tp.t; }
+    else groups.push({ tips: [tp], lastT: tp.t });
+  }
+  const events = [], minor = [];
+  for (const g of groups) {
+    const start = Math.min(...g.tips.map(x => x.t0)), end = Math.max(...g.tips.map(x => x.t));
+    const det = {}; detIds.forEach(id => det[id] = 0);
+    let w = 0, wt = 0;
+    for (const tp of g.tips) { det[tp.id] = r3(det[tp.id] + tp.mm); w += tp.mm; wt += tp.mm * (tp.t0 + tp.t) / 2; }
+    const maxDet = Math.max(...Object.values(det));
+    (maxDet >= minMm - 1e-9 ? events : minor).push({ start, end, det, centroid: wt / w, nTips: g.tips.length });
+  }
+  return { events, minor };
+}
+function nearestValue(st, name, t, tol) {
+  if (!st || !st.v[name]) return null;
+  const i = bisectRight(st.t, t);
+  let best = null, bd = Infinity;
+  for (let j = Math.max(0, i - 3); j < Math.min(st.t.length, i + 3); j++) {
+    const v = st.v[name][j]; if (v == null) continue;
+    const d = Math.abs(st.t[j] - t); if (d < bd) { bd = d; best = v; }
+  }
+  return bd <= tol ? best : null;
+}
+function eventStationStats(ev, p, st) {
+  let tot = 0, peak = 0, peakT = null, wT = 0, wSum = 0, tMin = Infinity, n = 0;
+  if (p) for (const inc of p.incs) {
+    if (!inc.include || inc.t <= ev.start || inc.t > ev.end || inc.mm <= 0) continue;
+    tot += inc.mm; n++;
+    if (inc.t - inc.t0 <= 10.5 * MIN && inc.mm > peak) { peak = inc.mm; peakT = inc.t; }
+    const T = nearestValue(st, 'air_temp', inc.t, 20 * MIN);
+    if (T != null) { wT += T * inc.mm; wSum += inc.mm; tMin = Math.min(tMin, T); }
+  }
+  let meanT = wSum ? wT / wSum : null, tBasis = wSum ? 'tip weighted' : null;
+  if (meanT == null && st && st.v.air_temp) { // no tips here: plain mean air temp over the storm
+    let a = 0, k = 0;
+    for (let j = bisectRight(st.t, ev.start); j < st.t.length && st.t[j] <= ev.end; j++) { const T = st.v.air_temp[j]; if (T != null) { a += T; k++; tMin = Math.min(tMin, T); } }
+    if (k) { meanT = a / k; tBasis = 'storm mean'; }
+  }
+  const nObs = p ? bisectRight(p.obs, ev.end) - bisectRight(p.obs, ev.start) : 0;
+  return { tot: r3(tot), n, nObs, peak, peakT, meanT, tBasis, minT: isFinite(tMin) ? tMin : null,
+           phase: meanT == null ? null : (meanT < 1 ? 'mixed/snow' : 'rain'), hasData: nObs > 0 };
+}
+// Time weighted mean of a step series over [a, b]
+function twMean(s, a, b) {
+  if (!s || !s.t.length || b <= a) return null;
+  let i = bisectRight(s.t, a) - 1;
+  let tCur = a, vCur = i >= 0 && s.t[i] >= a - 3 * HOUR ? s.v[i] : null;
+  if (vCur == null) { i = bisectRight(s.t, a); if (i >= s.t.length || s.t[i] > b) return null; tCur = s.t[i]; vCur = s.v[i]; }
+  let acc = 0, dur = 0;
+  for (let j = i + 1; j < s.t.length && s.t[j] <= b; j++) { acc += vCur * (s.t[j] - tCur); dur += s.t[j] - tCur; tCur = s.t[j]; vCur = s.v[j]; }
+  acc += vCur * (b - tCur); dur += b - tCur;
+  return dur > 0 ? acc / dur : vCur;
+}
+// Single-report spikes/dropouts (e.g. Tanners Flat stage 0.36 -> 0.04 -> 0.36 ft on 10/8/2026).
+// A report far from the median of its neighbours (3 before, 3 after) is removed. The newest report
+// has no later neighbour yet, so a large jump there is held out as unconfirmed until the next report.
+function qcFlow(s) {
+  const t = [], v = [], spikes = [];
+  if (!s || !s.t.length) return { ...s, t, v, spikes };
+  const res = seriesResolution(s);
+  const n = s.t.length;
+  for (let i = 0; i < n; i++) {
+    const nb = [];
+    for (let j = Math.max(0, i - 3); j <= Math.min(n - 1, i + 3); j++) if (j !== i) nb.push(s.v[j]);
+    nb.sort((x, y) => x - y);
+    const med = nb.length ? (nb.length % 2 ? nb[nb.length >> 1] : (nb[nb.length / 2 - 1] + nb[nb.length / 2]) / 2) : s.v[i];
+    const far = Math.abs(s.v[i] - med) > Math.max(0.5 * Math.abs(med), 5 * res);
+    const hasBefore = i > 0, hasAfter = i < n - 1;
+    if (far && hasBefore && hasAfter) { spikes.push({ t: s.t[i], v: s.v[i], kind: 'spike' }); continue; }
+    if (far && hasBefore && !hasAfter && nb.length >= 3) { spikes.push({ t: s.t[i], v: s.v[i], kind: 'unconfirmed' }); continue; }
+    t.push(s.t[i]); v.push(s.v[i]);
+  }
+  return { ...s, t, v, spikes, res };
+}
+function seriesResolution(s) {
+  const u = [...new Set(s.v.map(v => Math.round(v * 1000) / 1000))].sort((x, y) => x - y);
+  let r = Infinity; for (let i = 1; i < u.length; i++) r = Math.min(r, u[i] - u[i - 1]);
+  return isFinite(r) ? Math.max(r, 0.01) : 0.01;
+}
+function flowResponse(ev, nextStart, s) {
+  if (!s || !s.t.length) return null;
+  const base = twMean(s, ev.start - 6 * HOUR, ev.start);
+  const wantEnd = ev.end + 48 * HOUR;
+  let W = wantEnd; const flags = [];
+  const i0 = bisectRight(s.t, ev.start - 6 * HOUR) - 1;
+  if (i0 < 0 || s.t[i0] < ev.start - 9 * HOUR) flags.push('baseline under 6 h of data');
+  if (nextStart != null && nextStart < W) { W = nextStart; flags.push('cut by next storm'); }
+  const lastT = s.t[s.t.length - 1];
+  if (lastT < W) { W = lastT; flags.push(`48 h window not over, data through ${fmtDT(lastT, { wd: false })}`); }
+  let peak = -Infinity, tpk = null;
+  for (let j = bisectRight(s.t, ev.start); j < s.t.length && s.t[j] <= W; j++) if (s.v[j] > peak) { peak = s.v[j]; tpk = s.t[j]; }
+  if (tpk == null || base == null) return { base, peak: tpk == null ? null : peak, tpk, dQ: null, lag: null, flags: [...flags, base == null ? 'no baseline data' : 'no data after start'] };
+  const dQ = peak - base, res = s.res || seriesResolution(s);
+  let clear = dQ > 2 * res + 1e-9;
+  const j0 = bisectRight(s.t, ev.start) - 1;
+  if (clear && j0 >= 0 && s.v[j0] - base > 2 * res + 1e-9) flags.push('already rising at storm start');
+  let lag = clear ? (tpk - ev.centroid) / HOUR : null;
+  if (lag != null && lag < 0) { flags.push('peak before storm centroid, rise likely from earlier precip'); lag = null; clear = false; }
+  return { base, peak, tpk, dQ, res, clear, lag, flags };
+}
+
+/* ======================================================================
+   County (via data branch), USGS, SNOTEL, upload
+   ====================================================================== */
+const countyCache = new Map();
+let countyManifest = null;
+function monthsBetween(a, b) {
+  const out = []; const d = new Date(a); let y = d.getUTCFullYear(), m = d.getUTCMonth() + 1;
+  const e = new Date(b), ey = e.getUTCFullYear(), em = e.getUTCMonth() + 1;
+  while (y < ey || (y === ey && m <= em)) { out.push(`${y}-${String(m).padStart(2, '0')}`); m++; if (m > 12) { m = 1; y++; } }
+  return out;
+}
+async function loadCounty(a, b) {
+  countyManifest = await fetchJSON(COUNTY_BASE + 'manifest.json?v=' + Math.floor(Date.now() / 60000));
+  const months = monthsBetween(a, b);
+  const recent = new Set(monthsBetween(Date.now() - 4 * DAY, Date.now()));
+  const out = {};
+  await pool(Object.keys(countyManifest.series), 4, async key => {
+    const info = countyManifest.series[key];
+    const have = months.filter(m => info.months.includes(m));
+    const parts = await pool(have, 4, async m => {
+      const url = `${COUNTY_BASE}${key}/${m}.json` + (recent.has(m) ? `?v=${encodeURIComponent(countyManifest.updated_utc)}` : '');
+      if (countyCache.has(url)) return countyCache.get(url);
+      const d = await fetchJSON(url); countyCache.set(url, d); return d;
+    });
+    const t = [], v = [];
+    for (const d of parts) for (let i = 0; i < d.t.length; i++) { const ms = d.t[i] * 1000; if (ms >= a && ms <= b) { t.push(ms); v.push(d.v[i]); } }
+    out[key] = qcFlow({ key, t, v, units: info.units, source: info.source, label: info.label });
+  });
+  return out;
+}
+async function loadUSGS(a, b) {
+  try {
+    // Requests older than ~120 days are 301'd to the archive host, and browsers get an empty body
+    // through that redirect, so go to the archive host directly for older windows.
+    const host = a < Date.now() - 110 * DAY ? 'nwis.waterservices.usgs.gov' : 'waterservices.usgs.gov';
+    const d = await fetchJSON(`https://${host}/nwis/iv/?sites=10168000&parameterCd=00060&startDT=${isoMin(a)}&endDT=${isoMin(b)}&format=json&siteStatus=all`);
+    const ts = d.value.timeSeries[0];
+    const nd = ts ? ts.variable.noDataValue : -999999;
+    const t = [], v = [];
+    if (ts) for (const p of ts.values[0].value) { const x = +p.value; if (isFinite(x) && x !== nd && x >= 0) { t.push(Date.parse(p.dateTime)); v.push(x); } }
+    return qcFlow({ t, v, api: 'NWIS IV' });
+  } catch (e) {
+    // NWIS fallback: USGS OGC API (continuous values), paged
+    const t = [], v = [];
+    let url = `https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items?monitoring_location_id=USGS-10168000&parameter_code=00060&datetime=${new Date(a).toISOString()}/${new Date(b).toISOString()}&f=json&limit=10000`;
+    for (let k = 0; url && k < 20; k++) {
+      const d = await fetchJSON(url);
+      for (const f of d.features || []) { const x = +f.properties.value; if (isFinite(x) && x >= 0) { t.push(Date.parse(f.properties.time)); v.push(x); } }
+      const nx = (d.links || []).find(l => l.rel === 'next'); url = nx ? nx.href : null;
+    }
+    const idx = t.map((_, i) => i).sort((i, j) => t[i] - t[j]);
+    return qcFlow({ t: idx.map(i => t[i]), v: idx.map(i => v[i]), api: 'OGC API (NWIS unavailable)' });
+  }
+}
+async function loadSnotel(a, b) {
+  const d0 = localDate(a - DAY), d1 = localDate(b);
+  const url = `${AWDB}/data?stationTriplets=${SNOTEL.map(s => s.trip).join(',')}&elements=WTEQ,SNWD,PREC,PRCP,TOBS&duration=DAILY&beginDate=${d0}&endDate=${d1}`;
+  const d = await fetchJSON(url, { timeout: 60000 });
+  const out = {};
+  for (const s of d) {
+    const rec = out[s.stationTriplet] = {};
+    for (const e of s.data || []) {
+      const code = e.stationElement.elementCode;
+      rec[code] = (e.values || []).filter(x => x.value != null).map(x => {
+        const [y, m, dd] = x.date.split('-').map(Number);
+        return { date: x.date, t: Date.UTC(y, m - 1, dd + 1, 8), v: x.value, qc: x.qcFlag || '' }; // midnight PST ending D
+      });
+    }
+  }
+  return out;
+}
+function parseUploadCSV(text) {
+  const t = [], v = []; let bad = 0;
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const cells = line.split(/[,\t;]/).map(c => c.trim().replace(/^"|"$/g, ''));
+    if (cells.length < 2) { bad++; continue; }
+    const q = parseFloat(cells[1]); if (!isFinite(q)) { bad++; continue; }
+    const ts = cells[0]; let ms = null;
+    if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(ts)) ms = Date.parse(ts);
+    else {
+      let m = /^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{2})/.exec(ts);
+      if (m) ms = denverToUtc(+m[1], +m[2], +m[3], +m[4], +m[5]);
+      else if ((m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?/.exec(ts))) {
+        let h = +m[4]; if (m[6]) { const pm = /p/i.test(m[6]); h = (h % 12) + (pm ? 12 : 0); }
+        ms = denverToUtc(+m[3], +m[1], +m[2], h, +m[5]);
+      }
+    }
+    if (ms == null || !isFinite(ms)) { bad++; continue; }
+    t.push(ms); v.push(q);
+  }
+  const idx = t.map((_, i) => i).sort((i, j) => t[i] - t[j]);
+  return { t: idx.map(i => t[i]), v: idx.map(i => v[i]), bad };
+}
+
+/* ======================================================================
+   State
+   ====================================================================== */
+const S = {
+  win: { preset: '7d', a: 0, b: 0 },
+  det: ['PC064', 'AGD'], gapH: 3, minMm: 1.0,
+  syn: null, P: {}, county: null, usgs: null, upload: null, snotel: null,
+  status: {}, events: [], minor: [], barStation: 'PC064', barBin: null, loadedAt: null,
+};
+function windowFromPreset(p) {
+  const now = Date.now();
+  const spans = { '24h': DAY, '72h': 3 * DAY, '7d': 7 * DAY, '30d': 30 * DAY };
+  if (p === 'wy') return { a: waterYearStart(now), b: now };
+  return { a: now - (spans[p] || 7 * DAY), b: now };
+}
+function readHash() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  const w = h.get('w');
+  if (h.get('s') && h.get('e')) {
+    const p = x => { const m = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(x); return m ? denverToUtc(+m[1], +m[2], +m[3], +m[4], +m[5]) : null; };
+    const a = p(h.get('s')), b = p(h.get('e'));
+    if (a && b && b > a) { S.win = { preset: 'custom', a, b }; return; }
+  }
+  S.win = { preset: w || '7d', ...windowFromPreset(w || '7d') };
+}
+function writeHash() {
+  const st = x => localInput(x).replace(/[-T:]/g, '');
+  const h = S.win.preset === 'custom' ? `s=${st(S.win.a)}&e=${st(S.win.b)}` : `w=${S.win.preset}`;
+  history.replaceState(null, '', '#' + h + (location.search.includes('selftest') ? '' : ''));
+}
+
+/* ======================================================================
+   Status chips
+   ====================================================================== */
+const SRC_LINKS = {
+  syn: ['MesoWest', 'https://mesowest.utah.edu/'],
+  county: ['County gauges', 'https://rain-flow.saltlakecounty.gov/'],
+  usgs: ['USGS 10168000', 'https://waterdata.usgs.gov/monitoring-location/USGS-10168000/'],
+  snotel: ['SNOTEL', 'https://www.nrcs.usda.gov/wps/portal/wcc/home/'],
+};
+function setStatus(k, cls, msg) { S.status[k] = { cls, msg }; renderStatus(); }
+function renderStatus() {
+  document.getElementById('status').innerHTML = Object.entries(S.status).map(([k, s]) => {
+    const [label, url] = SRC_LINKS[k] || [k, null];
+    const name = url ? `<a href="${url}" target="_blank" rel="noopener">${label}</a>` : label;
+    return `<span class="chip ${s.cls}"><span class="dot"></span>${name}: ${s.msg}</span>`;
+  }).join('');
+}
+
+/* ======================================================================
+   Charts
+   ====================================================================== */
+Chart.defaults.color = 'rgba(255,255,255,0.72)';
+Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+Chart.defaults.font.size = 11;
+Chart.register({
+  id: 'evshade',
+  beforeDatasetsDraw(chart, _a, opts) {
+    const evs = (opts && opts.events) || []; if (!evs.length) return;
+    const { ctx, chartArea: { top, bottom, left, right }, scales: { x } } = chart;
+    ctx.save(); ctx.beginPath(); ctx.rect(left, top, right - left, bottom - top); ctx.clip();
+    for (const e of evs) {
+      const x0 = x.getPixelForValue(e.start), x1 = x.getPixelForValue(e.end);
+      ctx.fillStyle = 'rgba(116,235,213,0.10)'; ctx.fillRect(x0, top, Math.max(2, x1 - x0), bottom - top);
+      ctx.fillStyle = 'rgba(116,235,213,0.85)'; ctx.font = '600 10px sans-serif'; ctx.fillText('S' + e.n, x0 + 2, top + 10);
+    }
+    ctx.restore();
+  },
+});
+function timeTicks(min, max) {
+  const span = max - min;
+  const stepH = span <= 30 * HOUR ? 3 : span <= 4 * DAY ? 12 : span <= 16 * DAY ? 24 : span <= 70 * DAY ? 24 * 7 : 0;
+  const ticks = [];
+  if (stepH === 0) { // month starts
+    let p = tzParts(min), y = p.y, m = p.m;
+    for (let k = 0; k < 24; k++) { const t = denverToUtc(y, m, 1); if (t > max) break; if (t >= min) ticks.push(t); m++; if (m > 12) { m = 1; y++; } }
+    return ticks;
+  }
+  const p0 = tzParts(min);
+  for (let k = 0; k < 400; k++) {
+    const t = denverToUtc(p0.y, p0.m, p0.d + Math.floor((k * stepH) / 24), (k * stepH) % 24);
+    if (t > max) break; if (t >= min) ticks.push(t);
+  }
+  return ticks;
+}
+function tickLabel(v, span) {
+  const p = tzParts(v);
+  if (span > 70 * DAY) return new Date(Date.UTC(p.y, p.m - 1, 15)).toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+  if (span > 4 * DAY || (p.h === 0 && p.mi === 0)) return `${p.m}/${p.d}`;
+  return `${(p.h % 12) || 12} ${p.h < 12 ? 'AM' : 'PM'}`;
+}
+function xScale(a, b) {
+  return {
+    type: 'linear', min: a, max: b,
+    afterBuildTicks: s => { s.ticks = timeTicks(s.min, s.max).map(value => ({ value })); },
+    ticks: { callback: v => tickLabel(v, b - a), maxRotation: 0, autoSkip: true, autoSkipPadding: 10 },
+    grid: { color: css('--grid') },
+  };
+}
+function baseOptions(yTitle, extra = {}) {
+  return {
+    animation: false, responsive: true, maintainAspectRatio: false, parsing: false, normalized: true, spanGaps: false,
+    interaction: { mode: 'nearest', axis: 'x', intersect: false },
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 10, usePointStyle: true, pointStyle: 'rectRounded' } },
+      tooltip: { callbacks: { title: it => it.length ? fmtDT(it[0].parsed.x, { tz: true }) : '' } },
+      decimation: { enabled: true, algorithm: 'min-max' },
+      evshade: { events: [] },
+    },
+    scales: { x: xScale(S.win.a, S.win.b), y: { title: { display: true, text: yTitle }, grid: { color: css('--grid') }, beginAtZero: false } },
+    elements: { point: { radius: 0, hitRadius: 6, hoverRadius: 4 }, line: { borderWidth: 2 } },
+    ...extra,
+  };
+}
+const charts = {};
+function setChart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), cfg);
+}
+const evShade = () => S.events.map((e, i) => ({ start: e.start, end: e.end, n: i + 1 }));
+
+/* ======================================================================
+   Rendering
+   ====================================================================== */
+const stLink = s => `<a href="${mesoLink(s.id)}" target="_blank" rel="noopener">${s.id}</a>`;
+const sw = c => `<span class="sw" style="background:${css(c)}"></span>`;
+function asOfTime() { return Math.min(S.win.b, Date.now()); }
+
+function renderPrecip() {
+  const tb = document.getElementById('precip-table');
+  if (!S.syn) { tb.innerHTML = `<tr><td class="bad">MesoWest data unavailable: ${S.status.syn ? S.status.syn.msg : ''}</td></tr>`; return; }
+  const T = asOfTime(), mid = midnightDenver(T);
+  const cell = r => r.status === 'nodata' ? '<span class="muted">no data</span>' :
+    `${mmStr(r.mm)}<span class="muted small"> (${inStr(r.mm)}″)</span>${r.status === 'partial' ? ' <span class="tag flag" title="last report more than 25 min before the end">partial</span>' : ''}`;
+  let h = `<tr><th>Station</th><th class="l">Name</th><th>Elev ft</th><th>Window mm</th><th>24 h mm</th><th>Since midnight</th><th>Last report</th><th class="l">QC</th></tr>`;
+  for (const s of PRECIP_STATIONS) {
+    const p = S.P[s.id];
+    const w = sumPrecip(p, S.win.a, S.win.b), r24 = sumPrecip(p, T - DAY, T), rm = sumPrecip(p, mid, T);
+    const lastAll = p && p.obs.length ? p.obs[p.obs.length - 1] : null;
+    const fc = flagCounts(p, S.win.a, S.win.b);
+    const qc = [];
+    if (fc.reset) qc.push(`${fc.reset} reset`);
+    if (fc.gap) qc.push(`${fc.gap} gap`);
+    if (fc.excluded) qc.push(`<span class="bad">${fc.excluded} suspect excluded (${mmStr(w.excluded)} mm)</span>`);
+    if (fc.corroborated) qc.push(`${fc.corroborated} suspect kept`);
+    if (s.role === 'rwis') qc.push('<span class="muted">RWIS, context only</span>');
+    const stale = lastAll && Date.now() - lastAll > 2 * HOUR && S.win.b > Date.now() - HOUR;
+    h += `<tr><td>${sw(s.color)}${stLink(s)}</td><td class="l">${s.name}</td><td>${s.elev.toLocaleString()}</td>
+      <td>${cell(w)}</td><td>${cell(r24)}</td><td>${cell(rm)}</td>
+      <td class="${stale ? 'flag' : ''}">${lastAll ? fmtDT(lastAll) + `<div class="small muted">${ago(lastAll)}</div>` : '<span class="muted">no data yet</span>'}</td>
+      <td class="l small">${qc.join(', ') || '<span class="muted">clean</span>'}</td></tr>`;
+  }
+  tb.innerHTML = h;
+  document.getElementById('precip-note').innerHTML =
+    `24 h and since midnight end at ${fmtDT(T, { tz: true })}${T < Date.now() - MIN ? ' (window end)' : ''}; midnight is ${fmtDT(mid, { tz: true })}. ` +
+    `Stations report late (AGD often about 1 h behind), so recent totals can still grow. Undercatch in snow makes every total a minimum.`;
+}
+
+function renderCum() {
+  if (!S.syn) return;
+  const ds = [];
+  for (const s of PRECIP_STATIONS) {
+    const p = S.P[s.id]; if (!p || !p.obs.length) continue;
+    const pts = []; let cum = 0;
+    const firstObs = p.obs[bisectRight(p.obs, S.win.a)];
+    if (firstObs == null || firstObs > S.win.b) continue;
+    pts.push({ x: Math.max(S.win.a, firstObs - 10 * MIN), y: 0 });
+    for (const inc of p.incs) if (inc.include && inc.mm > 0 && inc.t > S.win.a && inc.t <= S.win.b) { cum = r3(cum + inc.mm); pts.push({ x: inc.t, y: cum }); }
+    const lastObs = p.obs[bisectRight(p.obs, S.win.b) - 1];
+    if (lastObs > pts[pts.length - 1].x) pts.push({ x: lastObs, y: cum });
+    ds.push({ label: `${s.id} ${s.name}${s.role === 'rwis' ? ' (RWIS)' : ''}`, data: pts, borderColor: css(s.color), backgroundColor: css(s.color),
+              stepped: true, borderDash: s.role === 'rwis' ? [4, 3] : undefined });
+  }
+  const o = baseOptions('mm');
+  o.plugins.evshade.events = evShade();
+  o.scales.y.beginAtZero = true;
+  o.plugins.tooltip.callbacks.label = c => `${c.dataset.label.split(' ')[0]}: ${c.parsed.y.toFixed(2)} mm`;
+  o.plugins.decimation.enabled = false; // stepped totals must not be thinned
+  setChart('c-cum', { type: 'line', data: { datasets: ds }, options: o });
+}
+
+function renderBars() {
+  const sel = document.getElementById('bar-st');
+  if (!sel.options.length) sel.innerHTML = PRECIP_STATIONS.map(s => `<option value="${s.id}">${s.id} ${s.name}</option>`).join('');
+  sel.value = S.barStation;
+  const binNow = S.barBin || (S.win.b - S.win.a > 3 * DAY ? HOUR : 10 * MIN);
+  document.querySelectorAll('[data-bin]').forEach(b => b.classList.toggle('on', +b.dataset.bin === binNow));
+  if (!S.syn) return;
+  const s = STN[S.barStation], p = S.P[s.id], bin = S.barBin || (S.win.b - S.win.a > 3 * DAY ? HOUR : 10 * MIN);
+  const kept = new Map(), excl = new Map();
+  const binOf = t => { const m0 = midnightDenver(t); return m0 + Math.floor((t - 1 - m0) / bin) * bin; };
+  if (p) for (const inc of p.incs) if (inc.mm > 0 && inc.t > S.win.a && inc.t <= S.win.b) {
+    const k = binOf(inc.t), m = inc.include ? kept : excl; m.set(k, r3((m.get(k) || 0) + inc.mm));
+  }
+  const toPts = m => [...m].sort((x, y) => x[0] - y[0]).map(([k, y]) => ({ x: k + bin / 2, y }));
+  const o = baseOptions(bin === HOUR ? 'mm per hour' : 'mm per 10 min');
+  o.plugins.evshade.events = evShade();
+  o.scales.y.beginAtZero = true;
+  o.plugins.decimation.enabled = false;
+  o.plugins.tooltip.callbacks.title = it => it.length ? `${fmtDT(it[0].parsed.x - bin / 2)} to ${fmtTime(it[0].parsed.x + bin / 2)}` : '';
+  o.plugins.tooltip.callbacks.label = c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm`;
+  const barW = Math.max(1, Math.min(18, 600 / Math.max(1, (S.win.b - S.win.a) / bin)));
+  setChart('c-bar', { type: 'bar', data: { datasets: [
+    { label: `${s.id} included`, data: toPts(kept), backgroundColor: css(s.color), barThickness: barW, borderRadius: 2, grouped: false },
+    { label: 'Suspect, excluded', data: toPts(excl), backgroundColor: css('--warn'), barThickness: barW, borderRadius: 2, grouped: false },
+  ] }, options: o });
+}
+
+function computeEvents() {
+  S.events = []; S.minor = [];
+  if (!S.syn) return;
+  const r = detectEvents(S.P, S.det, S.gapH * HOUR, S.minMm);
+  const inWin = e => e.end > S.win.a && e.start <= S.win.b;
+  S.events = r.events.filter(inWin);
+  S.minor = r.minor.filter(inWin);
+  // next storm start (anywhere in the fetched record) for response windows
+  const all = r.events;
+  S.events.forEach(e => { const nx = all.find(x => x.start > e.end); e.nextStart = nx ? nx.start : null; e.beforeWindow = e.start < S.win.a; });
+}
+function flowSeries() {
+  const out = {};
+  if (S.county) for (const k in S.county) out[k] = S.county[k];
+  if (S.usgs) out.usgs_10168000 = { ...S.usgs, units: 'cfs' };
+  if (S.upload) out.upload = { ...S.upload, units: 'cfs' };
+  return out;
+}
+
+function renderEvents() {
+  const tb = document.getElementById('event-table');
+  document.getElementById('storm-def').textContent =
+    `≥ ${S.minMm} mm at ${S.det.join(' or ')}, gaps ≤ ${S.gapH} h · ${S.events.length} storm${S.events.length === 1 ? '' : 's'} in window`;
+  if (!S.syn) { tb.innerHTML = `<tr><td class="bad">Needs MesoWest data.</td></tr>`; return; }
+  if (!S.events.length) {
+    tb.innerHTML = `<tr><td class="muted">No storms in this window.${S.minor.length ? ` ${S.minor.length} smaller tip group${S.minor.length === 1 ? '' : 's'} below ${S.minMm} mm.` : ''}</td></tr>`;
+    document.getElementById('event-note').textContent = ''; return;
+  }
+  const F = flowSeries(), tf = F.lcc_tanners_q;
+  const warn = [];
+  let h = `<tr><th>#</th><th class="l">Start to end</th><th>Hours</th>${GAUGES.map(g => `<th>${g.id} mm</th>`).join('')}<th>Peak 10 min</th><th class="l">Rain or snow</th><th class="l">Tanners Flat response</th></tr>`;
+  S.events.forEach((e, i) => {
+    const stats = Object.fromEntries(GAUGES.map(g => [g.id, eventStationStats(e, S.P[g.id], S.syn[g.id])]));
+    e.stats = stats;
+    const pk = S.det.map(id => ({ id, ...stats[id] })).filter(x => x.peak > 0).sort((x, y) => y.peak - x.peak)[0];
+    const phase = S.det.map(id => stats[id].meanT == null ? `${id} no temp` : `${id} ${stats[id].phase} (${stats[id].meanT.toFixed(1)} °C${stats[id].tBasis === 'storm mean' ? ', no tips' : ''})`).join('<br>');
+    const best = Math.max(...S.det.map(id => stats[id].tot));
+    const dry = GAUGES.filter(g => { const x = stats[g.id]; return x.hasData && x.tot === 0 && best >= S.minMm && x.meanT != null && x.meanT < 1; });
+    if (dry.length) warn.push(`S${i + 1}: ${dry.map(g => `${g.id} (${stats[g.id].meanT.toFixed(1)} °C)`).join(', ')} caught nothing while ${S.det.find(id => stats[id].tot === best)} got ${mmStr(best)} mm. Likely snow in unheated buckets; expect delayed melt tips.`);
+    e.resp = {}; for (const f of FLOW) if (F[f.key] && F[f.key].t.length) e.resp[f.key] = flowResponse(e, e.nextStart, F[f.key]);
+    const r = e.resp.lcc_tanners_q;
+    const rs = !tf ? '<span class="muted">no data</span>' : respText(r, 'html');
+    const wet = GAUGES.filter(g => stats[g.id].tot >= 0.5);
+    e.singleGauge = wet.length === 1;
+    if (e.singleGauge) warn.push(`S${i + 1}: only ${wet[0].id} recorded 0.5 mm or more. Could be an isolated cell, or delayed melt of snow caught earlier.`);
+    h += `<tr><td>S${i + 1}</td><td class="l">${fmtSpan(e.start, e.end)}${e.beforeWindow ? ' <span class="tag flag">began before window</span>' : ''}${e.singleGauge ? ' <span class="tag flag">one gauge</span>' : ''}</td>
+      <td>${((e.end - e.start) / HOUR).toFixed(1)}</td>
+      ${GAUGES.map(g => `<td>${stats[g.id].hasData ? mmStr(stats[g.id].tot) : '<span class="muted">no data</span>'}</td>`).join('')}
+      <td>${pk ? `${pk.peak.toFixed(2)} mm <span class="small muted">${pk.id} ${fmtTime(pk.peakT)}</span>` : '—'}</td>
+      <td class="l small">${phase}</td><td class="l small">${rs}</td></tr>`;
+  });
+  tb.innerHTML = h;
+  document.getElementById('event-note').innerHTML = (warn.length ? `<span class="flag">${warn.join('<br>')}</span><br>` : '') +
+    `Totals cover each storm's (start, end] at every gauge, so a gauge whose precipitation fell outside the detection gauges' storm window shows less. ` +
+    (S.minor.length ? `${S.minor.length} smaller tip group${S.minor.length === 1 ? '' : 's'} below ${S.minMm} mm not listed. ` : '') +
+    `Shaded bands on the charts mark storms.`;
+}
+function respText(r, mode) {
+  if (!r) return mode === 'html' ? '<span class="muted">no data</span>' : 'no data';
+  if (r.base == null || r.peak == null) return (mode === 'html' ? '<span class="muted">' : '') + r.flags.join(', ') + (mode === 'html' ? '</span>' : '');
+  const sign = r.dQ >= 0 ? '+' : '';
+  let s = `${cfs(r.base)} to ${cfs(r.peak)} cfs (${sign}${cfs(r.dQ)})`;
+  s += r.clear ? `, lag ${r.lag.toFixed(1)} h` : ', no clear response';
+  if (r.flags.length) s += mode === 'html' ? ` <span class="flag">${r.flags.join(', ')}</span>` : ` [${r.flags.join(', ')}]`;
+  return s;
+}
+
+function renderFlow() {
+  const F = flowSeries();
+  const ds = [], removed = [];
+  for (const f of FLOW) {
+    const s = F[f.key]; if (!s || !s.t.length) continue;
+    const pts = [];
+    for (let i = 0; i < s.t.length; i++) if (s.t[i] >= S.win.a - HOUR && s.t[i] <= S.win.b + HOUR) pts.push({ x: s.t[i], y: s.v[i] });
+    ds.push({ label: f.name, data: pts, borderColor: css(f.color), backgroundColor: css(f.color), borderWidth: f.primary ? 2.5 : 1.5,
+              stepped: f.src === 'county' ? true : false, hidden: false });
+    for (const x of s.spikes || []) if (x.t >= S.win.a && x.t <= S.win.b) removed.push({ x: x.t, y: x.v, name: f.name, kind: x.kind });
+  }
+  if (removed.length) ds.push({ label: 'QC removed', data: removed, showLine: false, pointRadius: 4, pointHoverRadius: 6, pointStyle: 'crossRot',
+    borderColor: css('--warn'), backgroundColor: css('--warn'), borderWidth: 2 });
+  const o = baseOptions('cfs');
+  o.plugins.evshade.events = evShade();
+  o.plugins.tooltip.callbacks.label = c => c.dataset.label === 'QC removed'
+    ? `QC removed (${c.raw.kind}): ${c.raw.name} ${cfs(c.parsed.y)} cfs` : `${c.dataset.label}: ${cfs(c.parsed.y)} cfs`;
+  setChart('c-flow', { type: 'line', data: { datasets: ds }, options: o });
+
+  // response table: every storm x every gauge
+  const tb = document.getElementById('resp-table');
+  const rows = [];
+  S.events.forEach((e, i) => {
+    for (const f of FLOW) if (e.resp && e.resp[f.key]) rows.push(`<tr><td>S${i + 1}</td><td class="l">${sw(f.color)}${f.name} <span class="small muted">${f.note}</span></td>
+      <td>${cfs(e.resp[f.key].base)}</td><td>${cfs(e.resp[f.key].peak)}</td><td>${e.resp[f.key].dQ == null ? '—' : (e.resp[f.key].dQ >= 0 ? '+' : '') + cfs(e.resp[f.key].dQ)}</td>
+      <td>${e.resp[f.key].tpk ? fmtDT(e.resp[f.key].tpk) : '—'}</td><td>${e.resp[f.key].clear ? e.resp[f.key].lag.toFixed(1) : '<span class="muted">none</span>'}</td>
+      <td class="l small flag">${e.resp[f.key].flags.join(', ')}</td></tr>`);
+  });
+  tb.innerHTML = rows.length ? `<tr><th>Storm</th><th class="l">Gauge</th><th>Baseline cfs</th><th>Peak cfs</th><th>ΔQ</th><th>Peak time</th><th>Lag h</th><th class="l">Flags</th></tr>` + rows.join('')
+    : `<tr><td class="muted">${S.events.length ? 'No streamflow data for these storms.' : 'Storm responses appear here when the window contains storms.'}</td></tr>`;
+
+  const lines = [];
+  for (const f of FLOW) {
+    const s = F[f.key]; if (!s) continue;
+    if (!s.t.length) { if (f.src !== 'upload') lines.push(`${f.name}: no data in window.`); continue; }
+    const lastT = s.t[s.t.length - 1];
+    const link = f.src === 'county' && s.source ? `<a href="${s.source}" target="_blank" rel="noopener">${f.name}</a>` : f.link ? `<a href="${f.link}" target="_blank" rel="noopener">${f.name}</a>` : f.name;
+    const sp = (s.spikes || []).filter(x => x.t >= S.win.a && x.t <= S.win.b);
+    const spTxt = sp.length ? ` <span class="flag">${sp.length} single-report spike${sp.length === 1 ? '' : 's'} removed${sp.some(x => x.kind === 'unconfirmed') ? ' (newest report held until the next one confirms it)' : ''}.</span>` : '';
+    lines.push(`${link}: ${cfs(s.v[s.v.length - 1])} cfs at ${fmtDT(lastT)} (${ago(lastT)}), resolution ≈ ${cfs(s.res)} cfs.${spTxt}`);
+  }
+  if (countyManifest) lines.push(`County copy last updated ${fmtDT(Date.parse(countyManifest.updated_utc))} (${ago(Date.parse(countyManifest.updated_utc))}).`);
+  lines.push('<b>Tanners Flat</b> is the upper canyon signal. Valley gauges (Crestwood, 300 West, USGS) sit below the diversions and storm drains: their storm response is valley runoff and operations. BCC canyon mouth is below the BCC intakes.');
+  document.getElementById('flow-note').innerHTML = lines.join('<br>');
+}
+
+function renderTemp() {
+  const ds = [];
+  if (S.syn) for (const s of STATIONS) {
+    const st = S.syn[s.id]; if (!st || !st.v.air_temp) continue;
+    const pts = []; st.t.forEach((t, i) => { const v = st.v.air_temp[i]; if (v != null && t >= S.win.a && t <= S.win.b) pts.push({ x: t, y: v }); });
+    if (pts.length) ds.push({ label: `${s.id} air`, data: pts, borderColor: css(s.color), backgroundColor: css(s.color), borderWidth: 1.5 });
+  }
+  const tw = S.county && S.county.lcc_tanners_tw;
+  if (tw && tw.t.length) ds.push({ label: 'Tanners Flat water', data: tw.t.map((t, i) => ({ x: t, y: fToC(tw.v[i]) })).filter(p => p.x >= S.win.a && p.x <= S.win.b),
+    borderColor: css('--accent'), backgroundColor: css('--accent'), borderWidth: 2, borderDash: [5, 3], stepped: true });
+  ds.push({ label: '1 °C rain/snow line', data: [{ x: S.win.a, y: 1 }, { x: S.win.b, y: 1 }], borderColor: 'rgba(255,255,255,0.35)', backgroundColor: 'rgba(255,255,255,0.35)', borderWidth: 1, borderDash: [2, 4] });
+  const o = baseOptions('°C');
+  o.plugins.evshade.events = evShade();
+  o.plugins.tooltip.callbacks.label = c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} °C`;
+  setChart('c-temp', { type: 'line', data: { datasets: ds }, options: o });
+}
+
+function renderLatest() {
+  const tb = document.getElementById('latest-table');
+  if (!S.syn) { tb.innerHTML = `<tr><td class="bad">MesoWest data unavailable.</td></tr>`; return; }
+  const T = asOfTime();
+  document.getElementById('latest-asof').textContent = `last report at or before ${fmtDT(T)}`;
+  const last = (st, k) => { if (!st || !st.v[k]) return null; for (let i = bisectRight(st.t, T) - 1; i >= 0; i--) if (st.v[k][i] != null) return { t: st.t[i], v: st.v[k][i] }; return null; };
+  const mph = ms => (ms * 2.23694).toFixed(0);
+  let h = `<tr><th>Station</th><th>Air °C</th><th>RH %</th><th>Wind mph</th><th>Snow depth</th><th class="l">Report</th></tr>`;
+  for (const s of STATIONS) {
+    const st = S.syn[s.id];
+    const at = last(st, 'air_temp'), rh = last(st, 'relative_humidity'), ws = last(st, 'wind_speed'), wg = last(st, 'wind_gust');
+    const sd = qcSnowDepth(st).filter(x => x.t <= T).pop();
+    const wx = s.id === 'UTALC' ? last(st, 'weather_cond_code_d') : null;
+    const times = [at, rh, ws].filter(Boolean).map(x => x.t);
+    const tLast = times.length ? Math.max(...times) : null;
+    h += `<tr><td>${sw(s.color)}${stLink(s)} <span class="small muted">${s.name}</span></td>
+      <td>${at ? at.v.toFixed(1) : '—'}</td><td>${rh ? rh.v.toFixed(0) : '—'}</td>
+      <td>${ws ? mph(ws.v) + (wg ? ` <span class="small muted">g ${mph(wg.v)}</span>` : '') : '—'}</td>
+      <td>${sd ? `${(sd.qc / 25.4).toFixed(1)} in${sd.flag ? ` <span class="tag flag" title="raw ${sd.raw} mm">${sd.flag}</span>` : ''}` : '—'}</td>
+      <td class="l small">${tLast ? fmtTime(tLast) + ' ' + `<span class="muted">${ago(tLast)}</span>` : '<span class="muted">no data</span>'}${wx ? `<div class="muted">${wx.v}</div>` : ''}</td></tr>`;
+  }
+  tb.innerHTML = h;
+}
+
+function renderSnotel() {
+  const el = document.getElementById('sn-el').value;
+  const tb = document.getElementById('sn-table');
+  if (!S.snotel) { tb.innerHTML = `<tr><td class="bad">SNOTEL unavailable: ${S.status.snotel ? S.status.snotel.msg : ''}</td></tr>`; setChart('c-sn', { type: 'line', data: { datasets: [] }, options: baseOptions('') }); return; }
+  const ds = [];
+  for (const s of SNOTEL) {
+    const rec = S.snotel[s.trip] || {}, arr = (rec[el] || []).filter(x => x.t > S.win.a && x.t <= S.win.b + DAY);
+    ds.push({ label: s.name, data: arr.map(x => ({ x: x.t, y: el === 'SNWD' ? x.v : x.v * 25.4 })), borderColor: css(s.color), backgroundColor: css(s.color),
+              type: el === 'PRCP' ? 'bar' : 'line', barThickness: 6, borderRadius: 2, grouped: true, pointRadius: el === 'PRCP' ? 0 : 2 });
+  }
+  const unit = el === 'SNWD' ? 'in' : 'mm';
+  const o = baseOptions(unit);
+  o.scales.y.beginAtZero = true;
+  o.plugins.decimation.enabled = false;
+  o.plugins.tooltip.callbacks.title = it => it.length ? `Day ending ${fmtDT(it[0].parsed.x, { wd: true, tz: true })}` : '';
+  o.plugins.tooltip.callbacks.label = c => el === 'SNWD' ? `${c.dataset.label}: ${c.parsed.y} in` : `${c.dataset.label}: ${c.parsed.y.toFixed(1)} mm (${(c.parsed.y / 25.4).toFixed(1)} in)`;
+  setChart('c-sn', { type: el === 'PRCP' ? 'bar' : 'line', data: { datasets: ds }, options: o });
+
+  let h = `<tr><th>Site</th><th>Elev ft</th><th>SWE</th><th>Depth</th><th>Window precip</th><th>Last day</th></tr>`;
+  for (const s of SNOTEL) {
+    const rec = S.snotel[s.trip] || {};
+    const inWin = a => (a || []).filter(x => x.t > S.win.a && x.t <= S.win.b);
+    const lastOf = a => { const w = inWin(a); return w.length ? w[w.length - 1] : null; };
+    const swe = lastOf(rec.WTEQ), dep = lastOf(rec.SNWD);
+    const pr = inWin(rec.PRCP); const ptot = pr.reduce((x, y) => x + y.v, 0);
+    const qcf = [...new Set([...inWin(rec.WTEQ), ...pr].map(x => x.qc).filter(Boolean))];
+    h += `<tr><td>${sw(s.color)}<a href="${snotelLink(s.num)}" target="_blank" rel="noopener">${s.name}</a> <span class="small muted">${s.num}</span></td><td>${s.elev.toLocaleString()}</td>
+      <td>${swe ? `${swe.v.toFixed(1)} in <span class="small muted">${(swe.v * 25.4).toFixed(0)} mm</span>` : '—'}</td>
+      <td>${dep ? `${dep.v} in` : '—'}</td>
+      <td>${pr.length ? `${(ptot * 25.4).toFixed(1)} mm <span class="small muted">${ptot.toFixed(1)} in, ${pr.length} d</span>` : '—'}</td>
+      <td>${swe ? swe.date : '—'}${qcf.length ? ` <span class="tag flag">QC ${qcf.join(',')}</span>` : ''}</td></tr>`;
+  }
+  tb.innerHTML = h;
+}
+
+/* ======================================================================
+   Readout (plain text for field notes)
+   ====================================================================== */
+function buildReadout() {
+  const L = [];
+  const T = asOfTime();
+  L.push(`ALTA HYDROMET READOUT`);
+  L.push(`Window ${fmtDT(S.win.a, { tz: true })} to ${fmtDT(S.win.b, { tz: true })} (${((S.win.b - S.win.a) / DAY).toFixed(1)} d). Generated ${fmtDT(Date.now(), { tz: true })}.`);
+  L.push('');
+  if (S.syn) {
+    L.push(`PRECIP (QC'd gauge totals, each +/- 0.25 mm; undercatch in snow)`);
+    for (const s of PRECIP_STATIONS) {
+      const p = S.P[s.id]; const w = sumPrecip(p, S.win.a, S.win.b), r24 = sumPrecip(p, T - DAY, T);
+      const last = p && p.obs.length ? p.obs[p.obs.length - 1] : null;
+      const tot = w.status === 'nodata' ? 'no data' : `${mmStr(w.mm)} mm (${inStr(w.mm)} in)${w.status === 'partial' ? ' partial' : ''}`;
+      L.push(`  ${s.id.padEnd(5)} ${s.name}, ${s.elev} ft: ${tot}; 24 h ${r24.status === 'nodata' ? 'no data' : mmStr(r24.mm) + ' mm'}; last report ${last ? fmtDT(last) : 'none'}${s.role === 'rwis' ? ' (RWIS, context only)' : ''}`);
+      const fc = flagCounts(p, S.win.a, S.win.b);
+      if (fc.excluded) L.push(`        ${fc.excluded} suspect jump(s) excluded, ${mmStr(w.excluded)} mm`);
+    }
+  } else L.push(`PRECIP: MesoWest unavailable (${S.status.syn ? S.status.syn.msg : ''})`);
+  L.push('');
+  L.push(`STORMS (>= ${S.minMm} mm at ${S.det.join(' or ')}, gaps <= ${S.gapH} h): ${S.events.length}`);
+  S.events.forEach((e, i) => {
+    const parts = GAUGES.filter(g => e.stats && e.stats[g.id] && e.stats[g.id].hasData).map(g => `${mmStr(e.stats[g.id].tot)} mm at ${g.id}`);
+    L.push(`  S${i + 1} ${fmtSpan(e.start, e.end)} (${((e.end - e.start) / HOUR).toFixed(1)} h)${e.beforeWindow ? ', began before window' : ''}${e.singleGauge ? ', one gauge only' : ''}: ${parts.join(', ')}.`);
+    const pk = S.det.map(id => ({ id, ...(e.stats ? e.stats[id] : {}) })).filter(x => x.peak > 0).sort((x, y) => y.peak - x.peak)[0];
+    const ph = S.det.map(id => e.stats && e.stats[id].meanT != null ? `${id} ${e.stats[id].phase} ${e.stats[id].meanT.toFixed(1)} C` : `${id} no temp`).join(', ');
+    L.push(`     Peak 10 min ${pk ? `${pk.peak.toFixed(2)} mm at ${pk.id} ${fmtTime(pk.peakT)}` : 'n/a'}. ${ph}.`);
+    for (const f of FLOW) if (e.resp && e.resp[f.key]) L.push(`     ${f.name}: Q ${respText(e.resp[f.key], 'text')}`);
+  });
+  if (S.minor.length) L.push(`  (${S.minor.length} smaller tip group(s) below threshold)`);
+  L.push('');
+  const F = flowSeries();
+  L.push('STREAMFLOW (latest in window)');
+  for (const f of FLOW) { const s = F[f.key]; if (s && s.t.length) L.push(`  ${f.name}: ${cfs(s.v[s.v.length - 1])} cfs at ${fmtDT(s.t[s.t.length - 1])}`); }
+  if (!S.county) L.push(`  County gauges unavailable (${S.status.county ? S.status.county.msg : ''})`);
+  L.push('');
+  if (S.snotel) {
+    L.push('SNOTEL (daily, midnight PST)');
+    for (const s of SNOTEL) {
+      const rec = S.snotel[s.trip] || {};
+      const inWin = a => (a || []).filter(x => x.t > S.win.a && x.t <= S.win.b);
+      const swe = inWin(rec.WTEQ).pop(), dep = inWin(rec.SNWD).pop(), pr = inWin(rec.PRCP), pt = pr.reduce((x, y) => x + y.v, 0);
+      L.push(`  ${s.name}: SWE ${swe ? swe.v.toFixed(1) + ' in' : 'n/a'}, depth ${dep ? dep.v + ' in' : 'n/a'}, window precip ${pr.length ? (pt * 25.4).toFixed(1) + ' mm (' + pt.toFixed(1) + ' in)' : 'n/a'}${swe ? ', through ' + swe.date : ''}`);
+    }
+  } else L.push(`SNOTEL unavailable (${S.status.snotel ? S.status.snotel.msg : ''})`);
+  const bad = Object.entries(S.status).filter(([, v]) => v.cls === 'err' || v.cls === 'warn');
+  if (bad.length) { L.push(''); L.push('DATA ISSUES: ' + bad.map(([k, v]) => `${SRC_LINKS[k] ? SRC_LINKS[k][0] : k} ${v.msg}`).join('; ')); }
+  return L.join('\n');
+}
+
+/* ======================================================================
+   CSV export
+   ====================================================================== */
+function csvEsc(x) { const s = x == null ? '' : String(x); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }
+function download(name, rows) {
+  const blob = new Blob([rows.map(r => r.map(csvEsc).join(',')).join('\n') + '\n'], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+const stamp = () => `${localDate(S.win.a)}_to_${localDate(S.win.b)}`;
+const iso = ms => new Date(ms).toISOString();
+const loc = ms => { const p = tzParts(ms); return `${localDate(ms)} ${String(p.h).padStart(2, '0')}:${String(p.mi).padStart(2, '0')} ${zoneAbbr(ms)}`; };
+function exportCSV(kind) {
+  if (kind === 'precip') {
+    const rows = [['station', 'interval_start_utc', 'time_utc', 'time_local', 'mm', 'included', 'flags']];
+    for (const s of PRECIP_STATIONS) { const p = S.P[s.id]; if (p) for (const inc of p.incs) if (inc.t > S.win.a && inc.t <= S.win.b)
+      rows.push([s.id, iso(inc.t0), iso(inc.t), loc(inc.t), inc.mm.toFixed(3), inc.include ? 1 : 0, inc.flags.join(';')]); }
+    download(`alta_precip_increments_${stamp()}.csv`, rows);
+  } else if (kind === 'events') {
+    const rows = [['storm', 'start_local', 'end_local', 'hours', 'centroid_local', ...GAUGES.flatMap(g => [`${g.id}_mm`, `${g.id}_peak10_mm`, `${g.id}_meanT_C`, `${g.id}_phase`]),
+      ...FLOW.flatMap(f => [`${f.key}_base_cfs`, `${f.key}_peak_cfs`, `${f.key}_dQ_cfs`, `${f.key}_peak_local`, `${f.key}_lag_h`, `${f.key}_flags`])]];
+    S.events.forEach((e, i) => rows.push([`S${i + 1}`, loc(e.start), loc(e.end), ((e.end - e.start) / HOUR).toFixed(2), loc(e.centroid),
+      ...GAUGES.flatMap(g => { const st = e.stats && e.stats[g.id]; return st ? [st.tot.toFixed(3), st.peak ? st.peak.toFixed(3) : '', st.meanT == null ? '' : st.meanT.toFixed(2), st.phase || ''] : ['', '', '', '']; }),
+      ...FLOW.flatMap(f => { const r = e.resp && e.resp[f.key]; return r ? [r.base == null ? '' : r.base.toFixed(3), r.peak == null ? '' : r.peak.toFixed(3), r.dQ == null ? '' : r.dQ.toFixed(3), r.tpk ? loc(r.tpk) : '', r.lag == null ? '' : r.lag.toFixed(2), r.flags.join(';')] : ['', '', '', '', '', '']; })]));
+    download(`alta_storms_${stamp()}.csv`, rows);
+  } else if (kind === 'flow') {
+    const F = flowSeries(); const rows = [['series', 'time_utc', 'time_local', 'value', 'units']];
+    for (const f of FLOW) { const s = F[f.key]; if (s) s.t.forEach((t, i) => { if (t >= S.win.a && t <= S.win.b) rows.push([f.key, iso(t), loc(t), s.v[i], s.units || 'cfs']); }); }
+    const tw = S.county && S.county.lcc_tanners_tw;
+    if (tw) tw.t.forEach((t, i) => { if (t >= S.win.a && t <= S.win.b) rows.push(['lcc_tanners_tw', iso(t), loc(t), tw.v[i], 'F']); });
+    download(`alta_flow_${stamp()}.csv`, rows);
+  } else if (kind === 'snotel') {
+    const rows = [['site', 'triplet', 'date', 'element', 'value', 'units', 'qc_flag']];
+    if (S.snotel) for (const s of SNOTEL) { const rec = S.snotel[s.trip] || {}; for (const el of ['WTEQ', 'SNWD', 'PREC', 'PRCP', 'TOBS']) for (const x of rec[el] || [])
+      if (x.t > S.win.a && x.t <= S.win.b + DAY) rows.push([s.name, s.trip, x.date, el, x.v, el === 'TOBS' ? 'degF' : 'in', x.qc]); }
+    download(`alta_snotel_${stamp()}.csv`, rows);
+  }
+}
+
+/* ======================================================================
+   Load + render orchestration (each source isolated)
+   ====================================================================== */
+function processAll() {
+  S.P = {};
+  if (S.syn) {
+    for (const s of PRECIP_STATIONS) S.P[s.id] = processPrecip(S.syn[s.id], s.mode);
+    corroborate(S.P, GAUGES.map(g => g.id));
+  }
+  computeEvents();
+}
+function safe(fn, name) { try { fn(); } catch (e) { console.error(name, e); } }
+function renderAll() {
+  document.getElementById('win-label').textContent = `${fmtDT(S.win.a, { tz: true })} to ${fmtDT(S.win.b, { tz: true })}`;
+  document.querySelectorAll('#presets [data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === S.win.preset));
+  document.getElementById('cs').value = localInput(S.win.a);
+  document.getElementById('ce').value = localInput(S.win.b);
+  safe(renderPrecip, 'precip'); safe(renderCum, 'cum'); safe(renderBars, 'bars');
+  safe(renderEvents, 'events'); safe(renderFlow, 'flow'); safe(renderTemp, 'temp');
+  safe(renderLatest, 'latest'); safe(renderSnotel, 'snotel');
+  safe(() => { document.getElementById('readout').value = buildReadout(); }, 'readout');
+  document.getElementById('asof').textContent = S.loadedAt ? `Loaded ${fmtDT(S.loadedAt, { tz: true })}` : '';
+}
+let loadSeq = 0;
+async function loadAll() {
+  const seq = ++loadSeq;
+  if (S.win.preset !== 'custom') Object.assign(S.win, windowFromPreset(S.win.preset));
+  writeHash();
+  const { a, b } = S.win, now = Date.now();
+  const pa = Math.min(a - 12 * HOUR, b - DAY - HOUR, midnightDenver(Math.min(b, now)) - HOUR);
+  const fa = a - 12 * HOUR, fb = Math.min(now, b + 48 * HOUR);
+  for (const k of ['syn', 'county', 'usgs', 'snotel']) setStatus(k, 'loading', 'loading');
+  renderAll();
+  const jobs = [
+    loadSynoptic(pa, b).then(d => {
+      if (seq !== loadSeq) return; S.syn = d;
+      const have = STATIONS.filter(s => d[s.id]).length;
+      setStatus('syn', have === STATIONS.length ? 'ok' : 'warn', `${have}/${STATIONS.length} stations`);
+    }).catch(e => { if (seq !== loadSeq) return; S.syn = null; setStatus('syn', 'err', e.message); }),
+    loadCounty(fa, fb).then(d => {
+      if (seq !== loadSeq) return; S.county = d;
+      const up = Date.parse(countyManifest.updated_utc), stale = now - up > 90 * MIN;
+      setStatus('county', stale ? 'warn' : 'ok', `updated ${ago(up)}${countyManifest.failures && countyManifest.failures.length ? ', some gauges failed' : ''}`);
+    }).catch(e => { if (seq !== loadSeq) return; S.county = null; setStatus('county', 'err', e.message); }),
+    loadUSGS(fa, fb).then(d => {
+      if (seq !== loadSeq) return; S.usgs = d;
+      setStatus('usgs', d.t.length ? (d.api.startsWith('NWIS') ? 'ok' : 'warn') : 'warn', d.t.length ? `${d.api}, provisional` : 'no data in window');
+    }).catch(e => { if (seq !== loadSeq) return; S.usgs = null; setStatus('usgs', 'err', e.message); }),
+    loadSnotel(a, b).then(d => { if (seq !== loadSeq) return; S.snotel = d; setStatus('snotel', 'ok', 'daily'); })
+      .catch(e => { if (seq !== loadSeq) return; S.snotel = null; setStatus('snotel', 'err', e.message); }),
+  ];
+  // render progressively as each source lands
+  jobs.forEach(j => j.then(() => { if (seq === loadSeq) { safe(processAll, 'process'); renderAll(); } }));
+  await Promise.allSettled(jobs);
+  if (seq !== loadSeq) return;
+  S.loadedAt = Date.now();
+  safe(processAll, 'process'); renderAll();
+}
+
+/* ======================================================================
+   Self-test: unit tests + live reference values (10/7 to 10/8/2026)
+   ====================================================================== */
+async function runSelfTests() {
+  const box = document.getElementById('tests'), out = document.getElementById('test-out');
+  box.classList.remove('hidden'); out.innerHTML = 'Running…';
+  const lines = []; let pass = 0, fail = 0;
+  const ok = (name, cond, detail = '') => { cond ? pass++ : fail++; lines.push(`<span class="${cond ? 'test-pass' : 'test-fail'}">${cond ? 'PASS' : 'FAIL'}</span> ${name}${detail ? ' · ' + detail : ''}`); };
+  const near = (x, y, tol = 0.0005) => x != null && Math.abs(x - y) <= tol;
+  const t0 = Date.UTC(2026, 0, 1);
+  const mk = (vals, key, stepMin = 10) => ({ t: vals.map((_, i) => t0 + i * stepMin * MIN), v: { [key]: vals } });
+
+  // 1. cumulative differencing with a bucket reset
+  let p = processPrecip(mk([100, 100.254, 100.508, 0.5, 0.754], 'precip_accum'), 'accum');
+  ok('accum: diff, reset counts as 0', near(sumPrecip(p, t0 - 1, t0 + DAY).mm, 0.762) && p.incs.some(i => i.flags.includes('reset')),
+     `total ${sumPrecip(p, t0 - 1, t0 + DAY).mm}`);
+  // 2. ten-minute summing with a null
+  p = processPrecip(mk([0.254, null, 0.508], 'precip_accum_ten_minute'), 'ten');
+  ok('ten-minute: sum, nulls are missing not zero', near(sumPrecip(p, t0 - 1, t0 + DAY).mm, 0.762) && p.obs.length === 2);
+  // 3. suspect jump excluded without a neighbour, kept with one
+  let P = { A: processPrecip(mk([0, 12.7, 0], 'precip_accum_ten_minute'), 'ten'), B: processPrecip(mk([0, 0, 0], 'precip_accum_ten_minute'), 'ten') };
+  corroborate(P, ['A', 'B']);
+  ok('suspect > 10 mm/10 min excluded when uncorroborated', near(sumPrecip(P.A, t0 - 1, t0 + DAY).mm, 0) && P.A.incs[0].flags.includes('excluded'));
+  P = { A: processPrecip(mk([0, 12.7, 0], 'precip_accum_ten_minute'), 'ten'), B: processPrecip(mk([0, 0.254, 0], 'precip_accum_ten_minute'), 'ten') };
+  corroborate(P, ['A', 'B']);
+  ok('suspect kept when a neighbour tips within 30 min', near(sumPrecip(P.A, t0 - 1, t0 + DAY).mm, 12.7));
+  // 4. rate-based suspect test over a long gap
+  p = processPrecip({ t: [t0, t0 + HOUR], v: { precip_accum: [0, 15] } }, 'accum');
+  ok('15 mm over a 60 min gap: flagged gap, not suspect', p.incs[0].flags.includes('gap') && !p.incs[0].flags.includes('suspect'));
+  // 5. "no data" differs from zero; partial detection
+  p = processPrecip(mk([0, 0, 0], 'precip_accum_ten_minute'), 'ten');
+  ok('no reports in interval => nodata', sumPrecip(p, t0 + DAY, t0 + 2 * DAY).status === 'nodata');
+  ok('zero reports => 0.00, ok', sumPrecip(p, t0 - 1, t0 + 20 * MIN).status === 'ok' && sumPrecip(p, t0 - 1, t0 + 20 * MIN).mm === 0);
+  ok('last report > 25 min before end => partial', sumPrecip(p, t0 - 1, t0 + 2 * HOUR).status === 'partial');
+  // 6. Denver midnight across DST changes
+  ok('midnight 11/1/2026 (MDT) = 06:00Z', midnightDenver(Date.UTC(2026, 10, 1, 18)) === Date.UTC(2026, 10, 1, 6));
+  ok('midnight 11/2/2026 (MST) = 07:00Z', midnightDenver(Date.UTC(2026, 10, 2, 18)) === Date.UTC(2026, 10, 2, 7));
+  ok('midnight 3/8/2026 (MST) = 07:00Z', midnightDenver(Date.UTC(2026, 2, 8, 18)) === Date.UTC(2026, 2, 8, 7));
+  ok('midnight 3/9/2026 (MDT) = 06:00Z', midnightDenver(Date.UTC(2026, 2, 9, 18)) === Date.UTC(2026, 2, 9, 6));
+  ok('water year start 10/1/2026 00:00 MDT', waterYearStart(Date.UTC(2027, 0, 15)) === Date.UTC(2026, 9, 1, 6));
+  // 7. storm grouping and threshold
+  const tipAt = h => ({ t0: t0 + h * HOUR - 10 * MIN, t: t0 + h * HOUR, mm: 0.508, flags: [], include: true });
+  P = { X: { obs: [], incs: [tipAt(0), tipAt(2.9), tipAt(6.1)] }, Y: { obs: [], incs: [tipAt(6.2)] } };
+  let r = detectEvents(P, ['X', 'Y'], 3 * HOUR, 1.0);
+  ok('tips 2.9 h apart join; 3.2 h apart split; < 1 mm group dropped', r.events.length === 1 && r.minor.length === 1 && near(r.events[0].det.X, 1.016),
+     `${r.events.length} storm, ${r.minor.length} minor`);
+  // 8. time weighted mean and response
+  const sQ = { t: [t0, t0 + HOUR, t0 + 3 * HOUR, t0 + 5 * HOUR], v: [10, 20, 30, 10] };
+  ok('time weighted mean (step hold)', near(twMean(sQ, t0, t0 + 2 * HOUR), 15, 1e-9));
+  const fr = flowResponse({ start: t0 + 2 * HOUR, end: t0 + 2.5 * HOUR, centroid: t0 + 2.25 * HOUR }, null, { ...sQ, res: 0.33 });
+  ok('response: baseline, peak, lag, short-baseline flag', near(fr.base, 15, 1e-9) && fr.peak === 30 && near(fr.lag, 0.75, 1e-9) && fr.flags.includes('baseline under 6 h of data'),
+     `base ${fr.base.toFixed(3)}, lag ${fr.lag}`);
+  const q10 = [9.55, 9.87, 9.55, 9.87, 0.71, 9.87, 9.55];
+  const qc = qcFlow({ t: q10.map((_, i) => t0 + i * 5 * MIN), v: q10 });
+  ok('flow QC: single-report dropout removed (Tanners Flat 10/8 case)', qc.v.length === 6 && qc.spikes.length === 1 && qc.spikes[0].v === 0.71);
+  const qcEnd = qcFlow({ t: [0, 1, 2, 3].map(i => t0 + i * 5 * MIN), v: [9.87, 9.55, 9.87, 0.71] });
+  ok('flow QC: wild newest report held as unconfirmed', qcEnd.spikes.length === 1 && qcEnd.spikes[0].kind === 'unconfirmed');
+  const qcAfter = qcFlow({ t: [0, 1, 2, 3, 4].map(i => t0 + i * 5 * MIN), v: [9.87, 9.55, 9.87, 0.71, 9.87] });
+  ok('flow QC: normal newest report after a spike is kept', qcAfter.v.length === 4 && qcAfter.v[3] === 9.87);
+  const early = flowResponse({ start: t0 + 2 * HOUR, end: t0 + 6 * HOUR, centroid: t0 + 5 * HOUR }, null, { ...sQ, res: 0.33 });
+  ok('response: peak before centroid gets no lag and a flag', early.lag == null && early.flags.some(f => f.startsWith('peak before')));
+  // 9. snow depth bare-ground noise
+  const sd = qcSnowDepth({ id: 'X', t: [0, 1, 2, 3].map(h => t0 + h * HOUR), v: { snow_depth: [0, 101.6, 127, 0] } });
+  ok('snow depth: ≤150 mm next to a 0 is bare-ground noise', sd.every(x => x.qc === 0));
+  ok('snow depth: UTWLC blocked', qcSnowDepth({ id: 'UTWLC', t: [t0], v: { snow_depth: [719] } }).length === 0);
+
+  // 10. live reference values
+  lines.push(''); lines.push('Live reference check (Synoptic, 10/7 06:00 to 10/8 16:00 MDT):');
+  try {
+    const raw = await fetchSynChunk(Date.UTC(2026, 9, 7, 12), Date.UTC(2026, 9, 8, 22));
+    const D = mergeStations([raw]);
+    const R = {}; for (const s of PRECIP_STATIONS) R[s.id] = processPrecip(D[s.id], s.mode);
+    corroborate(R, GAUGES.map(g => g.id));
+    const Z = (d, h, m) => Date.UTC(2026, 9, d, h + 6, m); // MDT wall clock -> UTC
+    const sumObs = (id, d1, h1, m1, d2, h2, m2) => sumPrecip(R[id], Z(d1, h1, m1) - 1, Z(d2, h2, m2)).mm; // reports at both ends included
+    const chk = (name, got, want) => ok(name, near(got, want), `got ${got == null ? 'null' : got.toFixed(3)}, want ${want}`);
+    chk('PC064 Wed 10/7 20:00 to 20:40', sumObs('PC064', 7, 20, 0, 7, 20, 40), 1.524);
+    chk('PC064 Thu 10/8 04:00 to 04:20', sumObs('PC064', 8, 4, 0, 8, 4, 20), 0.762);
+    chk('PC064 Thu 10/8 12:40 to 13:10', sumObs('PC064', 8, 12, 40, 8, 13, 10), 0.762);
+    const agd = D.AGD, at = (d, h, m) => { const i = agd.t.indexOf(Z(d, h, m)); return i < 0 ? null : agd.v.precip_accum[i]; };
+    chk('AGD precip_accum at 10/7 10:00', at(7, 10, 0), 973.074);
+    chk('AGD precip_accum at 10/7 20:50', at(7, 20, 50), 975.106);
+    chk('AGD precip_accum at 10/8 04:30', at(8, 4, 30), 975.614);
+    chk('AGD precip_accum at 10/8 13:00', at(8, 13, 0), 975.868);
+    chk('PC056 10/7 06:00 to 24:00', sumPrecip(R.PC056, Z(7, 6, 0), Z(8, 0, 0)).mm, 0);
+    chk('PC056 Thu 10/8 12:30 to 13:00', sumObs('PC056', 8, 12, 30, 8, 13, 0), 1.778);
+    const E = Z(8, 13, 50);
+    chk('Rolling 24 h to 10/8 13:50, PC064', sumPrecip(R.PC064, E - DAY, E).mm, 3.048);
+    chk('Rolling 24 h to 10/8 13:50, AGD (13:50 tip included)', sumPrecip(R.AGD, E - DAY, E).mm, 3.048);
+    chk('  AGD before its 13:50 report arrived (handoff value 2.79)', sumPrecip(R.AGD, E - DAY, E - MIN).mm, 2.794);
+    chk('Rolling 24 h to 10/8 13:50, PC056', sumPrecip(R.PC056, E - DAY, E).mm, 1.778);
+    chk('Rolling 24 h to 10/8 13:50, ELBUT', sumPrecip(R.ELBUT, E - DAY, E).mm, 3.81);
+    chk('Rolling 24 h to 10/8 13:50, SPC', sumPrecip(R.SPC, E - DAY, E).mm, 0.762);
+  } catch (e) { ok('live Synoptic fetch', false, e.message); }
+  out.innerHTML = `<b>${pass} passed, ${fail} failed</b>\n` + lines.join('\n');
+  return { pass, fail };
+}
+
+/* ======================================================================
+   Wiring
+   ====================================================================== */
+function initUI() {
+  document.getElementById('det-boxes').innerHTML = GAUGES.map(g =>
+    `<label><input type="checkbox" value="${g.id}" ${S.det.includes(g.id) ? 'checked' : ''}> ${g.id}</label>`).join(' ');
+  document.querySelectorAll('#presets [data-p]').forEach(b => b.onclick = () => { S.win.preset = b.dataset.p; loadAll(); });
+  document.getElementById('refresh').onclick = () => loadAll();
+  document.getElementById('apply-custom').onclick = () => {
+    const a = parseLocalInput(document.getElementById('cs').value), b = parseLocalInput(document.getElementById('ce').value);
+    if (a == null || b == null || b <= a) { alert('Pick a start before the end.'); return; }
+    S.win = { preset: 'custom', a, b }; loadAll();
+  };
+  document.getElementById('apply-storm').onclick = () => {
+    const det = [...document.querySelectorAll('#det-boxes input:checked')].map(x => x.value);
+    if (!det.length) { alert('Pick at least one detection gauge.'); return; }
+    S.det = det; S.gapH = Math.max(0.5, +document.getElementById('gap-h').value || 3); S.minMm = Math.max(0.25, +document.getElementById('min-mm').value || 1);
+    safe(processAll, 'process'); renderAll();
+  };
+  document.getElementById('bar-st').onchange = e => { S.barStation = e.target.value; safe(renderBars, 'bars'); };
+  document.querySelectorAll('[data-bin]').forEach(b => b.onclick = () => { S.barBin = +b.dataset.bin; safe(renderBars, 'bars'); });
+  document.getElementById('sn-el').onchange = () => safe(renderSnotel, 'snotel');
+  document.querySelectorAll('[data-export]').forEach(b => b.onclick = () => exportCSV(b.dataset.export));
+  document.getElementById('copy-readout').onclick = async () => {
+    const ta = document.getElementById('readout');
+    try { await navigator.clipboard.writeText(ta.value); } catch { ta.select(); document.execCommand('copy'); }
+    const b = document.getElementById('copy-readout'); b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1500);
+  };
+  document.getElementById('upload').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = parseUploadCSV(await f.text());
+    S.upload = r.t.length ? qcFlow(r) : null;
+    document.getElementById('upload-status').textContent = r.t.length ? `${r.t.length} rows, ${fmtDT(r.t[0])} to ${fmtDT(r.t[r.t.length - 1])}${r.bad ? `, ${r.bad} lines skipped` : ''}` : 'No usable rows.';
+    safe(processAll, 'process'); renderAll();
+  };
+  document.getElementById('run-tests').onclick = () => runSelfTests();
+  document.getElementById('sources').innerHTML = [
+    `Precipitation, temperature, wind, snow depth: ${STATIONS.map(s => `<a href="${mesoLink(s.id)}" target="_blank" rel="noopener">${s.id}</a>`).join(', ')} via the <a href="https://docs.synopticdata.com/services/time-series" target="_blank" rel="noopener">Synoptic timeseries API</a>.`,
+    `Snow and daily precipitation: NRCS SNOTEL ${SNOTEL.map(s => `<a href="${snotelLink(s.num)}" target="_blank" rel="noopener">${s.name} (${s.trip})</a>`).join(', ')} via <a href="https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html" target="_blank" rel="noopener">AWDB REST</a>.`,
+    `Streamflow: <a href="https://rain-flow.saltlakecounty.gov/" target="_blank" rel="noopener">Salt Lake County Flood Control Contrail</a> (copied to the <a href="https://github.com/Tyler-Y42/Alta.Hydromet/tree/data/county" target="_blank" rel="noopener">data branch</a>), <a href="https://waterdata.usgs.gov/monitoring-location/USGS-10168000/" target="_blank" rel="noopener">USGS 10168000</a> (provisional). Closed canyon-mouth point: <a href="https://www.cbrfc.noaa.gov/wsup/graph/espgraph_hc.html?id=LCTU1" target="_blank" rel="noopener">CBRFC LCTU1</a>.`,
+    `Code: <a href="https://github.com/Tyler-Y42/Alta.Hydromet" target="_blank" rel="noopener">github.com/Tyler-Y42/Alta.Hydromet</a>.`,
+  ].join('<br>');
+}
+
+readHash();
+initUI();
+loadAll();
+if (/[?&]selftest/.test(location.search)) runSelfTests();
+window.addEventListener('hashchange', () => { const before = JSON.stringify(S.win); readHash(); if (JSON.stringify(S.win) !== before) loadAll(); });
+</script>
+</body>
+</html>
