@@ -1,0 +1,28 @@
+{
+ "months": [
+  "2026-09",
+  "2026-10"
+ ],
+ "updated_utc": "2026-10-10T16:17:48Z",
+ "last_utc": "2026-10-10T16:00:00Z",
+ "points": {
+  "albion": [
+   40.585,
+   -111.618
+  ],
+  "alta": [
+   40.5905,
+   -111.638
+  ],
+  "snowbird": [
+   40.564,
+   -111.655
+  ],
+  "tanners": [
+   40.57,
+   -111.7007
+  ]
+ },
+ "basin_pixels": 76,
+ "source": "https://mesonet.agron.iastate.edu/docs/mrms/"
+}
