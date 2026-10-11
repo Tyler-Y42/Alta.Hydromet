@@ -178,7 +178,7 @@
       <div class="plab"><b class="pl">a</b><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
       <div class="plab"><b class="pl">b</b><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
       <div class="plab"><b class="pl">c</b><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
-      <div class="plab"><b class="pl">d</b><span class="pt">Air temperature</span><span class="u">°C</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
+      <div class="plab"><b class="pl">d</b><span class="pt">Air temperature</span><span class="u">°F</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
       <div class="plab"><b class="pl">e</b><span class="pt">Rain line</span><span class="u">ft</span></div><ul class="kb" id="kb-e"></ul><div class="cbox"><canvas id="p-fl"></canvas></div>
       <p class="cap" id="cap1"></p>
       <div class="zoomnote">Drag across a chart to zoom; double-click to reset. Click a storm to zoom to it.</div>
@@ -283,12 +283,12 @@
       <li>The GitHub Action reads one mosaic tile per 5 min frame every 15 min and stores the series on the data branch, so the page loads a few kilobytes instead of hundreds of tiles; only frames newer than the last run are decoded in the browser. Stored radar starts 8 September 2026.</li>
     </ul>
     <h3>Rain line</h3>
-    <ul><li>Each hour, a straight line is fit to air temperature against elevation for every station reporting (6,049 to 11,000 ft); the rain line is where that line crosses 1 °C. It is left blank when the fit is poor (r² &lt; 0.6) or temperature rises with height (an inversion). Above about 12,000 ft it is an extrapolation.</li>
+    <ul><li>Each hour, a straight line is fit to air temperature against elevation for every station reporting (6,049 to 11,000 ft); the rain line is where that line crosses 1 °C (34 °F). It is left blank when the fit is poor (r² &lt; 0.6) or temperature rises with height (an inversion). Above about 12,000 ft it is an extrapolation.</li>
       <li>Checked against the 1 °C height in 176 Salt Lake City soundings (Nov 2025 to Apr 2026): while precipitating, mean error 577 ft, with the line about 470 ft below the free air value, as expected for where snow reaches the ground (NWS: the snow level sits up to about 1,000 ft below the freezing level). On clear mornings it reads about 1,400 ft low because cold air drains onto the slopes, so dry hours are drawn faint.</li></ul>
     <h3>Storms and response</h3>
     <ul>
       <li>Tips from the detection gauges (Collins Gulch, Albion Basin, Guard House, Alta hwy; MesoWest CLN, PC064, AGD, UTALC) are pooled in time order; a gap over 3 h starts a new group. A group is a storm when any detection gauge totals at least 1.0 mm.</li>
-      <li>Rain or snow: precipitation weighted mean of each gauge's own air temperature; below 1 °C is called mixed or snow.</li>
+      <li>Rain or snow: precipitation weighted mean of each gauge's own air temperature; below 1 °C (34 °F) is called mixed or snow.</li>
       <li>Tanners Flat response: baseline is the time weighted mean of the 6 h before the start; peak is the maximum up to 48 h after the end, cut at the next storm. Lag runs to the peak from the centroid of the rain that fell before it, at every gauge above Tanners Flat (CLN, PC064, AGD, UTALC, UTWLC, ELBUT); storms with two bursts would otherwise place the centroid after the first peak. A clear response needs a rise of at least 3 gauge steps (about 1 cfs; the gauge flickers one 0.32 cfs step all the time) and at least 5% of the baseline. A peak before the centroid, or more than 12 h after it, gets no lag: the rise belongs to other water. From November to March, after a below freezing day at White Pine or Elberts, flow is marked ice possible (USGS: ice backs water up and raises stage with no change in flow; the 2/18/2026 jump to 70 cfs at Tanners Flat looks like this).</li>
       <li>Flow QC: a report far from the median of its five neighbors on each side is removed (this survives small clusters such as the 64 to 235 cfs readings of 10/8/2026 evening) (Tanners Flat stage dropped from 0.36 to 0.04 ft for one report, twice on 10/8/2026). A wild newest report is held until the next one confirms it. When the county sends several values within the same minute, their median is kept.</li>
     </ul>
@@ -417,6 +417,7 @@ const inStr = mm => (mm == null || !isFinite(mm)) ? '—' : (mm / 25.4).toFixed(
 const mmIn = (mm, d = 1) => (mm == null || !isFinite(mm)) ? '—' : `${mm.toFixed(d)} mm (${(mm / 25.4).toFixed(2)} in)`;
 const cfs = q => (q == null || !isFinite(q)) ? '—' : (q >= 100 ? q.toFixed(0) : q >= 10 ? q.toFixed(1) : q.toFixed(2));
 const fToC = f => (f - 32) * 5 / 9;
+const cToF = c => c * 9 / 5 + 32; // temperatures are stored in °C and shown in °F
 const ft = n => Math.round(n).toLocaleString('en-US');
 function bisectRight(arr, x) { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] <= x) lo = m + 1; else hi = m; } return lo; }
 
@@ -1084,7 +1085,7 @@ function renderSummary() {
   tiles.push(['Last 24 h, Alta', o.r24 ? (o.r24[0] === o.r24[1] ? `${mmStr(o.r24[0], 1)} mm` : `${mmStr(o.r24[0], 1)}–${mmStr(o.r24[1], 1)} mm`) : '—', o.r24 ? `${inStr(o.r24[0])}–${inStr(o.r24[1])} in across ${o.r24[2]} gauges` : 'no data']);
   const rl = o.rLast;
   tiles.push(['Radar now, upper canyon', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', '', rl && rl.maxDbz >= 35]);
-  tiles.push(['Air temperature', o.ta != null ? `${o.ta.toFixed(1)} °C` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : '']);
+  tiles.push(['Air temperature', o.ta != null ? `${cToF(o.ta).toFixed(0)} °F` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : '']);
   tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${icePossible(o.q.t) ? 'ice possible, ' : ''}${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
   tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${o.at ? `; Atwater ${o.at.v.toFixed(1)} in` : ''}` : '']);
   const ACC = ['#0072B2', '#0072B2', '#D55E00', '#CC79A7', '#111111', '#009E73'];
@@ -1097,7 +1098,7 @@ function summaryText() {
   const o = summaryParts(), L = [];
   L.push(o.wet ? `Precipitating at Alta (last tip ${fmtTime(o.lastTip)}).` : o.lastTip ? `Dry at the Alta gauges for ${durTxt(T_END() - o.lastTip)} (last tip ${fmtWhen(o.lastTip)}).` : 'No precipitation at the Alta gauges in the window.');
   if (o.r24) L.push(`Last 24 h: ${mmStr(o.r24[0])} to ${mmStr(o.r24[1])} mm across ${o.r24[2]} Alta gauges.`);
-  if (o.ta != null) L.push(`Air ${o.ta.toFixed(1)} C at Alta; rain line ${flTxt(o.fl)}${o.fl != null ? ` (${phaseTxt(o.fl)})` : ''}.`);
+  if (o.ta != null) L.push(`Air ${cToF(o.ta).toFixed(0)} F at Alta; rain line ${flTxt(o.fl)}${o.fl != null ? ` (${phaseTxt(o.fl)})` : ''}.`);
   if (o.q) L.push(`Tanners Flat ${cfs(o.q.v)} cfs at ${fmtWhen(o.q.t)}.`);
   if (o.sb) L.push(`Snowbird SWE ${o.sb.v.toFixed(1)} in${o.sb.med != null ? ` (median ${o.sb.med.toFixed(1)})` : ''}.`);
   return L.join(' ');
@@ -1149,10 +1150,10 @@ function renderFig1() {
   const tds = [];
   if (S.syn) for (const id of TEMP_SHOW) {
     const st = S.syn[id]; if (!st || !st.v.air_temp) continue; const s = STN[id], pts = [];
-    st.t.forEach((t, i) => { const v = st.v.air_temp[i]; if (v != null && t >= S.win.a && t <= S.win.b) pts.push({ x: t, y: v }); });
+    st.t.forEach((t, i) => { const v = st.v.air_temp[i]; if (v != null && t >= S.win.a && t <= S.win.b) pts.push({ x: t, y: cToF(v) }); });
     if (pts.length) tds.push({ label: `${s.short} (${s.id}), ${ft(s.elev)} ft`, endLabel: `${s.short} ${ft(s.elev)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
-  timeChart('p-temp', tds, { endLabels: true, reserveY2: true, yTitle: 'Air temp, °C', paper: { ...sh, hlines: [{ y: 0, label: '0 °C', color: INK2 }, { y: 1, color: '#b9b7af', dash: [1, 3] }] }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} °C` });
+  timeChart('p-temp', tds, { endLabels: true, reserveY2: true, yTitle: 'Air temp, °F', paper: { ...sh, hlines: [{ y: 32, label: '32 °F', color: INK2 }, { y: cToF(RAIN_C), color: '#b9b7af', dash: [1, 3] }] }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(0)} °F` });
 
   const flp = S.fl.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.fl == null ? null : Math.max(4000, Math.min(18000, x.fl)) }));
   const FL_DRY = 'rgba(0,114,178,0.32)';
@@ -1177,8 +1178,8 @@ function renderFig1() {
     `<b>a</b> <b>Precipitation:</b> black is the mean of the four Alta gauges, gray the wettest; melt tips from unheated gauges are left out. Orange is radar averaged over the whole upper canyon (70.8 km², NOAA MRMS hourly${radarFrom5 != null ? `; 5 min estimate from ${fmtTime(radarFrom5)} until MRMS arrives` : ''}) and runs low in snow.<br>` +
     `<b>b</b> <b>Running total:</b> ${precipOut('ATB', S.win.a, S.win.b) ? `Alta base is dotted at 0 because ${STN.ATB.precipOut}. ` : ''}Albion Basin, Alta hwy, White Pine and Powerhouse are unheated, so in cold weather they tip late as caught snow melts.<br>` +
     `<b>c</b> <b>Creek flow:</b> the only canyon gauge, above the diversions; provisional county data${nsp ? `, × marks removed bad reports` : ''}.<br>` +
-    `<b>d</b> <b>Air temperature:</b> the dotted line is 1 °C, the rain/snow threshold used throughout.<br>` +
-    `<b>e</b> <b>Rain line:</b> where air is 1 °C, from a fit of eight station temperatures each hour; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
+    `<b>d</b> <b>Air temperature:</b> the dotted line is 34 °F (1 °C), the rain/snow threshold used throughout.<br>` +
+    `<b>e</b> <b>Rain line:</b> where air is 34 °F (1 °C), from a fit of eight station temperatures each hour; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
     `<b>Bands:</b> a storm needs ${S.minMm} mm or more at an Alta gauge; fixed ridge clutter is removed from radar.`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
@@ -1202,7 +1203,7 @@ function panelBullets(va, vb) {
     const st = S.syn.PC064;
     if (st && st.v.air_temp) {
       const cold = st.t.map((t, i) => [t, st.v.air_temp[i]]).filter(([t, v]) => v != null && t >= va && t <= vb && v < RAIN_C);
-      if (cold.length) D.push(`Below ${RAIN_C} °C at Albion Basin ${fmtSpan(cold[0][0], cold[cold.length - 1][0])}: precipitation there likely snow`);
+      if (cold.length) D.push(`Below 34 °F at Albion Basin ${fmtSpan(cold[0][0], cold[cold.length - 1][0])}: precipitation there likely snow`);
     }
     const fl = S.fl.filter(x => x.fl != null && x.t >= va && x.t <= vb && x.fl < 9026 && wetHour(x.t));
     if (fl.length) E.push(`Rain line below Albion Basin ${fmtSpan(fl[0].t, fl[fl.length - 1].t)}, lowest ${flTxt(Math.min(...fl.map(x => x.fl)))}: snow at Alta`);
@@ -1226,7 +1227,7 @@ function fig1Takeaway(va, vb) {
     const k = S.events.indexOf(e) + 1, st = e.stats || {}, vals = GAUGES.filter(g => st[g.id] && st[g.id].hasData && !suspectZero(g.id, e.start, e.end)).map(g => st[g.id].tot);
     const temps = S.det.map(id => st[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((a, b) => a + b.meanT, 0) / temps.length : null;
     const r = e.resp && e.resp.lcc_tanners_q;
-    let t = `Storm ${k} (${fmtSpan(e.start, e.end)}): ${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)} mm` : ''}${mt != null ? ` as ${mt < 1 ? 'mixed rain and snow' : 'rain'} (${mt.toFixed(0)} °C)` : ''}`;
+    let t = `Storm ${k} (${fmtSpan(e.start, e.end)}): ${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)} mm` : ''}${mt != null ? ` as ${mt < 1 ? 'mixed rain and snow' : 'rain'} (${cToF(mt).toFixed(0)} °F)` : ''}`;
     if (r && r.base != null && r.peak != null) t += r.clear ? `; Tanners Flat rose ${cfs(r.base)} → ${cfs(r.peak)} cfs, peaking ${r.lag.toFixed(1)} h after the rain` : r.flags.some(f => f.startsWith('peak before')) ? `; Tanners Flat had already peaked (${cfs(r.peak)} cfs) from earlier rain` : '; no clear rise at Tanners Flat';
     parts.push(t + '.');
   }
@@ -1284,9 +1285,9 @@ function renderStorms() {
     const temps = S.det.map(id => stats[id]).filter(x => x && x.meanT != null), mt = temps.length ? temps.reduce((x, y) => x + y.meanT, 0) / temps.length : null;
     let flags = '';
     const dry = GAUGES.filter(g => !STN[g.id].precipOut && stats[g.id].hasData && stats[g.id].tot === 0 && stats[g.id].meanT != null && stats[g.id].meanT < 1);
-    if (dry.length && vals.length && Math.max(...vals) >= S.minMm) flags += fn(`Storm ${i + 1}: ${dry.map(g => g.short).join(', ')} caught nothing below 1 °C, likely snow sitting in unheated buckets; expect delayed melt tips.`);
+    if (dry.length && vals.length && Math.max(...vals) >= S.minMm) flags += fn(`Storm ${i + 1}: ${dry.map(g => g.short).join(', ')} caught nothing below 34 °F, likely snow sitting in unheated buckets; expect delayed melt tips.`);
     const melt = GAUGES.filter(g => g.unheated && S.P[g.id] && S.P[g.id].incs.some(x => x.melt && x.include && x.mm > 0 && x.t > e.start && x.t <= e.end));
-    if (melt.length) flags += fn(`Storm ${i + 1}: ${melt.map(g => g.short).join(', ')} ${melt.length === 1 ? 'is' : 'are'} unheated and had been below 1 °C; ${melt.length === 1 ? 'its' : 'their'} total may include melt of earlier snow.`);
+    if (melt.length) flags += fn(`Storm ${i + 1}: ${melt.map(g => g.short).join(', ')} ${melt.length === 1 ? 'is' : 'are'} unheated and had been below 34 °F; ${melt.length === 1 ? 'its' : 'their'} total may include melt of earlier snow.`);
     const wet = GAUGES.filter(g => stats[g.id].tot >= 0.5); e.singleGauge = wet.length === 1;
     if (e.singleGauge) flags += fn('Only one gauge recorded 0.5 mm or more: an isolated cell or delayed melt.');
     if (e.beforeWindow) flags += fn('Began before the window.');
@@ -1297,7 +1298,7 @@ function renderStorms() {
     rows.push(`<tr class="click" data-s="${e.start}" data-e="${e.end}" data-t="${e.start + (e.end - e.start) / 2}"><td class="l"><b>Storm ${i + 1}</b>${flags}</td><td class="l">${fmtSpan(e.start, e.end)}</td><td>${durTxt(e.end - e.start)}</td>
       <td>${alta.length ? `${mmStr(Math.min(...alta), 1)}–${mmStr(Math.max(...alta), 1)}` : '—'}</td><td>${vals.length ? `${mmStr(Math.min(...vals), 1)}–${mmStr(Math.max(...vals), 1)}` : '—'}</td>
       <td>${pk ? `${pk.peak.toFixed(2)} <span class="muted">${STN[pk.id].short}</span>` : '—'}</td><td>${rd ? `${rd.mm.toFixed(1)}${rd.maxDbz != null ? ` <span class="muted">${rd.maxDbz.toFixed(0)} dBZ</span>` : ''}` : '<span class="muted">n/a</span>'}</td>
-      <td class="l">${mt == null ? '—' : `${mt < 1 ? 'mixed/snow' : 'rain'} <span class="muted">${mt.toFixed(1)} °C</span>`}</td>
+      <td class="l">${mt == null ? '—' : `${mt < 1 ? 'mixed/snow' : 'rain'} <span class="muted">${cToF(mt).toFixed(0)} °F</span>`}</td>
       <td>${r && r.base != null && r.peak != null ? `${cfs(r.base)} → ${cfs(r.peak)}` : '—'}</td><td>${r && r.dQ != null ? (r.dQ >= 0 ? '+' : '') + cfs(r.dQ) : '—'}</td><td>${r && r.clear ? r.lag.toFixed(1) : '—'}</td></tr>`);
   });
   S.cells.filter(c => !c.inStorm).forEach((c, i) => {
@@ -1332,7 +1333,7 @@ function initMap() {
 function popupStation(s) {
   const p = S.P[s.id], T = T_END(), w = sumPrecip(p, S.win.a, S.win.b), st = S.syn && S.syn[s.id];
   const last = st && st.t.length ? st.t[st.t.length - 1] : null, ta = st && nearestValue(st, 'air_temp', T, 2 * HOUR);
-  return `<b>${s.name}</b><br>${ft(s.elev)} ft · run by ${s.net} · MesoWest ${s.id}<br>${s.mode ? `Window: ${w.status === 'nodata' ? 'no data' : mmStr(w.mm) + ' mm'}<br>` : ''}${ta != null ? `Air ${ta.toFixed(1)} °C<br>` : ''}${last ? `Last report ${fmtWhen(last)}<br>` : ''}<a href="${mesoLink(s.id)}" target="_blank" rel="noopener">MesoWest page</a>`;
+  return `<b>${s.name}</b><br>${ft(s.elev)} ft · run by ${s.net} · MesoWest ${s.id}<br>${s.mode ? `Window: ${w.status === 'nodata' ? 'no data' : mmStr(w.mm) + ' mm'}<br>` : ''}${ta != null ? `Air ${cToF(ta).toFixed(0)} °F<br>` : ''}${last ? `Last report ${fmtWhen(last)}<br>` : ''}<a href="${mesoLink(s.id)}" target="_blank" rel="noopener">MesoWest page</a>`;
 }
 function renderMap() {
   initMap(); if (!map) return;
@@ -1425,14 +1426,14 @@ function renderStationTable() {
     if (fc.reset) qc.push(`${fc.reset} reset`); if (fc.gap) qc.push(`${fc.gap} gap`); if (fc.excluded) qc.push(`<span class="bad">${fc.excluded} suspect out (${mmStr(w.excluded)} mm)</span>`); if (fc.corroborated) qc.push(`${fc.corroborated} suspect kept`);
     if (sd && sd.flag) qc.push(`depth: ${sd.flag}`);
     if (s.mode && w.status !== 'nodata' && w.mm === 0) { const nb = ALTA.filter(id => id !== s.id).map(id => sumPrecip(S.P[id], S.win.a, S.win.b)).filter(x => x.status !== 'nodata').map(x => x.mm); if (nb.length && Math.max(...nb) >= 1) qc.push('<span class="bad">caught nothing while the other Alta gauges did</span>'); }
-    if (s.unheated && p) { const nm = p.incs.filter(x => x.melt && x.include && x.mm > 0 && x.t > S.win.a && x.t <= S.win.b); if (nm.length) qc.push(`unheated: ${mmStr(r3(nm.reduce((a2, x) => a2 + x.mm, 0)))} mm after sub 1 °C air, not used to find storms`); }
+    if (s.unheated && p) { const nm = p.incs.filter(x => x.melt && x.include && x.mm > 0 && x.t > S.win.a && x.t <= S.win.b); if (nm.length) qc.push(`unheated: ${mmStr(r3(nm.reduce((a2, x) => a2 + x.mm, 0)))} mm after sub 34 °F air, not used to find storms`); }
     const out = precipOut(s.id, S.win.a, S.win.b); if (out) qc.length = 0;
     const stale = last && Date.now() - last > 2 * HOUR && S.win.b > Date.now() - HOUR;
     return `<tr class="${isFocus(s) ? '' : 'ctx'}"><td class="l"><span class="sw" style="background:${s.mode ? stColor(s) : '#fff'};border:0.75px solid ${isFocus(s) ? '#111' : '#9a988f'}"></span>${s.name} <span class="op">${s.net}${s.unheated ? ' · unheated' : ''} · ${stA(s)}</span></td><td>${ft(s.elev)}</td>
-      <td>${s.mode ? cell(w, out) : '—'}</td><td>${s.mode ? cell(r24, out) : '—'}</td><td>${s.mode ? cell(rm, out) : '—'}</td><td>${ta == null ? '—' : ta.toFixed(1)}</td>
+      <td>${s.mode ? cell(w, out) : '—'}</td><td>${s.mode ? cell(r24, out) : '—'}</td><td>${s.mode ? cell(rm, out) : '—'}</td><td>${ta == null ? '—' : cToF(ta).toFixed(0)}</td>
       <td>${sd && sd.qc != null ? (sd.qc / 25.4).toFixed(1) : '—'}</td><td class="${stale ? 'flag' : ''}">${last ? fmtWhen(last) : '<span class="muted">none</span>'}</td><td class="l muted">${out ? STN[s.id].precipOut + '; temperature still used' : qc.join(', ') || 'clean'}</td></tr>`;
   };
-  tb.innerHTML = `<thead><tr><th class="l">Station, operator</th><th>Elev<br>ft</th><th>Window<br>mm <span class="inch">in</span></th><th>Last 24 h<br>mm <span class="inch">in</span></th><th>Since midnight<br>mm <span class="inch">in</span></th><th>Air<br>°C</th><th>Snow<br>in</th><th>Last<br>report</th><th class="l">QC</th></tr></thead><tbody>` +
+  tb.innerHTML = `<thead><tr><th class="l">Station, operator</th><th>Elev<br>ft</th><th>Window<br>mm <span class="inch">in</span></th><th>Last 24 h<br>mm <span class="inch">in</span></th><th>Since midnight<br>mm <span class="inch">in</span></th><th>Air<br>°F</th><th>Snow<br>in</th><th>Last<br>report</th><th class="l">QC</th></tr></thead><tbody>` +
     `<tr class="grp"><td colspan="9">Albion Basin and Alta</td></tr>` + STATIONS.filter(isFocus).map(row).join('') +
     `<tr class="grp ctx"><td colspan="9">Lower canyon and ridge, for context</td></tr>` + STATIONS.filter(s => s.group === 'canyon').map(row).join('') +
     `<tr class="grp ctx"><td colspan="9">Big Cottonwood, for comparison</td></tr>` + STATIONS.filter(s => s.group === 'bcc').map(row).join('') + `</tbody>`;
@@ -1486,7 +1487,7 @@ function buildReadout() {
   S.events.forEach((e, i) => {
     const parts = GAUGES.filter(g => e.stats && e.stats[g.id].hasData).map(g => `${g.id} ${mmStr(e.stats[g.id].tot)}`);
     L.push(`  S${i + 1} ${fmtSpan(e.start, e.end)} (${durTxt(e.end - e.start)}): ${parts.join(', ')} mm${e.singleGauge ? ' [one gauge]' : ''}`);
-    const ph = S.det.filter(id => e.stats && e.stats[id] && e.stats[id].meanT != null).map(id => `${id} ${e.stats[id].meanT.toFixed(1)} C`), rd = radarAmount(e.start - 30 * MIN, e.end + 30 * MIN);
+    const ph = S.det.filter(id => e.stats && e.stats[id] && e.stats[id].meanT != null).map(id => `${id} ${cToF(e.stats[id].meanT).toFixed(0)} F`), rd = radarAmount(e.start - 30 * MIN, e.end + 30 * MIN);
     L.push(`     ${ph.join(', ')}${rd ? `; radar watershed ${rd.mm.toFixed(1)} mm` : ''}`);
     const r = e.resp && e.resp.lcc_tanners_q;
     if (r && r.base != null && r.peak != null) L.push(`     Tanners Flat ${cfs(r.base)} to ${cfs(r.peak)} cfs (${r.dQ >= 0 ? '+' : ''}${cfs(r.dQ)})${r.clear ? `, lag ${r.lag.toFixed(1)} h` : ', no clear response'}${r.flags.length ? ' [' + r.flags.join('; ') + ']' : ''}`);
