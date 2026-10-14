@@ -97,6 +97,8 @@
   .plab .pl { font-weight: 800; font-size: 1.2rem; line-height: 1; }
   ul.kb { margin: 3px 0 0; padding-left: 1.15rem; font-size: 0.82rem; font-weight: 600; color: var(--ink); }
   ul.kb:empty { display: none; }
+  .mleg { display: flex; flex-wrap: wrap; gap: 1px 12px; font-size: 0.74rem; font-weight: 700; margin: 3px 0 0 4px; line-height: 1.35; }
+  .mleg i { display: inline-block; width: 10px; height: 3px; margin-right: 4px; vertical-align: 3px; }
   .bandkey { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.78rem; font-weight: 600; color: var(--ink2); margin: 8px 0 0; }
   .bandkey i { display: inline-block; width: 14px; height: 10px; margin-right: 5px; vertical-align: 0; }
   ul.kb li { margin: 1px 0; }
@@ -975,7 +977,7 @@ Chart.defaults.color = INK2;
 Chart.defaults.font.family = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
 Chart.defaults.font.weight = '600';
 Chart.defaults.font.size = 10.5;
-const AXIS_W = 66, Y2_W = 46, RIGHT_PAD = 112;
+const NARROW = window.innerWidth < 600, AXIS_W = NARROW ? 54 : 66, Y2_W = 46, RIGHT_PAD = 112; // phones: see timeChart
 Chart.register({
   id: 'paper',
   beforeDatasetsDraw(chart, _a, o) {
@@ -1043,6 +1045,9 @@ const charts = {};
 function redrawSynced(except) { for (const c of Object.values(charts)) if (c !== except && c.options.plugins.paper && c.options.plugins.paper.sync) c.draw(); }
 function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, legend = false, paper = {}, type = 'line', tooltipLabel, xRange, decimate = true, rightPad, yTitle = '', y2 = null, reserveY2 = false } = {}) {
   const [a, b] = xRange || VIEW(), span = b - a;
+  // Phones: no second axis and no end label gutter; the series names go in a legend under the chart.
+  const mobileLegend = NARROW && endLabels;
+  if (NARROW) { y2 = null; reserveY2 = false; endLabels = false; rightPad = 10; }
   const cfg = {
     type, data: { datasets },
     options: {
@@ -1075,6 +1080,10 @@ function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, leg
   if (charts[id]) charts[id].destroy();
   const el = document.getElementById(id);
   charts[id] = new Chart(el, cfg);
+  { const box = el.parentElement, nx = box.nextElementSibling; let lg = nx && nx.classList.contains('mleg') ? nx : null;
+    if (mobileLegend) { if (!lg) { lg = document.createElement('div'); lg.className = 'mleg'; box.after(lg); }
+      lg.innerHTML = datasets.filter(d => d.endLabel).map(d => { const c = d.labelColor || d.borderColor, cc = c === '#ffffff' ? INK : c; return `<span style="color:${cc}"><i style="background:${d.borderColor === '#ffffff' ? INK : d.borderColor}"></i>${d.endLabel}</span>`; }).join(''); }
+    else if (lg) lg.remove(); }
   el.onmouseleave = () => { S.hoverX = null; redrawSynced(null); };
   if (cfg.options.plugins.paper.sync) {
     // Mouse: drag sideways to zoom all linked charts; double click resets.
