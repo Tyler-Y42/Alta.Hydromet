@@ -1318,15 +1318,15 @@ function renderFig1() {
 
   document.getElementById('ts-range').textContent = `${fmtDT(va)} to ${fmtDT(vb, { tz: true })}${S.view ? ' (zoomed)' : ''}`;
   document.getElementById('cap1').innerHTML =
-    `<b>a</b> <b>Precipitation:</b> black is the mean of the four Alta gauges, gray the wettest; melt tips from unheated gauges are left out. Orange is radar averaged over the whole upper canyon (70.8 km², NOAA MRMS hourly${radarFrom5 != null ? `; 5 min estimate from ${fmtTime(radarFrom5)} until MRMS arrives` : ''}) and runs low in snow.<br>` +
-    `<b>b</b> <b>Running total:</b> ${precipOut('ATB', S.win.a, S.win.b) ? `Alta base is dotted at 0 because ${STN.ATB.precipOut}. ` : ''}Albion Basin, Alta hwy, White Pine and Powerhouse are unheated, so in cold weather they tip late as caught snow melts.<br>` +
-    `<b>c</b> <b>Creek flow:</b> the only canyon gauge, above the diversions; provisional county data${nsp ? `, × marks removed bad reports` : ''}.<br>` +
-    `<b>Bands:</b> a storm needs ${S.minMm} mm or more at an Alta gauge; fixed ridge clutter is removed from radar.`;
+    `<b>a</b> <b>Precipitation:</b> black, mean of the four Alta gauges; gray, the wettest; melt tips from unheated gauges excluded. Orange: radar averaged over the upper canyon (70.8 km², NOAA MRMS hourly${radarFrom5 != null ? `; 5 min estimate from ${fmtTime(radarFrom5)} until MRMS arrives` : ''}), low in snow.<br>` +
+    `<b>b</b> <b>Running total:</b> ${precipOut('ATB', S.win.a, S.win.b) ? `Alta base is dotted at 0 because ${STN.ATB.precipOut}. ` : ''}Albion Basin, Alta hwy, White Pine and Powerhouse are unheated, so in cold weather they record snow late, as it melts.<br>` +
+    `<b>c</b> <b>Creek flow:</b> Tanners Flat (7,117 ft), the only canyon gauge, above the diversions; provisional county data${nsp ? `; × marks removed bad reports` : ''}.<br>` +
+    `<b>Bands:</b> gray, storms (${S.minMm} mm or more at an Alta gauge, breaks under ${S.gapH} h); orange, radar bursts the gauges missed, with fixed ridge clutter removed.`;
   document.getElementById('cap-snow').innerHTML =
     `<b>d</b> <b>SWE:</b> the water held in the snowpack, from SNOTEL snow pillows (${longWin ? 'daily' : 'hourly'}).<br>` +
-    `<b>e</b> <b>Snow depth:</b> thick lines are SNOTEL depth sensors, the most reliable; thin lines are MesoWest sonic sensors after QC (stuck readings and bare ground noise removed).${noSnow.length ? ` No snow in the window at ${noSnow.join(', ')}.` : ''}`;
+    `<b>e</b> <b>Snow depth:</b> thick lines, SNOTEL depth sensors; thin lines, MesoWest sonic sensors after QC (stuck readings and bare ground noise removed).${noSnow.length ? ` No snow in the window at ${noSnow.join(', ')}.` : ''}`;
   document.getElementById('cap-temp').innerHTML =
-    `<b>f</b> <b>Rain line:</b> where air is 34 °F (1 °C), from a fit of eight station temperatures each hour; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
+    `<b>f</b> <b>Rain line:</b> where air is 34 °F (1 °C), from an hourly fit of eight station temperatures against elevation; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
     `<b>g</b> <b>Air temperature:</b> the dotted line is 34 °F (1 °C), the rain/snow threshold used throughout.`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
@@ -1620,7 +1620,7 @@ function renderSWE() {
   }
   timeChart('p-snwd', dd, { showX: true, endLabels: true, decimate: false, xRange: [a, b], rightPad: 78, yTitle: 'Depth, in', y2: { title: 'cm', conv: v => v * 2.54, dec: 0 }, paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 6 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(0)} in` });
   const sb = S.snotel && ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t <= T + DAY && x.v != null).pop();
-  document.getElementById('cap3').innerHTML = `Snow water equivalent is the water held in the snowpack; depth is how deep it is, and settles as the snow compacts. Dotted lines are Snowbird's median for each date (record since 1989); the last point on each line is the newest hourly reading; the gray band is the selected window.`;
+  document.getElementById('cap3').innerHTML = `Water year to date at the three SNOTEL sites. Dotted: Snowbird's median for each date (record since 1989). The last point on each line is the newest hourly reading; the gray band is the selected window.`;
   const tm = S.snotel && S.snotel['766:UT:SNTL'] && S.snotel['766:UT:SNTL'].timing;
   let ks = '';
   if (sb) {
