@@ -76,7 +76,9 @@
   .dash { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 8px; align-items: start; }
   .col { display: grid; gap: 8px; min-width: 0; }
   .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-  @media (max-width: 980px) { .dash, .row3 { grid-template-columns: minmax(0, 1fr); } }
+  .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  .plab.season { margin-top: 18px; padding-top: 10px; border-top: 1px solid var(--hair); }
+  @media (max-width: 980px) { .dash, .row3, .row2 { grid-template-columns: minmax(0, 1fr); } }
   .card { background: var(--card); border: 1px solid var(--edge); border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 8px 22px rgba(11,29,46,0.07); padding: 12px 14px 14px; min-width: 0; }
   .ch { padding-bottom: 8px; border-bottom: 1px solid var(--hair); margin-bottom: 4px; }
   .ch h3 .fl { color: #0072B2; }
@@ -103,7 +105,7 @@
   .plab .u { color: var(--ink2); }
   .cbox { position: relative; height: 136px; touch-action: pan-y; }
   .cbox.hr { height: 168px; } .cbox.cum { height: 168px; } .cbox.q { height: 150px; } .cbox.side { height: 236px; }
-  @media (max-width: 600px) { .cbox { height: 128px; } .cbox.hr, .cbox.cum { height: 156px; } .cbox.q { height: 140px; } }
+  @media (max-width: 600px) { .cbox { height: 160px; } .cbox.hr, .cbox.cum { height: 190px; } .cbox.q { height: 170px; } .cbox.side { height: 220px; } }
   .zoomnote { font-size: 0.74rem; color: var(--ink3); }
   p.cap { font-size: 0.78rem; color: var(--ink2); line-height: 1.5; margin: 6px 0 0; }
   p.cap b { color: var(--ink); }
@@ -172,22 +174,40 @@
 <div class="dash">
   <div class="col">
     <div class="card">
-      <div class="ch"><h3>Upper Little Cottonwood Canyon</h3><span class="u" id="ts-range"></span>
-        <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden" id="zoom-reset">Full window</button></span></div>
+      <div class="ch"><h3>Precipitation and creek flow</h3><span class="u" id="ts-range"></span>
+        <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden zoom-reset" id="zoom-reset">Full window</button></span></div>
       <div class="bandkey"><span><i style="background:rgba(0,0,0,0.12)"></i>Storm N: recorded by the gauges</span><span><i style="background:rgba(213,94,0,0.22)"></i>Radar N: burst seen by radar, missed by gauges</span><span><i style="background:#D55E00;height:2px"></i>Radar rain rate - whole canyon mean</span></div>
       <div class="plab"><b class="pl">a</b><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
       <div class="plab"><b class="pl">b</b><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
       <div class="plab"><b class="pl">c</b><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
-      <div class="plab"><b class="pl">d</b><span class="pt">Air temperature</span><span class="u">°F</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
-      <div class="plab"><b class="pl">e</b><span class="pt">Rain line</span><span class="u">ft</span></div><ul class="kb" id="kb-e"></ul><div class="cbox"><canvas id="p-fl"></canvas></div>
-      <div class="plab"><b class="pl">f</b><span class="pt">Snow depth</span><span class="u">in</span></div><ul class="kb" id="kb-f"></ul><div class="cbox"><canvas id="p-snow"></canvas></div>
       <p class="cap" id="cap1"></p>
-      <div class="zoomnote">Drag across a chart to zoom; double-click to reset. Click a storm to zoom to it.</div>
+      <div class="zoomnote">Phone: pinch to zoom, slide one finger to read values, double tap to reset. Mouse: drag across a chart to zoom, double click to reset. Click a storm to zoom to it.</div>
+    </div>
+    <div class="card">
+      <div class="ch"><h3>Snowpack</h3><span class="u">SNOTEL and station sensors</span>
+        <span class="r"><button class="btn hidden zoom-reset">Full window</button></span></div>
+      <div class="plab"><b class="pl">d</b><span class="pt">Snow water equivalent</span><span class="u">in</span></div><ul class="kb" id="kb-swew"></ul><div class="cbox"><canvas id="p-swew"></canvas></div>
+      <div class="plab"><b class="pl">e</b><span class="pt">Snow depth</span><span class="u">in</span></div><ul class="kb" id="kb-f"></ul><div class="cbox"><canvas id="p-snow"></canvas></div>
+      <p class="cap" id="cap-snow"></p>
+      <div class="plab season"><span class="pt">Season so far, since Oct 1</span></div>
+      <div class="plab"><span class="pt">Snow water equivalent</span><span class="u">in</span></div>
+      <div class="cbox side"><canvas id="p-swe"></canvas></div>
+      <div class="plab"><span class="pt">Snow depth</span><span class="u">in</span></div>
+      <div class="cbox side"><canvas id="p-snwd"></canvas></div>
+      <ul class="kb" id="kb-swe"></ul><p class="cap" id="cap3"></p>
+    </div>
+    <div class="card">
+      <div class="ch"><h3>Rain line and temperature</h3>
+        <span class="r"><button class="btn hidden zoom-reset">Full window</button></span></div>
+      <div class="plab"><b class="pl">f</b><span class="pt">Rain line</span><span class="u">ft</span></div><ul class="kb" id="kb-e"></ul><div class="cbox"><canvas id="p-fl"></canvas></div>
+      <div class="plab"><b class="pl">g</b><span class="pt">Air temperature</span><span class="u">°F</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
+      <p class="cap" id="cap-temp"></p>
+      <div class="zoomnote">Phone: pinch to zoom, slide one finger to read values, double tap to reset. Mouse: drag across a chart to zoom, double click to reset. Click a storm to zoom to it.</div>
     </div>
   </div>
   <div class="col">
     <div class="card">
-      <div class="ch"><h3>Stations and radar</h3><span class="u">LCC headwaters, 70.8 km²</span>
+      <div class="ch"><h3>Map and radar</h3><span class="u">LCC headwaters, 70.8 km²</span>
         </div>
       <div id="map"></div>
       <div class="radar-ctl"><button class="btn" id="radar-play" aria-label="Play radar">▶</button><label><input type="checkbox" id="map-radar" checked> Radar</label>
@@ -208,19 +228,11 @@
   </div>
 </div>
 
-<div class="row3">
+<div class="row2">
   <div class="card">
     <div class="ch"><h3>Precipitation and elevation</h3><span class="u">window total</span></div>
     <div class="cbox side"><canvas id="p-elev"></canvas></div>
     <ul class="kb" id="kb-elev"></ul><p class="cap" id="cap-elev"></p>
-  </div>
-  <div class="card">
-    <div class="ch"><h3>Snowpack</h3><span class="u">SWE since Oct 1, in</span></div>
-    <div class="plab"><span class="pt">Snow water equivalent</span><span class="u">in</span></div>
-    <div class="cbox side"><canvas id="p-swe"></canvas></div>
-    <div class="plab"><span class="pt">Snow depth</span><span class="u">in</span></div>
-    <div class="cbox side"><canvas id="p-snwd"></canvas></div>
-    <ul class="kb" id="kb-swe"></ul><p class="cap" id="cap3"></p>
   </div>
   <div class="card">
     <div class="ch"><h3>Valley streamflow</h3><span class="u">below diversions, cfs</span></div>
@@ -360,7 +372,7 @@ const FLOW = [
   { key: 'upload', name: 'Uploaded record', note: 'your CSV', src: 'upload' },
 ];
 const SNOTEL = [
-  { trip: '1308:UT:SNTL', name: 'Atwater', elev: 8750, num: 1308, lat: 40.5912, lon: -111.6378 },
+  { trip: '1308:UT:SNTL', name: 'Atwater (Alta)', elev: 8750, num: 1308, lat: 40.5912, lon: -111.6378 },
   { trip: '766:UT:SNTL', name: 'Snowbird', elev: 9170, num: 766, lat: 40.5691, lon: -111.6585 },
   { trip: '366:UT:SNTL', name: 'Brighton', elev: 8790, num: 366, lat: 40.5994, lon: -111.5817 },
 ];
@@ -1065,10 +1077,34 @@ function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, leg
   charts[id] = new Chart(el, cfg);
   el.onmouseleave = () => { S.hoverX = null; redrawSynced(null); };
   if (cfg.options.plugins.paper.sync) {
-    const ch = charts[id];
-    el.onpointerdown = e => { const v = ch.scales.x.getValueForPixel(e.offsetX); if (v < ch.scales.x.min || v > ch.scales.x.max) return; S.drag = { v0: v, v1: v, px: e.offsetX, x1: null }; };
-    el.onpointermove = e => { if (!S.drag) return; if (Math.abs(e.offsetX - S.drag.px) > 6) { S.drag.x1 = e.offsetX; S.drag.v1 = Math.max(ch.scales.x.min, Math.min(ch.scales.x.max, ch.scales.x.getValueForPixel(e.offsetX))); redrawSynced(null); } };
-    el.onpointerup = () => { const d = S.drag; S.drag = null; if (d && d.x1 != null && Math.abs(d.v1 - d.v0) > 20 * MIN) setView([Math.min(d.v0, d.v1), Math.max(d.v0, d.v1)]); else redrawSynced(null); };
+    // Mouse: drag sideways to zoom all linked charts; double click resets.
+    // Touch: one finger only reads values (Chart.js tooltip and the shared hover line); two fingers
+    // pinch to zoom and slide to pan; double tap resets. .cbox has touch-action: pan-y, so vertical
+    // swipes still scroll the page.
+    const ch = charts[id], ptrs = new Map(), px = e => e.clientX - el.getBoundingClientRect().left;
+    const linked = () => Object.values(charts).filter(c => c.options.plugins.paper && c.options.plugins.paper.sync);
+    el.onpointerdown = e => {
+      if (e.pointerType === 'mouse') { const v = ch.scales.x.getValueForPixel(px(e)); if (v < ch.scales.x.min || v > ch.scales.x.max) return; S.drag = { v0: v, v1: v, px: px(e), x1: null }; return; }
+      ptrs.set(e.pointerId, px(e));
+      if (ptrs.size === 2) { const [x0, x1] = [...ptrs.values()], sc = ch.scales.x, ca = ch.chartArea; el._pinch = { d0: Math.max(20, Math.abs(x1 - x0)), v0: sc.getValueForPixel((x0 + x1) / 2), span0: sc.max - sc.min, left: ca.left, w: ca.right - ca.left, range: null }; }
+    };
+    el.onpointermove = e => {
+      if (e.pointerType === 'mouse') { if (!S.drag) return; if (Math.abs(px(e) - S.drag.px) > 6) { S.drag.x1 = px(e); S.drag.v1 = Math.max(ch.scales.x.min, Math.min(ch.scales.x.max, ch.scales.x.getValueForPixel(px(e)))); redrawSynced(null); } return; }
+      if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, px(e));
+      const pz = el._pinch; if (!pz || ptrs.size !== 2) return;
+      const [x0, x1] = [...ptrs.values()], full = [S.win.a, S.win.b];
+      const span = Math.max(HOUR, Math.min(full[1] - full[0], pz.span0 * pz.d0 / Math.max(20, Math.abs(x1 - x0))));
+      const a0 = Math.max(full[0], Math.min(full[1] - span, pz.v0 - ((x0 + x1) / 2 - pz.left) / pz.w * span));
+      pz.range = [a0, a0 + span];
+      for (const c of linked()) { c.options.scales.x.min = a0; c.options.scales.x.max = a0 + span; c.update('none'); }
+    };
+    el.onpointerup = e => {
+      if (e.pointerType === 'mouse') { const d = S.drag; S.drag = null; if (d && d.x1 != null && Math.abs(d.v1 - d.v0) > 20 * MIN) setView([Math.min(d.v0, d.v1), Math.max(d.v0, d.v1)]); else redrawSynced(null); return; }
+      ptrs.delete(e.pointerId);
+      if (el._pinch) { if (!ptrs.size) { const r = el._pinch.range; el._pinch = null; if (r) setView(r[1] - r[0] >= S.win.b - S.win.a - MIN ? null : r); } return; }
+      const now = Date.now(); if (el._lastTap && now - el._lastTap < 350) { el._lastTap = 0; setView(null); return; } el._lastTap = now;
+    };
+    el.onpointercancel = e => { ptrs.delete(e.pointerId); S.drag = null; if (!ptrs.size && el._pinch) { const r = el._pinch.range; el._pinch = null; if (r) setView(r); } };
     el.ondblclick = () => setView(null);
   }
   return charts[id];
@@ -1080,7 +1116,7 @@ const shading = () => ({ events: S.events.map((e, i) => ({ start: e.start, end: 
    ====================================================================== */
 const T_END = () => Math.min(S.win.b, Date.now());
 const VIEW = () => S.view || [S.win.a, S.win.b];
-function setView(v) { S.view = v; document.getElementById('zoom-reset').classList.toggle('hidden', !v); safe(renderFig1, 'fig1'); }
+function setView(v) { S.view = v; document.querySelectorAll('.zoom-reset').forEach(b => b.classList.toggle('hidden', !v)); safe(renderFig1, 'fig1'); }
 const stA = s => `<a href="${mesoLink(s.id)}" target="_blank" rel="noopener">${s.id}</a>`;
 
 function summaryParts() {
@@ -1114,7 +1150,7 @@ function renderSummary() {
   tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${icePossible(o.q.t) ? 'ice possible, ' : ''}${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
   const sbH = S.snowH && S.snowH['766:UT:SNTL'], sbD = sbH && sbH.length ? sbH[sbH.length - 1].v : null;
   const sbW = S.snowH && S.snowH.swe && S.snowH.swe['766:UT:SNTL'], sweNow = sbW && sbW.length ? sbW[sbW.length - 1].v : (o.sb ? o.sb.v : null);
-  tiles.push(['Snowpack', sweNow != null ? `${sweNow.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${sbD != null ? `, ${sbD} in deep` : ''}${(() => { const w = S.snowH && S.snowH.swe && S.snowH.swe['1308:UT:SNTL'], v = w && w.length ? w[w.length - 1].v : (o.at ? o.at.v : null); return v != null ? `; Atwater ${v.toFixed(1)} in` : ''; })()}` : '']);
+  tiles.push(['Snowpack', sweNow != null ? `${sweNow.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${sbD != null ? `, ${sbD} in deep` : ''}${(() => { const w = S.snowH && S.snowH.swe && S.snowH.swe['1308:UT:SNTL'], v = w && w.length ? w[w.length - 1].v : (o.at ? o.at.v : null); return v != null ? `; Atwater (Alta) ${v.toFixed(1)} in` : ''; })()}` : '']);
   const ACC = ['#0072B2', '#0072B2', '#D55E00', '#CC79A7', '#111111', '#009E73'];
   document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al], i) => `<div class="tile${al ? ' alert' : ''}" style="--acc:${ACC[i]}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
   const m = o.missed;
@@ -1195,7 +1231,7 @@ function renderFig1() {
     const pts = rows.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.v }));
     if (!pts.length) continue;
     if (Math.max(...pts.map(q => q.y)) < 1) { noSnow.push(`${sn.name} SNOTEL`); continue; }
-    sds.push({ label: `${sn.name} SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} SNOTEL ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined, order: 0 });
+    sds.push({ label: `${sn.name} SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined, order: 0 });
   }
   if (S.syn) for (const st0 of STATIONS) {
     const st = S.syn[st0.id]; if (!st || !st.v.snow_depth || SNOW_DEPTH_BLOCK.has(st0.id)) continue;
@@ -1206,6 +1242,13 @@ function renderFig1() {
   }
   timeChart('p-snow', sds, { endLabels: true, decimate: false, yTitle: 'Depth, in', y2: { title: 'cm', conv: v => v * 2.54, dec: 0 }, paper: sh, y: { beginAtZero: true, suggestedMax: 6 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in (${(c.parsed.y * 2.54).toFixed(0)} cm)` });
   S.noSnow = noSnow;
+  const wds = [];
+  for (const sn of SNOTEL) {
+    const rows = longWin ? ((S.snotel && S.snotel[sn.trip] && S.snotel[sn.trip].WTEQ) || []).filter(x => x.v != null).map(x => ({ t: x.t, v: x.v })) : ((S.snowH && S.snowH.swe && S.snowH.swe[sn.trip]) || []);
+    const pts = rows.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.v }));
+    if (pts.length) wds.push({ label: `${sn.name} SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} ${pts[pts.length - 1].y.toFixed(1)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined });
+  }
+  timeChart('p-swew', wds, { endLabels: true, decimate: false, yTitle: 'SWE, in', y2: { title: 'mm', conv: v => v * 25.4, dec: 0 }, paper: sh, y: { beginAtZero: true, suggestedMax: 1 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in (${(c.parsed.y * 25.4).toFixed(0)} mm)` });
 
   const F = flowSeries(), tf = F.lcc_tanners_q, qd = [];
   let nsp = 0, yq = {};
@@ -1224,10 +1267,13 @@ function renderFig1() {
     `<b>a</b> <b>Precipitation:</b> black is the mean of the four Alta gauges, gray the wettest; melt tips from unheated gauges are left out. Orange is radar averaged over the whole upper canyon (70.8 km², NOAA MRMS hourly${radarFrom5 != null ? `; 5 min estimate from ${fmtTime(radarFrom5)} until MRMS arrives` : ''}) and runs low in snow.<br>` +
     `<b>b</b> <b>Running total:</b> ${precipOut('ATB', S.win.a, S.win.b) ? `Alta base is dotted at 0 because ${STN.ATB.precipOut}. ` : ''}Albion Basin, Alta hwy, White Pine and Powerhouse are unheated, so in cold weather they tip late as caught snow melts.<br>` +
     `<b>c</b> <b>Creek flow:</b> the only canyon gauge, above the diversions; provisional county data${nsp ? `, × marks removed bad reports` : ''}.<br>` +
-    `<b>d</b> <b>Air temperature:</b> the dotted line is 34 °F (1 °C), the rain/snow threshold used throughout.<br>` +
-    `<b>e</b> <b>Rain line:</b> where air is 34 °F (1 °C), from a fit of eight station temperatures each hour; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
-    `<b>f</b> <b>Snow depth:</b> thick lines are SNOTEL snow pillows' depth sensors (${longWin ? 'daily' : 'hourly'}), the most reliable; thin lines are MesoWest sonic sensors after QC (stuck readings and bare ground noise removed).${noSnow.length ? ` No snow in the window at ${noSnow.join(', ')}.` : ''}<br>` +
     `<b>Bands:</b> a storm needs ${S.minMm} mm or more at an Alta gauge; fixed ridge clutter is removed from radar.`;
+  document.getElementById('cap-snow').innerHTML =
+    `<b>d</b> <b>SWE:</b> the water held in the snowpack, from SNOTEL snow pillows (${longWin ? 'daily' : 'hourly'}).<br>` +
+    `<b>e</b> <b>Snow depth:</b> thick lines are SNOTEL depth sensors, the most reliable; thin lines are MesoWest sonic sensors after QC (stuck readings and bare ground noise removed).${noSnow.length ? ` No snow in the window at ${noSnow.join(', ')}.` : ''}`;
+  document.getElementById('cap-temp').innerHTML =
+    `<b>f</b> <b>Rain line:</b> where air is 34 °F (1 °C), from a fit of eight station temperatures each hour; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
+    `<b>g</b> <b>Air temperature:</b> the dotted line is 34 °F (1 °C), the rain/snow threshold used throughout.`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
 
@@ -1404,7 +1450,7 @@ function renderMap() {
   for (const s of SNOTEL) {
     const ic = L.divIcon({ className: '', html: `<svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1 L11 11 L1 11 Z" fill="#111"/></svg>`, iconSize: [12, 12], iconAnchor: [6, 7] });
     const mk = label(L.marker([s.lat, s.lon], { icon: ic }).bindPopup(`<b>SNOTEL ${s.name}</b> (${s.trip})<br>${ft(s.elev)} ft<br><a href="${snotelLink(s.num)}" target="_blank" rel="noopener">NRCS site page</a>`), s.name, { Snowbird: 'bottom', Brighton: 'bottom' }[s.name]);
-    (s.name === 'Atwater' ? mk.unbindTooltip() : mk).addTo(stationLayer);
+    (s.trip === '1308:UT:SNTL' ? mk.unbindTooltip() : mk).addTo(stationLayer);
   }
   const F = flowSeries();
   for (const f of FLOW.filter(x => x.lat && x.lat < 40.63)) {
@@ -1608,7 +1654,7 @@ async function loadAll() {
   writeHash();
   const { a, b } = S.win, now = Date.now();
   const pa = Math.min(a - 12 * HOUR - MELT_LOOKBACK, b - DAY - HOUR, midnightDenver(Math.min(b, now)) - HOUR), fa = a - 12 * HOUR, fb = Math.min(now, b + 48 * HOUR);
-  S.radar = []; S.radarFrames = []; S.mrms = null; S.cells = []; S.view = null; document.getElementById('zoom-reset').classList.add('hidden');
+  S.radar = []; S.radarFrames = []; S.mrms = null; S.cells = []; S.view = null; document.querySelectorAll('.zoom-reset').forEach(b => b.classList.add('hidden'));
   for (const k of ['syn', 'radar', 'mrms', 'county', 'usgs', 'snotel']) setStatus(k, 'loading', 'loading');
   renderAll();
   const done = () => { if (seq === loadSeq) { safe(processAll, 'process'); renderAll(); } };
@@ -1741,7 +1787,7 @@ function initUI() {
   document.querySelectorAll('[data-export]').forEach(b => b.onclick = () => exportCSV(b.dataset.export));
   document.getElementById('upload').onchange = async e => { const f = e.target.files[0]; if (!f) return; const r = parseUploadCSV(await f.text()); S.upload = r.t.length ? qcFlow(r) : null; document.getElementById('upload-status').textContent = r.t.length ? `${r.t.length} rows, ${fmtDT(r.t[0])} to ${fmtDT(r.t[r.t.length - 1])}${r.bad ? `, ${r.bad} skipped` : ''}` : 'No usable rows.'; safe(processAll, 'process'); renderAll(); };
   document.getElementById('run-tests').onclick = () => runSelfTests();
-  document.getElementById('zoom-reset').onclick = () => { setView(null); document.querySelectorAll('#t-storms tr.sel').forEach(x => x.classList.remove('sel')); };
+  document.querySelectorAll('.zoom-reset').forEach(b => b.onclick = () => { setView(null); document.querySelectorAll('#t-storms tr.sel').forEach(x => x.classList.remove('sel')); });
   let playT = null;
   document.getElementById('radar-play').onclick = e => {
     const b = e.currentTarget;
