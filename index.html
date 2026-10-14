@@ -180,6 +180,7 @@
       <div class="plab"><b class="pl">c</b><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
       <div class="plab"><b class="pl">d</b><span class="pt">Air temperature</span><span class="u">°F</span></div><ul class="kb" id="kb-d"></ul><div class="cbox"><canvas id="p-temp"></canvas></div>
       <div class="plab"><b class="pl">e</b><span class="pt">Rain line</span><span class="u">ft</span></div><ul class="kb" id="kb-e"></ul><div class="cbox"><canvas id="p-fl"></canvas></div>
+      <div class="plab"><b class="pl">f</b><span class="pt">Snow depth</span><span class="u">in</span></div><ul class="kb" id="kb-f"></ul><div class="cbox"><canvas id="p-snow"></canvas></div>
       <p class="cap" id="cap1"></p>
       <div class="zoomnote">Drag across a chart to zoom; double-click to reset. Click a storm to zoom to it.</div>
     </div>
@@ -215,7 +216,10 @@
   </div>
   <div class="card">
     <div class="ch"><h3>Snowpack</h3><span class="u">SWE since Oct 1, in</span></div>
+    <div class="plab"><span class="pt">Snow water equivalent</span><span class="u">in</span></div>
     <div class="cbox side"><canvas id="p-swe"></canvas></div>
+    <div class="plab"><span class="pt">Snow depth</span><span class="u">in</span></div>
+    <div class="cbox side"><canvas id="p-snwd"></canvas></div>
     <ul class="kb" id="kb-swe"></ul><p class="cap" id="cap3"></p>
   </div>
   <div class="card">
@@ -292,8 +296,10 @@
       <li>Tanners Flat response: baseline is the time weighted mean of the 6 h before the start; peak is the maximum up to 48 h after the end, cut at the next storm. Lag runs to the peak from the centroid of the rain that fell before it, at every gauge above Tanners Flat (CLN, PC064, AGD, UTALC, UTWLC, ELBUT); storms with two bursts would otherwise place the centroid after the first peak. A clear response needs a rise of at least 3 gauge steps (about 1 cfs; the gauge flickers one 0.32 cfs step all the time) and at least 5% of the baseline. A peak before the centroid, or more than 12 h after it, gets no lag: the rise belongs to other water. From November to March, after a below freezing day at White Pine or Elberts, flow is marked ice possible (USGS: ice backs water up and raises stage with no change in flow; the 2/18/2026 jump to 70 cfs at Tanners Flat looks like this).</li>
       <li>Flow QC: a report far from the median of its five neighbors on each side is removed (this survives small clusters such as the 64 to 235 cfs readings of 10/8/2026 evening) (Tanners Flat stage dropped from 0.36 to 0.04 ft for one report, twice on 10/8/2026). A wild newest report is held until the next one confirms it. When the county sends several values within the same minute, their median is kept.</li>
     </ul>
+    <h3>Snow depth</h3>
+    <ul><li>SNOTEL depth comes from AWDB hourly data for windows up to 45 days (stamps are Pacific Standard Time, checked against the co-located Atwater study plot temperature) and daily data for longer windows. MesoWest sonic depths are shown after the QC below. White Pine is never used.</li></ul>
     <h3>Snow depth QC</h3>
-    <ul><li>Values outside 0 to 4,000 mm are dropped. UTWLC depth is never used (it reads 719 mm in October). A nonzero depth that does not change at all for 48 h is a stuck sensor and is hidden (CLN read 1,371.6 mm on every report in October 2026). A sonic sensor over bare ground reads grass and rocks, so any reading of 150 mm or less within 3 h of a 0 is shown as 0.</li></ul>
+    <ul><li>Values outside 0 to 4,000 mm are dropped. UTWLC depth is never used (it reads 719 mm in October). A nonzero depth that does not change at all for 48 h is a stuck sensor and is hidden, along with readings within 100 mm of it in the 3 h either side (CLN read 1,371.6 mm on every report in October 2026, then 1,397 mm once before recovering). A sonic sensor over bare ground reads grass and rocks, so any reading of 150 mm or less within 3 h of a 0 is shown as 0.</li></ul>
       <div style="margin-top:10px"><button class="btn" id="run-tests">Run parser self-test</button> <span class="muted">Unit tests and a live check of the 10/7 to 10/8/2026 reference values.</span></div>
       <pre class="tests hidden" id="test-out"></pre>
     </div>
@@ -329,6 +335,7 @@ const STATIONS = [
   { id: 'UTALC', name: 'Alta, highway', short: 'Alta hwy', elev: 8537, lat: 40.5891, lon: -111.6452, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'albion', color: '#56B4E9', unheated: true },
   { id: 'ATB', name: 'Alta base area', short: 'Alta base', elev: 8560, lat: 40.5890, lon: -111.6370, net: 'Alta avalanche network', mode: 'hour', role: 'gauge', group: 'albion', color: '#E69F00', precipOut: 'its precipitation sensor has recorded nothing since October 2025' },
   { id: 'ATH20', name: 'Atwater study plot', short: 'Atwater plot', elev: 8752, lat: 40.5915, lon: -111.6378, net: 'University of Utah', mode: null, role: 'met', group: 'albion', color: '#ffffff' },
+  { id: 'SBDU1', name: 'Snowbird, mid mountain', short: 'Snowbird resort', elev: 9177, lat: 40.5640, lon: -111.6550, net: 'Snowbird resort', mode: null, role: 'met', group: 'canyon', color: '#6f8fb8' },
   { id: 'HDP', name: 'Hidden Peak summit', short: 'Hidden Peak', elev: 11000, lat: 40.5611, lon: -111.6452, net: 'Snowbird resort', mode: null, role: 'met', group: 'canyon', color: '#7d8a99' },
   { id: 'UTWLC', name: 'White Pine trailhead', short: 'White Pine', elev: 7680, lat: 40.5761, lon: -111.6819, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#8e9bab', unheated: true },
   { id: 'ELBUT', name: 'Elberts, mid canyon', short: 'Elberts', elev: 7600, lat: 40.5758, lon: -111.6877, net: 'UDOT avalanche', mode: 'accum', role: 'gauge', group: 'canyon', color: '#a7b2bf' },
@@ -575,7 +582,15 @@ function qcSnowDepth(st) {
   st.t.forEach((t, i) => { const v = st.v.snow_depth[i]; if (v != null && isFinite(v) && v >= 0 && v <= 4000) ok.push({ t, raw: v }); });
   // A nonzero depth that has not changed at all for 48 h is a stuck sensor (CLN read 1,371.6 mm on every report in Oct 2026).
   const stuck = new Array(ok.length).fill(false);
-  for (let i = 0, j = 0; i < ok.length; i = j) { j = i; while (j < ok.length && ok[j].raw === ok[i].raw) j++; if (ok[i].raw > 50 && ok[j - 1].t - ok[i].t >= 48 * HOUR) for (let k = i; k < j; k++) stuck[k] = true; }
+  for (let i = 0, j = 0; i < ok.length; i = j) {
+    j = i; while (j < ok.length && ok[j].raw === ok[i].raw) j++;
+    if (ok[i].raw > 50 && ok[j - 1].t - ok[i].t >= 48 * HOUR) {
+      for (let k = i; k < j; k++) stuck[k] = true;
+      // CLN also sent 1,397 mm between its stuck 1,371.6 run and its recovery on 10/12/2026
+      for (let k = j; k < ok.length && ok[k].t <= ok[j - 1].t + 3 * HOUR && Math.abs(ok[k].raw - ok[i].raw) <= 100; k++) stuck[k] = true;
+      for (let k = i - 1; k >= 0 && ok[k].t >= ok[i].t - 3 * HOUR && Math.abs(ok[k].raw - ok[i].raw) <= 100; k--) stuck[k] = true;
+    }
+  }
   return ok.map((r, i) => {
     if (stuck[i]) return { t: r.t, raw: r.raw, qc: null, flag: 'stuck sensor' };
     let qc = r.raw, flag = '';
@@ -583,7 +598,7 @@ function qcSnowDepth(st) {
       for (let j = i; j >= 0 && ok[j].t >= r.t - 3 * HOUR; j--) if (ok[j].raw <= 5) { qc = 0; flag = 'bare-ground noise'; break; }
       if (!flag) for (let j = i; j < ok.length && ok[j].t <= r.t + 3 * HOUR; j++) if (ok[j].raw <= 5) { qc = 0; flag = 'bare-ground noise'; break; }
     }
-    if (!flag) { const w = ok.slice(Math.max(0, i - 2), i + 3).map(x => x.raw).sort((x, y) => x - y), med = w[w.length >> 1]; if (w.length >= 3 && Math.abs(r.raw - med) > 100) { qc = med; flag = 'spike'; } }
+    if (!flag) { const w = ok.slice(Math.max(0, i - 2), i + 3).filter((x, k2) => !stuck[Math.max(0, i - 2) + k2]).map(x => x.raw).sort((x, y) => x - y), med = w[w.length >> 1]; if (w.length >= 3 && Math.abs(r.raw - med) > 100) { qc = med; flag = 'spike'; } }
     return { t: r.t, raw: r.raw, qc, flag };
   });
 }
@@ -883,6 +898,12 @@ async function loadUSGS(a, b) {
     return qcFlow({ t: idx.map(i => t[i]), v: idx.map(i => v[i]), api: 'OGC API (NWIS unavailable)' });
   }
 }
+async function loadSnotelHourly(a, b) {
+  const f = ms => new Date(ms - 8 * HOUR).toISOString().slice(0, 13).replace('T', ' ') + ':00';
+  const d = await fetchJSON(`${AWDB}/data?stationTriplets=${SNOTEL.map(s => s.trip).join(',')}&elements=SNWD&duration=HOURLY&beginDate=${encodeURIComponent(f(a))}&endDate=${encodeURIComponent(f(b))}`, { timeout: 60000 }), out = {};
+  for (const s of d) for (const e of s.data || []) out[s.stationTriplet] = (e.values || []).filter(x => x.value != null && x.value >= 0 && x.value < 400).map(x => ({ t: Date.parse(x.date.replace(' ', 'T') + ':00Z') + 8 * HOUR, v: x.value }));
+  return out;
+}
 async function loadSnotel(a, b) {
   const d0 = localDate(Math.min(a, waterYearStart(b)) - DAY), d1 = localDate(b);
   const url = `${AWDB}/data?stationTriplets=${SNOTEL.map(s => s.trip).join(',')}&elements=WTEQ,SNWD,PREC,PRCP,TOBS&duration=DAILY&beginDate=${d0}&endDate=${d1}&centralTendencyType=MEDIAN`;
@@ -915,7 +936,7 @@ function parseUploadCSV(text) {
    ====================================================================== */
 const S = {
   win: { preset: '72h', a: 0, b: 0 }, det: [...ALTA], gapH: 3, minMm: 1.0,
-  syn: null, P: {}, county: null, usgs: null, upload: null, snotel: null, radar: [], radarFrames: [], mrms: null,
+  syn: null, P: {}, snowH: null, county: null, usgs: null, upload: null, snotel: null, radar: [], radarFrames: [], mrms: null,
   status: {}, events: [], minor: [], cells: [], fl: [], hoverX: null, loadedAt: null, radarT: null, view: null, drag: null, selStorm: null,
 };
 function windowFromPreset(p) { const now = Date.now(), spans = { '24h': DAY, '72h': 3 * DAY, '7d': 7 * DAY, '30d': 30 * DAY }; return p === 'wy' ? { a: waterYearStart(now), b: now } : { a: now - (spans[p] || 3 * DAY), b: now }; }
@@ -1087,7 +1108,8 @@ function renderSummary() {
   tiles.push(['Radar now, upper canyon', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', '', rl && rl.maxDbz >= 35]);
   tiles.push(['Air temperature', o.ta != null ? `${cToF(o.ta).toFixed(0)} °F` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : '']);
   tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${icePossible(o.q.t) ? 'ice possible, ' : ''}${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
-  tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${o.at ? `; Atwater ${o.at.v.toFixed(1)} in` : ''}` : '']);
+  const sbH = S.snowH && S.snowH['766:UT:SNTL'], sbD = sbH && sbH.length ? sbH[sbH.length - 1].v : null;
+  tiles.push(['Snowpack', o.sb ? `${o.sb.v.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${sbD != null ? `, ${sbD} in deep` : ''}${o.at ? `; Atwater ${o.at.v.toFixed(1)} in` : ''}` : '']);
   const ACC = ['#0072B2', '#0072B2', '#D55E00', '#CC79A7', '#111111', '#009E73'];
   document.getElementById('tiles').innerHTML = tiles.map(([k, v, sub, al], i) => `<div class="tile${al ? ' alert' : ''}" style="--acc:${ACC[i]}"><div class="k">${k}</div><div class="v">${v}</div><div class="s" title="${sub}">${sub}</div></div>`).join('');
   const m = o.missed;
@@ -1161,6 +1183,25 @@ function renderFig1() {
     paper: { ...sh, hlines: [{ y: 9026, label: 'Albion Basin 9,026 ft', color: INK }, { y: 7117, label: 'Tanners Flat 7,117 ft', color: INK3 }] },
     y: { min: 4000, max: 18000, afterBuildTicks: sc => { sc.ticks = [4000, 8000, 12000, 16000].map(value => ({ value })); }, ticks: { color: INK, font: { size: 10.5, weight: '600' }, callback: v => ft(v) } }, tooltipLabel: c => `Rain line: ${c.parsed.y >= 18000 ? 'above 18,000' : ft(c.parsed.y)} ft` });
 
+  const sds = [], noSnow = [], SNC = { '1308:UT:SNTL': '#0072B2', '766:UT:SNTL': '#009E73', '366:UT:SNTL': NEIGHBOR };
+  const longWin = S.win.b - S.win.a > 45 * DAY;
+  for (const sn of SNOTEL) {
+    const rows = longWin ? ((S.snotel && S.snotel[sn.trip] && S.snotel[sn.trip].SNWD) || []).filter(x => x.v != null).map(x => ({ t: x.t, v: x.v })) : ((S.snowH && S.snowH[sn.trip]) || []);
+    const pts = rows.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.v }));
+    if (!pts.length) continue;
+    if (Math.max(...pts.map(q => q.y)) < 1) { noSnow.push(`${sn.name} SNOTEL`); continue; }
+    sds.push({ label: `${sn.name} SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} SNOTEL ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined, order: 0 });
+  }
+  if (S.syn) for (const st0 of STATIONS) {
+    const st = S.syn[st0.id]; if (!st || !st.v.snow_depth || SNOW_DEPTH_BLOCK.has(st0.id)) continue;
+    const pts = qcSnowDepth(st).filter(x => x.qc != null && x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.qc / 25.4 }));
+    if (!pts.length) continue;
+    if (Math.max(...pts.map(q => q.y)) < 1) { noSnow.push(st0.short); continue; }
+    sds.push({ label: `${st0.short} (${st0.id}), ${ft(st0.elev)} ft, ${st0.net}`, endLabel: `${st0.short} ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: stColor(st0) === '#ffffff' ? INK2 : stColor(st0), backgroundColor: stColor(st0) === '#ffffff' ? INK2 : stColor(st0), labelColor: isFocus(st0) ? stColor(st0) : INK3, borderWidth: isFocus(st0) ? 1.6 : 1.1, order: 1 });
+  }
+  timeChart('p-snow', sds, { endLabels: true, decimate: false, yTitle: 'Depth, in', y2: { title: 'cm', conv: v => v * 2.54, dec: 0 }, paper: sh, y: { beginAtZero: true, suggestedMax: 6 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in (${(c.parsed.y * 2.54).toFixed(0)} cm)` });
+  S.noSnow = noSnow;
+
   const F = flowSeries(), tf = F.lcc_tanners_q, qd = [];
   let nsp = 0, yq = {};
   if (tf && tf.t.length) {
@@ -1180,6 +1221,7 @@ function renderFig1() {
     `<b>c</b> <b>Creek flow:</b> the only canyon gauge, above the diversions; provisional county data${nsp ? `, × marks removed bad reports` : ''}.<br>` +
     `<b>d</b> <b>Air temperature:</b> the dotted line is 34 °F (1 °C), the rain/snow threshold used throughout.<br>` +
     `<b>e</b> <b>Rain line:</b> where air is 34 °F (1 °C), from a fit of eight station temperatures each hour; mostly rain below, snow above. Faint when dry, because on clear nights cold slopes pull it about 1,400 ft low. Gaps are inversions.<br>` +
+    `<b>f</b> <b>Snow depth:</b> thick lines are SNOTEL snow pillows' depth sensors (${longWin ? 'daily' : 'hourly'}), the most reliable; thin lines are MesoWest sonic sensors after QC (stuck readings and bare ground noise removed).${noSnow.length ? ` No snow in the window at ${noSnow.join(', ')}.` : ''}<br>` +
     `<b>Bands:</b> a storm needs ${S.minMm} mm or more at an Alta gauge; fixed ridge clutter is removed from radar.`;
   safe(() => panelBullets(va, vb), 'bullets');
 }
@@ -1214,7 +1256,14 @@ function panelBullets(va, vb) {
     if (r && r.clear) C.push(`Storm ${k}: rose ${cfs(r.base)} → ${cfs(r.peak)} cfs (+${cfs(r.dQ)}), peak ${r.lag.toFixed(1)} h after the rain`);
     else if (r && r.base != null && r.peak != null) C.push(`Storm ${k}: no clear rise (needs ${cfs(Math.max(RESP_STEPS * r.res, RESP_FRAC * r.base))} cfs or more within ${LAG_MAX_H} h)`);
   }
-  put('kb-a', A); put('kb-b', B); put('kb-c', C); put('kb-d', D); put('kb-e', E);
+  const Fb = [], snowNow = [];
+  for (const c of (charts['p-snow'] ? charts['p-snow'].data.datasets : [])) {
+    const d = c.data.filter(q => q.x >= va && q.x <= vb); if (d.length < 2) continue;
+    const gain = d[d.length - 1].y - Math.min(...d.map(q => q.y));
+    if (gain >= 2) snowNow.push(`${c.endLabel.replace(/ \d+$/, '')} +${gain.toFixed(0)} in`);
+  }
+  if (snowNow.length) Fb.push(`New snow in this view: ${snowNow.join(', ')}`);
+  put('kb-a', A); put('kb-b', B); put('kb-c', C); put('kb-d', D); put('kb-e', E); put('kb-f', Fb);
 }
 function fig1Takeaway(va, vb) {
   if (!S.syn) return '';
@@ -1450,8 +1499,16 @@ function renderSWE() {
     if (med.length) ds.push({ label: 'Snowbird median', endLabel: 'median', data: med.map(x => ({ x: x.t, y: x.med })), borderColor: INK3, backgroundColor: INK3, borderWidth: 1, borderDash: [1, 2.5] });
   }
   timeChart('p-swe', ds, { showX: true, endLabels: true, decimate: false, xRange: [a, b], rightPad: 78, yTitle: 'SWE, in', y2: { title: 'mm', conv: v => v * 25.4, dec: 0 }, paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 2 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in` });
+  const dd = [];
+  if (S.snotel) {
+    const cols = { '1308:UT:SNTL': '#0072B2', '766:UT:SNTL': '#009E73', '366:UT:SNTL': NEIGHBOR };
+    for (const s2 of SNOTEL) { const arr = ((S.snotel[s2.trip] || {}).SNWD || []).filter(x => x.t >= a && x.v != null); if (arr.length) dd.push({ label: `${s2.name} ${s2.num}`, endLabel: `${s2.name} ${arr[arr.length - 1].v.toFixed(0)}`, data: arr.map(x => ({ x: x.t, y: x.v })), borderColor: cols[s2.trip], backgroundColor: cols[s2.trip], borderWidth: 1.5, borderDash: s2.name === 'Brighton' ? [3, 2] : undefined }); }
+    const medD = ((S.snotel['766:UT:SNTL'] || {}).SNWD || []).filter(x => x.t >= a && x.med != null);
+    if (medD.length) dd.push({ label: 'Snowbird median', endLabel: 'median', data: medD.map(x => ({ x: x.t, y: x.med })), borderColor: INK3, backgroundColor: INK3, borderWidth: 1, borderDash: [1, 2.5] });
+  }
+  timeChart('p-snwd', dd, { showX: true, endLabels: true, decimate: false, xRange: [a, b], rightPad: 78, yTitle: 'Depth, in', y2: { title: 'cm', conv: v => v * 2.54, dec: 0 }, paper: { sync: false, events: [{ start: Math.max(a, S.win.a), end: S.win.b }] }, y: { beginAtZero: true, suggestedMax: 6 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(0)} in` });
   const sb = S.snotel && ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t <= T + DAY && x.v != null).pop();
-  document.getElementById('cap3').innerHTML = `Snow water equivalent is the water held in the snowpack. Dotted is Snowbird's median for each date (record since 1989); the gray band is the selected window.`;
+  document.getElementById('cap3').innerHTML = `Snow water equivalent is the water held in the snowpack; depth is how deep it is, and settles as the snow compacts. Dotted lines are Snowbird's median for each date (record since 1989); the gray band is the selected window.`;
   const tm = S.snotel && S.snotel['766:UT:SNTL'] && S.snotel['766:UT:SNTL'].timing;
   let ks = '';
   if (sb) {
@@ -1550,6 +1607,7 @@ async function loadAll() {
     loadCounty(fa, fb).then(d => { if (seq !== loadSeq) return; S.county = d; const up = Date.parse(countyManifest.updated_utc); setStatus('county', now - up > 90 * MIN ? 'warn' : 'ok', `copied ${ago(up)}`); }).catch(e => { if (seq === loadSeq) { S.county = null; setStatus('county', 'err', e.message); } }),
     loadUSGS(fa, fb).then(d => { if (seq !== loadSeq) return; S.usgs = d; setStatus('usgs', d.t.length ? 'ok' : 'warn', d.t.length ? 'provisional' : 'no data'); }).catch(e => { if (seq === loadSeq) { S.usgs = null; setStatus('usgs', 'err', e.message); } }),
     loadMrms(a, Math.min(b, now)).then(d => { if (seq !== loadSeq) return; S.mrms = d; setStatus('mrms', d.rows.length ? 'ok' : 'warn', d.rows.length ? `hourly to ${fmtWhen(d.last)}` : 'none for this window'); }).catch(e => { if (seq === loadSeq) { S.mrms = null; setStatus('mrms', 'err', e.message); } }),
+    (b - a <= 45 * DAY ? loadSnotelHourly(a, Math.min(b, now)) : Promise.resolve(null)).then(d => { if (seq === loadSeq) S.snowH = d; }).catch(() => { if (seq === loadSeq) S.snowH = null; }),
     loadSnotel(a, b).then(d => { if (seq !== loadSeq) return; S.snotel = d; setStatus('snotel', 'ok', 'daily'); }).catch(e => { if (seq === loadSeq) { S.snotel = null; setStatus('snotel', 'err', e.message); } }),
   ];
   jobs.forEach(j => j.then(done));
@@ -1608,6 +1666,7 @@ async function runSelfTests() {
   ok('flow QC: single dropout removed', qc.v.length === 6 && qc.spikes.length === 1);
   ok('flow QC: wild newest held; normal newest after a spike kept', qcFlow({ t: [0, 1, 2, 3].map(i => t0 + i * 5 * MIN), v: [9.87, 9.55, 9.87, 0.71] }).spikes[0].kind === 'unconfirmed' && qcFlow({ t: [0, 1, 2, 3, 4].map(i => t0 + i * 5 * MIN), v: [9.87, 9.55, 9.87, 0.71, 9.87] }).v.length === 4);
   ok('snow depth: stuck sensor hidden after 48 h unchanged', qcSnowDepth({ id: 'X', t: [0, 24, 49].map(h => t0 + h * HOUR), v: { snow_depth: [1371.6, 1371.6, 1371.6] } }).every(x => x.qc == null && x.flag === 'stuck sensor'));
+  ok('snow depth: a reading next to a stuck run is hidden too', (() => { const r = qcSnowDepth({ id: 'X', t: [0, 24, 49, 50, 51].map(h => t0 + h * HOUR), v: { snow_depth: [1371.6, 1371.6, 1371.6, 1397, 50.8] } }); return r[3].qc == null && r[4].qc === 50.8; })());
   ok('snow depth: bare-ground noise and UTWLC block', qcSnowDepth({ id: 'X', t: [0, 1, 2, 3].map(h => t0 + h * HOUR), v: { snow_depth: [0, 101.6, 127, 0] } }).every(x => x.qc === 0) && qcSnowDepth({ id: 'UTWLC', t: [t0], v: { snow_depth: [719] } }).length === 0);
   ok('Z-R: 35 dBZ ≈ 5.6 mm/h, below 30 dBZ = 0, 60 capped at 53', near(zrRate(35), 5.62, 0.02) && zrRate(29.5) === 0 && zrRate(60) === zrRate(53));
   const flt = (() => { const syn = {}, h = Date.UTC(2026, 0, 2, 12); for (const id of TEMP_IDS) syn[id] = { t: [h - 30 * MIN], v: { air_temp: [10 - (STN[id].elev - 6000) * 0.002] } }; return freezingLevel(syn, h - 30 * MIN, h)[0]; })();
