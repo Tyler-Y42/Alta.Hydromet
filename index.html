@@ -69,7 +69,7 @@
   .tile.alert { border-color: var(--radar); }
   .tile.alert .v { color: var(--radar); }
   @media (max-width: 1100px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tile .s { white-space: normal; overflow: visible; line-height: 1.3; } .tile .v { font-size: 1.15rem; white-space: normal; } }
   .alertline { font-size: 0.82rem; color: var(--flag); margin: -2px 0 8px; }
   .alertline:empty { display: none; }
   /* dashboard grid */
@@ -179,7 +179,7 @@
     <div class="card">
       <div class="ch"><h3>Precipitation and creek flow</h3><span class="u" id="ts-range"></span>
         <span class="r"><label><input type="checkbox" id="show-radar" checked> radar</label><button class="btn hidden zoom-reset" id="zoom-reset">Full window</button></span></div>
-      <div class="bandkey"><span><i style="background:rgba(0,0,0,0.12)"></i>Storm N: recorded by the gauges</span><span><i style="background:rgba(213,94,0,0.22)"></i>Radar N: burst seen by radar, missed by gauges</span><span><i style="background:#D55E00;height:2px"></i>Radar rain rate - whole canyon mean</span></div>
+      <div class="bandkey"><span><i style="background:rgba(0,0,0,0.12)"></i>Storm N: recorded by the gauges</span><span><i style="background:rgba(213,94,0,0.22)"></i>Radar N: burst seen by radar, missed by gauges</span></div>
       <div class="plab"><b class="pl">a</b><span class="pt">Precipitation</span><span class="u">mm h⁻¹</span></div><ul class="kb" id="kb-a"></ul><div class="cbox hr"><canvas id="p-hr"></canvas></div>
       <div class="plab"><b class="pl">b</b><span class="pt">Running total by gauge</span><span class="u">mm</span></div><ul class="kb" id="kb-b"></ul><div class="cbox cum"><canvas id="p-cum"></canvas></div>
       <div class="plab"><b class="pl">c</b><span class="pt">Creek flow at Tanners Flat</span><span class="u">cfs</span></div><ul class="kb" id="kb-c"></ul><div class="cbox q"><canvas id="p-q"></canvas></div>
@@ -344,19 +344,19 @@ const mesoLink = id => `https://mesowest.utah.edu/cgi-bin/droman/meso_base_dyn.c
 // role: gauge (LCC precip), neighbor (BCC precip, comparison only), met (no precip used)
 // group: albion (Albion Basin and Alta, the focus), canyon (lower canyon and ridge, context), bcc (Big Cottonwood, comparison)
 const STATIONS = [
-  { id: 'CLN', name: 'Collins Gulch, Alta', short: 'Collins Gulch', elev: 9662, lat: 40.5763, lon: -111.6383, net: 'Alta avalanche network', mode: 'hour', role: 'gauge', group: 'albion', color: '#CC79A7' },
+  { id: 'CLN', name: 'Collins Gulch, Alta', short: 'Collins Gulch', elev: 9662, lat: 40.5763, lon: -111.6383, net: 'Alta Avy', mode: 'hour', role: 'gauge', group: 'albion', color: '#CC79A7' },
   { id: 'PC064', name: 'Albion Basin', short: 'Albion Basin', elev: 9026, lat: 40.5929, lon: -111.6244, net: 'PacifiCorp', mode: 'ten', role: 'gauge', group: 'albion', color: '#0072B2', unheated: true },
-  { id: 'AGD', name: 'Alta Guard House', short: 'Guard House', elev: 8799, lat: 40.5905, lon: -111.6380, net: 'Alta avalanche network', mode: 'accum', role: 'gauge', group: 'albion', color: '#009E73' },
-  { id: 'UTALC', name: 'Alta, highway', short: 'Alta hwy', elev: 8537, lat: 40.5891, lon: -111.6452, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'albion', color: '#56B4E9', unheated: true },
-  { id: 'ATB', name: 'Alta base area', short: 'Alta base', elev: 8560, lat: 40.5890, lon: -111.6370, net: 'Alta avalanche network', mode: 'hour', role: 'gauge', group: 'albion', color: '#E69F00', precipOut: 'its precipitation sensor has recorded nothing since October 2025' },
-  { id: 'ATH20', name: 'Atwater study plot', short: 'Atwater plot', elev: 8752, lat: 40.5915, lon: -111.6378, net: 'University of Utah', mode: null, role: 'met', group: 'albion', color: '#ffffff' },
-  { id: 'SBDU1', name: 'Snowbird, mid mountain', short: 'Snowbird resort', elev: 9177, lat: 40.5640, lon: -111.6550, net: 'Snowbird resort', mode: null, role: 'met', group: 'canyon', color: '#6f8fb8' },
-  { id: 'HDP', name: 'Hidden Peak summit', short: 'Hidden Peak', elev: 11000, lat: 40.5611, lon: -111.6452, net: 'Snowbird resort', mode: null, role: 'met', group: 'canyon', color: '#7d8a99' },
-  { id: 'UTWLC', name: 'White Pine trailhead', short: 'White Pine', elev: 7680, lat: 40.5761, lon: -111.6819, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#8e9bab', unheated: true },
-  { id: 'ELBUT', name: 'Elberts, mid canyon', short: 'Elberts', elev: 7600, lat: 40.5758, lon: -111.6877, net: 'UDOT avalanche', mode: 'accum', role: 'gauge', group: 'canyon', color: '#a7b2bf' },
-  { id: 'UTPLC', name: 'Powerhouse, canyon mouth', short: 'Powerhouse', elev: 6049, lat: 40.5710, lon: -111.7437, net: 'UDOT road weather', mode: 'ten', role: 'gauge', group: 'canyon', color: '#c2cad3', unheated: true },
+  { id: 'AGD', name: 'Alta Guard House', short: 'Guard House', elev: 8799, lat: 40.5905, lon: -111.6380, net: 'Alta Avy', mode: 'accum', role: 'gauge', group: 'albion', color: '#009E73' },
+  { id: 'UTALC', name: 'Alta, highway', short: 'Alta hwy', elev: 8537, lat: 40.5891, lon: -111.6452, net: 'UDOT', mode: 'ten', role: 'gauge', group: 'albion', color: '#56B4E9', unheated: true },
+  { id: 'ATB', name: 'Alta base area', short: 'Alta base', elev: 8560, lat: 40.5890, lon: -111.6370, net: 'Alta Avy', mode: 'hour', role: 'gauge', group: 'albion', color: '#E69F00', precipOut: 'its precipitation sensor has recorded nothing since October 2025' },
+  { id: 'ATH20', name: 'Atwater study plot', short: 'Atwater plot', elev: 8752, lat: 40.5915, lon: -111.6378, net: 'U of U', mode: null, role: 'met', group: 'albion', color: '#ffffff' },
+  { id: 'SBDU1', name: 'Snowbird, mid mountain', short: 'Snowbird resort', elev: 9177, lat: 40.5640, lon: -111.6550, net: 'Snowbird', mode: null, role: 'met', group: 'canyon', color: '#6f8fb8' },
+  { id: 'HDP', name: 'Hidden Peak summit', short: 'Hidden Peak', elev: 11000, lat: 40.5611, lon: -111.6452, net: 'Snowbird', mode: null, role: 'met', group: 'canyon', color: '#7d8a99' },
+  { id: 'UTWLC', name: 'White Pine trailhead', short: 'White Pine', elev: 7680, lat: 40.5761, lon: -111.6819, net: 'UDOT', mode: 'ten', role: 'gauge', group: 'canyon', color: '#8e9bab', unheated: true },
+  { id: 'ELBUT', name: 'Elberts, mid canyon', short: 'Elberts', elev: 7600, lat: 40.5758, lon: -111.6877, net: 'UDOT', mode: 'accum', role: 'gauge', group: 'canyon', color: '#a7b2bf' },
+  { id: 'UTPLC', name: 'Powerhouse, canyon mouth', short: 'Powerhouse', elev: 6049, lat: 40.5710, lon: -111.7437, net: 'UDOT', mode: 'ten', role: 'gauge', group: 'canyon', color: '#c2cad3', unheated: true },
   { id: 'PC056', name: 'Brighton, Big Cottonwood', short: 'Brighton', elev: 8693, lat: 40.6107, lon: -111.5790, net: 'PacifiCorp', mode: 'ten', role: 'neighbor', group: 'bcc', color: '#b5b3ab', unheated: true },
-  { id: 'SPC', name: 'Spruces, Big Cottonwood', short: 'Spruces', elev: 7402, lat: 40.6410, lon: -111.6360, net: 'UDOT avalanche', mode: 'accum', role: 'neighbor', group: 'bcc', color: '#cfccc3' },
+  { id: 'SPC', name: 'Spruces, Big Cottonwood', short: 'Spruces', elev: 7402, lat: 40.6410, lon: -111.6360, net: 'UDOT', mode: 'accum', role: 'neighbor', group: 'bcc', color: '#cfccc3' },
 ];
 const STN = Object.fromEntries(STATIONS.map(s => [s.id, s]));
 const GAUGES = STATIONS.filter(s => s.role === 'gauge');
@@ -1098,7 +1098,7 @@ function timeChart(id, datasets, { y = {}, showX = false, endLabels = false, leg
       onHover: (e, _el, ch) => { if (!ch.options.plugins.paper.sync) return; const xv = ch.scales.x.getValueForPixel(e.x); S.hoverX = (xv >= ch.scales.x.min && xv <= ch.scales.x.max) ? xv : null; redrawSynced(ch); },
       plugins: {
         legend: legend ? { display: true, position: 'top', align: 'start', labels: { boxWidth: 10, boxHeight: 8, padding: 8, color: INK2, font: { size: 10 } } } : { display: false },
-        tooltip: { backgroundColor: 'rgba(255,255,255,0.96)', titleColor: INK, bodyColor: INK, borderColor: INK, borderWidth: 0.5, cornerRadius: 2, padding: 6, boxWidth: 8, boxHeight: 8,
+        tooltip: { backgroundColor: 'rgba(255,255,255,0.97)', titleColor: INK, bodyColor: INK, borderColor: INK, borderWidth: 0.5, cornerRadius: 3, padding: 7, boxWidth: 9, boxHeight: 9, boxPadding: 4, titleFont: { size: 12, weight: '800' }, bodyFont: { size: 12, weight: '600' }, bodySpacing: 3,
           itemSort: (p, q) => (q.parsed.y || 0) - (p.parsed.y || 0), callbacks: { title: it => it.length ? fmtDT(it[0].chart._atTime != null ? it[0].chart._atTime : it[0].parsed.x, { tz: true }) : '', label: tooltipLabel || (c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)}`) } },
         decimation: { enabled: decimate && type === 'line', algorithm: 'min-max' },
         paper: { sync: true, events: [], cells: [], ...paper, endLabels },
@@ -1200,7 +1200,7 @@ function renderSummary() {
   const rl = o.rLast;
   tiles.push(['Radar now, upper canyon', rl ? (rl.maxDbz != null && rl.maxDbz >= RADAR_FLOOR ? `${rl.maxDbz.toFixed(0)} dBZ` : 'Clear') : '—', '', rl && rl.maxDbz >= 35]);
   tiles.push(['Air temperature', o.ta != null ? `${cToF(o.ta).toFixed(0)} °F` : '—', o.fl != null ? `rain line ${flTxt(o.fl)}: ${phaseTxt(o.fl)}` : '']);
-  tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${icePossible(o.q.t) ? 'ice possible, ' : ''}${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} in 24 h` : `down ${cfs(-o.q.d)} in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
+  tiles.push(['Tanners Flat', o.q ? `${cfs(o.q.v)} cfs` : '—', o.q ? `${icePossible(o.q.t) ? 'ice possible, ' : ''}${o.q.d == null ? '' : Math.abs(o.q.d) <= 2 * o.q.res ? 'steady over 24 h' : o.q.d > 0 ? `up ${cfs(o.q.d)} cfs in 24 h` : `down ${cfs(-o.q.d)} cfs in 24 h`}, ${fmtWhen(o.q.t)}` : 'no data']);
   const sbH = S.snowH && S.snowH['766:UT:SNTL'], sbD = sbH && sbH.length ? sbH[sbH.length - 1].v : null;
   const sbW = S.snowH && S.snowH.swe && S.snowH.swe['766:UT:SNTL'], sweNow = sbW && sbW.length ? sbW[sbW.length - 1].v : (o.sb ? o.sb.v : null);
   tiles.push(['Snowpack', sweNow != null ? `${sweNow.toFixed(1)} in SWE` : '—', o.sb ? `Snowbird${sbD != null ? `, ${sbD} in deep` : ''}${(() => { const w = S.snowH && S.snowH.swe && S.snowH.swe['1308:UT:SNTL'], v = w && w.length ? w[w.length - 1].v : (o.at ? o.at.v : null); return v != null ? `; Atwater (Alta) ${v.toFixed(1)} in` : ''; })()}` : '']);
@@ -1259,15 +1259,15 @@ function renderFig1() {
     for (const inc of p.incs) if (inc.include && inc.mm > 0 && inc.t > S.win.a && inc.t <= S.win.b) { c = r3(c + inc.mm); pts.push({ x: inc.t, y: c }); }
     const lastObs = p.obs[bisectRight(p.obs, S.win.b) - 1]; if (lastObs > pts[pts.length - 1].x) pts.push({ x: lastObs, y: c });
     const out = precipOut(s.id, S.win.a, S.win.b);
-    cum.push({ label: `${s.short} (${s.id}), ${ft(s.elev)} ft, ${s.net}${out ? ', precipitation sensor out' : ''}`, endLabel: out ? `${s.short}: sensor out` : `${s.short} ${mmStr(c, 1)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, stepped: true, borderDash: s.role === 'neighbor' ? [3, 2] : out ? [2, 3] : undefined, borderWidth: out ? 1.2 : isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
+    cum.push({ label: `${s.short} (${s.id}), ${s.net}, ${ft(s.elev)} ft${out ? ', sensor out' : ''}`, endLabel: out ? `${s.short}: sensor out` : `${s.short} ${mmStr(c, 1)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, stepped: true, borderDash: s.role === 'neighbor' ? [3, 2] : out ? [2, 3] : undefined, borderWidth: out ? 1.2 : isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
-  timeChart('p-cum', cum, { endLabels: true, decimate: false, paper: sh, yTitle: 'Total, mm', y2: { title: 'in', conv: v => v / 25.4 }, y: { beginAtZero: true }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} mm (${(c.parsed.y / 25.4).toFixed(2)} in)` });
+  timeChart('p-cum', cum, { endLabels: true, decimate: false, paper: sh, yTitle: 'Total, mm', y2: { title: 'in', conv: v => v / 25.4 }, y: { beginAtZero: true }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} mm (${(c.parsed.y / 25.4).toFixed(2)} in)` });
 
   const tds = [];
   if (S.syn) for (const id of TEMP_SHOW) {
     const st = S.syn[id]; if (!st || !st.v.air_temp) continue; const s = STN[id], pts = [];
     st.t.forEach((t, i) => { const v = st.v.air_temp[i]; if (v != null && t >= S.win.a && t <= S.win.b) pts.push({ x: t, y: cToF(v) }); });
-    if (pts.length) tds.push({ label: `${s.short} (${s.id}), ${ft(s.elev)} ft`, endLabel: `${s.short} ${ft(s.elev)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
+    if (pts.length) tds.push({ label: `${s.short} (${s.id}), ${s.net}, ${ft(s.elev)} ft`, endLabel: `${s.short} ${ft(s.elev)}`, data: pts, borderColor: stColor(s), backgroundColor: stColor(s), labelColor: isFocus(s) ? stColor(s) : INK3, borderWidth: isFocus(s) ? 2.5 : 1.2, order: isFocus(s) ? 0 : 1 });
   }
   timeChart('p-temp', tds, { endLabels: true, reserveY2: true, yTitle: 'Air temp, °F', paper: { ...sh, hlines: [{ y: 32, label: '32 °F', color: INK2 }, { y: cToF(RAIN_C), color: '#b9b7af', dash: [1, 3] }] }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(0)} °F` });
 
@@ -1284,7 +1284,7 @@ function renderFig1() {
     const pts = rows.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.v }));
     if (!pts.length) continue;
     if (Math.max(...pts.map(q => q.y)) < 1) { noSnow.push(`${sn.name} SNOTEL`); continue; }
-    sds.push({ label: `${sn.name} SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined, order: 0 });
+    sds.push({ label: `${sn.name}, SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined, order: 0 });
   }
   if (S.syn) for (const st0 of STATIONS) {
     // ATH20 sits beside Atwater SNOTEL, whose depth sensor reads the same spot better; its bare-ground filter also zeroes real shallow snow
@@ -1292,7 +1292,7 @@ function renderFig1() {
     const pts = qcSnowDepth(st).filter(x => x.qc != null && x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.qc / 25.4 }));
     if (!pts.length) continue;
     if (Math.max(...pts.map(q => q.y)) < 1) { noSnow.push(st0.short); continue; }
-    sds.push({ label: `${st0.short} (${st0.id}), ${ft(st0.elev)} ft, ${st0.net}`, endLabel: `${st0.short} ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: stColor(st0) === '#ffffff' ? INK2 : stColor(st0), backgroundColor: stColor(st0) === '#ffffff' ? INK2 : stColor(st0), labelColor: isFocus(st0) ? stColor(st0) : INK3, borderWidth: isFocus(st0) ? 1.6 : 1.1, order: 1 });
+    sds.push({ label: `${st0.short} (${st0.id}), ${st0.net}, ${ft(st0.elev)} ft`, endLabel: `${st0.short} ${pts[pts.length - 1].y.toFixed(0)}`, data: pts, borderColor: stColor(st0) === '#ffffff' ? INK2 : stColor(st0), backgroundColor: stColor(st0) === '#ffffff' ? INK2 : stColor(st0), labelColor: isFocus(st0) ? stColor(st0) : INK3, borderWidth: isFocus(st0) ? 1.6 : 1.1, order: 1 });
   }
   timeChart('p-snow', sds, { endLabels: true, decimate: false, yTitle: 'Depth, in', y2: { title: 'cm', conv: v => v * 2.54, dec: 0 }, paper: sh, y: { beginAtZero: true, suggestedMax: 6 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in (${(c.parsed.y * 2.54).toFixed(0)} cm)` });
   S.noSnow = noSnow;
@@ -1300,7 +1300,7 @@ function renderFig1() {
   for (const sn of SNOTEL) {
     const rows = longWin ? ((S.snotel && S.snotel[sn.trip] && S.snotel[sn.trip].WTEQ) || []).filter(x => x.v != null).map(x => ({ t: x.t, v: x.v })) : ((S.snowH && S.snowH.swe && S.snowH.swe[sn.trip]) || []);
     const pts = rows.filter(x => x.t >= S.win.a && x.t <= S.win.b).map(x => ({ x: x.t, y: x.v }));
-    if (pts.length) wds.push({ label: `${sn.name} SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} ${pts[pts.length - 1].y.toFixed(1)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined });
+    if (pts.length) wds.push({ label: `${sn.name}, SNOTEL ${sn.num}, ${ft(sn.elev)} ft`, endLabel: `${sn.name} ${pts[pts.length - 1].y.toFixed(1)}`, data: pts, borderColor: SNC[sn.trip], backgroundColor: SNC[sn.trip], labelColor: sn.name === 'Brighton' ? INK3 : SNC[sn.trip], stepped: true, borderWidth: sn.name === 'Brighton' ? 1.2 : 2.5, borderDash: sn.name === 'Brighton' ? [3, 2] : undefined });
   }
   timeChart('p-swew', wds, { endLabels: true, decimate: false, yTitle: 'SWE, in', y2: { title: 'mm', conv: v => v * 25.4, dec: 0 }, paper: sh, y: { beginAtZero: true, suggestedMax: 1 }, tooltipLabel: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)} in (${(c.parsed.y * 25.4).toFixed(0)} mm)` });
 
@@ -1606,7 +1606,7 @@ function renderSWE() {
   const ds = [], T = T_END(), a = waterYearStart(T), b = Math.max(T, a + 60 * DAY);
   if (S.snotel) {
     const cols = { '1308:UT:SNTL': '#0072B2', '766:UT:SNTL': '#009E73', '366:UT:SNTL': NEIGHBOR };
-    for (const s of SNOTEL) { const arr = withLatestHour(((S.snotel[s.trip] || {}).WTEQ || []).filter(x => x.t >= a && x.v != null), S.snowH && S.snowH.swe && S.snowH.swe[s.trip]); if (arr.length) ds.push({ label: `${s.name} ${s.num}`, endLabel: `${s.name} ${arr[arr.length - 1].v.toFixed(1)}`, data: arr.map(x => ({ x: x.t, y: x.v })), borderColor: cols[s.trip], backgroundColor: cols[s.trip], borderWidth: 1.5, borderDash: s.name === 'Brighton' ? [3, 2] : undefined }); }
+    for (const s of SNOTEL) { const arr = withLatestHour(((S.snotel[s.trip] || {}).WTEQ || []).filter(x => x.t >= a && x.v != null), S.snowH && S.snowH.swe && S.snowH.swe[s.trip]); if (arr.length) ds.push({ label: `${s.name}, SNOTEL ${s.num}, ${ft(s.elev)} ft`, endLabel: `${s.name} ${arr[arr.length - 1].v.toFixed(1)}`, data: arr.map(x => ({ x: x.t, y: x.v })), borderColor: cols[s.trip], backgroundColor: cols[s.trip], borderWidth: 1.5, borderDash: s.name === 'Brighton' ? [3, 2] : undefined }); }
     const med = ((S.snotel['766:UT:SNTL'] || {}).WTEQ || []).filter(x => x.t >= a && x.med != null);
     if (med.length) ds.push({ label: 'Snowbird median', endLabel: 'median', data: med.map(x => ({ x: x.t, y: x.med })), borderColor: INK3, backgroundColor: INK3, borderWidth: 1, borderDash: [1, 2.5] });
   }
@@ -1614,7 +1614,7 @@ function renderSWE() {
   const dd = [];
   if (S.snotel) {
     const cols = { '1308:UT:SNTL': '#0072B2', '766:UT:SNTL': '#009E73', '366:UT:SNTL': NEIGHBOR };
-    for (const s2 of SNOTEL) { const arr = withLatestHour(((S.snotel[s2.trip] || {}).SNWD || []).filter(x => x.t >= a && x.v != null), S.snowH && S.snowH[s2.trip]); if (arr.length) dd.push({ label: `${s2.name} ${s2.num}`, endLabel: `${s2.name} ${arr[arr.length - 1].v.toFixed(0)}`, data: arr.map(x => ({ x: x.t, y: x.v })), borderColor: cols[s2.trip], backgroundColor: cols[s2.trip], borderWidth: 1.5, borderDash: s2.name === 'Brighton' ? [3, 2] : undefined }); }
+    for (const s2 of SNOTEL) { const arr = withLatestHour(((S.snotel[s2.trip] || {}).SNWD || []).filter(x => x.t >= a && x.v != null), S.snowH && S.snowH[s2.trip]); if (arr.length) dd.push({ label: `${s2.name}, SNOTEL ${s2.num}, ${ft(s2.elev)} ft`, endLabel: `${s2.name} ${arr[arr.length - 1].v.toFixed(0)}`, data: arr.map(x => ({ x: x.t, y: x.v })), borderColor: cols[s2.trip], backgroundColor: cols[s2.trip], borderWidth: 1.5, borderDash: s2.name === 'Brighton' ? [3, 2] : undefined }); }
     const medD = ((S.snotel['766:UT:SNTL'] || {}).SNWD || []).filter(x => x.t >= a && x.med != null);
     if (medD.length) dd.push({ label: 'Snowbird median', endLabel: 'median', data: medD.map(x => ({ x: x.t, y: x.med })), borderColor: INK3, backgroundColor: INK3, borderWidth: 1, borderDash: [1, 2.5] });
   }
