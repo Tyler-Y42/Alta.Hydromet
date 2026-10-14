@@ -154,7 +154,7 @@ def main():
     man.update({"months": all_months, "updated_utc": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "last_utc": dt.datetime.fromtimestamp(last, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if last else man.get("last_utc"),
                 "points": {k: list(v) for k, v in POINTS.items()}, "basin_pixels": len(MASK),
-                "source": "https://mesonet.agron.iastate.edu/docs/mrms/"})
+                "source": "https://mesonet.agron.iastate.edu/GIS/rasters.php?rid=5"})
     os.makedirs(os.path.dirname(man_path), exist_ok=True)
     with open(man_path, "w") as f:
         json.dump(man, f, indent=1)
