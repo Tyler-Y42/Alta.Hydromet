@@ -71,6 +71,10 @@ jobs:
           MS="${{ github.event.inputs.mrms_since }}"
           python3 main/scripts/fetch_mrms.py --out databr ${MS:+--since "$MS"}
 
+      - name: PhenoCam daily series for Sagehen Hydromet
+        continue-on-error: true
+        run: python3 main/scripts/fetch_phenocam.py --out databr
+
       - name: Publish data branch
         working-directory: databr
         run: |
