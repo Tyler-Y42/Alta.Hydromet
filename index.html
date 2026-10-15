@@ -76,6 +76,12 @@
   .dash { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 8px; align-items: start; }
   .col { display: grid; gap: 8px; min-width: 0; }
   .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  .camgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  @media (max-width: 980px) { .camgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .camgrid figure { margin: 0; min-width: 0; }
+  .camgrid img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #dfe3e6; border: 0.75px solid var(--edge); }
+  .camgrid figcaption { font-size: 0.74rem; color: var(--ink2); margin-top: 3px; line-height: 1.3; }
+  .morecams { margin-top: 8px; } .morecams > summary { cursor: pointer; color: var(--link); font-size: 0.82rem; }
   .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
   .plab.season { margin-top: 18px; padding-top: 10px; border-top: 1px solid var(--hair); }
   @media (max-width: 980px) { .dash, .row3, .row2 { grid-template-columns: minmax(0, 1fr); } }
@@ -199,6 +205,26 @@
       <div class="cbox side"><canvas id="p-snwd"></canvas></div>
       <ul class="kb" id="kb-swe"></ul><p class="cap" id="cap3"></p>
     </div>
+    <div class="card cams">
+      <div class="ch"><h3>Cameras</h3><span class="u">Alta Ski Area and UDOT</span></div>
+      <div class="camgrid">
+        <figure><a data-camlink="albion" target="_blank" rel="noopener"><img data-cam="albion" alt="Albion Basin camera" loading="lazy"></a><figcaption><b>Albion Basin</b>, Alta Ski Area</figcaption></figure>
+        <figure><a data-camlink="stake" target="_blank" rel="noopener"><img data-cam="stake" alt="Collins snow stake camera" loading="lazy"></a><figcaption><b>Collins snow stake</b>, Alta Ski Area; inches on the stake</figcaption></figure>
+        <figure><a data-camlink="sugarloaf" target="_blank" rel="noopener"><img data-cam="sugarloaf" alt="Sugarloaf Peak camera" loading="lazy"></a><figcaption><b>Sugarloaf Peak</b>, Alta Ski Area</figcaption></figure>
+        <figure><a data-camlink="baldy" target="_blank" rel="noopener"><img data-cam="baldy" alt="Mt Baldy camera" loading="lazy"></a><figcaption><b>Mt Baldy</b>, Alta Ski Area</figcaption></figure>
+        <figure><a data-camlink="udot_tanners" target="_blank" rel="noopener"><img data-cam="udot_tanners" alt="Tanners Flat road camera" loading="lazy"></a><figcaption><b>Tanners Flat road</b>, UDOT, MP 7.94, at the stream gauge</figcaption></figure>
+        <figure><a data-camlink="udot_alta" target="_blank" rel="noopener"><img data-cam="udot_alta" alt="Alta town and road camera" loading="lazy"></a><figcaption><b>Alta town and road</b>, UDOT, MP 12.16</figcaption></figure>
+      </div>
+      <details class="morecams" id="morecams"><summary>More cameras</summary><div class="camgrid">
+        <figure><a data-camlink="superior" target="_blank" rel="noopener"><img data-cam="superior" alt="Mt Superior camera" loading="lazy"></a><figcaption><b>Mt Superior</b>, Alta Ski Area</figcaption></figure>
+        <figure><a data-camlink="rustler" target="_blank" rel="noopener"><img data-cam="rustler" alt="High Rustler camera" loading="lazy"></a><figcaption><b>High Rustler</b>, Alta Ski Area</figcaption></figure>
+        <figure><a data-camlink="greeley" target="_blank" rel="noopener"><img data-cam="greeley" alt="East Greeley camera" loading="lazy"></a><figcaption><b>East Greeley</b>, Alta Ski Area</figcaption></figure>
+        <figure><a data-camlink="valley" target="_blank" rel="noopener"><img data-cam="valley" alt="Salt Lake Valley camera" loading="lazy"></a><figcaption><b>Salt Lake Valley</b>, Alta Ski Area, from Collins</figcaption></figure>
+        <figure><a data-camlink="udot_whitepine" target="_blank" rel="noopener"><img data-cam="udot_whitepine" alt="White Pine camera" loading="lazy"></a><figcaption><b>White Pine</b>, UDOT, MP 8.7</figcaption></figure>
+        <figure><a data-camlink="udot_bypass" target="_blank" rel="noopener"><img data-cam="udot_bypass" alt="Alta Bypass camera" loading="lazy"></a><figcaption><b>Alta Bypass</b>, UDOT, MP 10.95</figcaption></figure>
+      </div></details>
+      <p class="cap" id="cap-cam">Latest image from each camera, reloaded every 5 min; the time is printed on each. Alta Ski Area cams update every few minutes, UDOT road cams every 1 to 2 min. Tap an image for full size.</p>
+    </div>
     <div class="card">
       <div class="ch"><h3>Rain line and temperature</h3>
         <span class="r"><button class="btn hidden zoom-reset">Full window</button></span></div>
@@ -215,7 +241,7 @@
       <div id="map"></div>
       <div class="radar-ctl"><button class="btn" id="radar-play" aria-label="Play radar">▶</button><label><input type="checkbox" id="map-radar" checked> Radar</label>
         <input type="range" id="radar-t" min="0" max="0" value="0" aria-label="Radar time"><span class="lbl" id="radar-lbl"></span></div>
-      <div class="legend-row"><span><i style="background:#256abf;border-radius:50%"></i>Precip gauge</span><span><i style="background:#fff;border:1.5px solid #111;border-radius:50%"></i>Temp/snow only</span><span><i style="background:#111;clip-path:polygon(50% 0,100% 100%,0 100%)"></i>SNOTEL</span><span><i style="background:#111"></i>Stream gauge</span></div>
+      <div class="legend-row"><span><i style="background:#256abf;border-radius:50%"></i>Precip gauge</span><span><i style="background:#fff;border:1.5px solid #111;border-radius:50%"></i>Temp/snow only</span><span><i style="background:#111;clip-path:polygon(50% 0,100% 100%,0 100%)"></i>SNOTEL</span><span><i style="background:#111"></i>Stream gauge</span><span><i style="background:#fff;border:1px solid #111;border-radius:1px"></i>Road camera</span></div>
       <p class="cap" id="cap2"></p>
     </div>
     <div class="card">
@@ -379,6 +405,23 @@ const SNOTEL = [
   { trip: '766:UT:SNTL', name: 'Snowbird', elev: 9170, num: 766, lat: 40.5691, lon: -111.6585 },
   { trip: '366:UT:SNTL', name: 'Brighton', elev: 8790, num: 366, lat: 40.5994, lon: -111.5817 },
 ];
+// Webcams: Alta Ski Area publishes still images (DigitalOcean and PrismCam); UDOT serves road camera stills by id.
+const ALTA_CAM = f => `https://alta-webcams.sfo3.cdn.digitaloceanspaces.com/${f}`, PRISM = c => `https://app.prismcam.com/public/helpers/realtime_preview.php?c=${c}&s=720`, UDOT_CAM = id => `https://udottraffic.utah.gov/map/Cctv/${id}`;
+const ALTA_CAMS_PAGE = 'https://www.alta.com/weather#mountain-cams';
+const CAMS = {
+  albion: { img: PRISM(65), page: ALTA_CAMS_PAGE }, stake: { img: ALTA_CAM('Collins_Snow_Stake.jpg'), page: ALTA_CAMS_PAGE }, sugarloaf: { img: ALTA_CAM('sugar_peak.jpg'), page: ALTA_CAMS_PAGE },
+  baldy: { img: PRISM(88), page: ALTA_CAMS_PAGE }, superior: { img: ALTA_CAM('Superior.jpg'), page: ALTA_CAMS_PAGE }, rustler: { img: ALTA_CAM('Highrustler.jpg'), page: ALTA_CAMS_PAGE },
+  greeley: { img: ALTA_CAM('Greeley.jpg'), page: ALTA_CAMS_PAGE }, valley: { img: ALTA_CAM('collins_dtc.jpg'), page: ALTA_CAMS_PAGE },
+  udot_tanners: { img: UDOT_CAM(166000), page: UDOT_CAM(166000), name: 'Tanners Flat road (UDOT, MP 7.94)', lat: 40.5707, lon: -111.7028 },
+  udot_whitepine: { img: UDOT_CAM(165999), page: UDOT_CAM(165999), name: 'White Pine (UDOT, MP 8.7)', lat: 40.5745, lon: -111.6910 },
+  udot_bypass: { img: UDOT_CAM(165175), page: UDOT_CAM(165175), name: 'Alta Bypass (UDOT, MP 10.95)', lat: 40.5849, lon: -111.6541 },
+  udot_alta: { img: UDOT_CAM(165271), page: UDOT_CAM(165271), name: 'Alta town and road (UDOT, MP 12.16)', lat: 40.5910, lon: -111.6338 },
+};
+const camSrc = id => { const u = CAMS[id].img, v = Math.floor(Date.now() / (5 * MIN)); return u + (u.includes('?') ? '&' : '?') + 'v=' + v; };
+function loadCams(scope) {
+  (scope || document).querySelectorAll('img[data-cam]').forEach(im => { if (!scope && im.closest('details:not([open])')) return; const c = CAMS[im.dataset.cam]; if (c) im.src = camSrc(im.dataset.cam); });
+  document.querySelectorAll('a[data-camlink]').forEach(a => { const c = CAMS[a.dataset.camlink]; if (c) a.href = c.img; });
+}
 const snotelLink = n => `https://wcc.sc.egov.usda.gov/nwcc/site?sitenum=${n}`;
 const BASIN = [[-111.5982,40.578],[-111.5988,40.5844],[-111.6081,40.5865],[-111.6093,40.5977],[-111.6144,40.6016],[-111.626,40.5983],[-111.6461,40.6007],[-111.6528,40.595],[-111.6847,40.5885],[-111.7059,40.593],[-111.7162,40.5906],[-111.7223,40.5937],[-111.7281,40.588],[-111.7358,40.5855],[-111.7468,40.5859],[-111.7513,40.5822],[-111.7664,40.5801],[-111.7733,40.582],[-111.7806,40.58],[-111.7938,40.5809],[-111.7987,40.5793],[-111.8005,40.5748],[-111.7981,40.5708],[-111.7405,40.5556],[-111.7316,40.5449],[-111.7316,40.538],[-111.7352,40.5357],[-111.7351,40.5327],[-111.7204,40.5252],[-111.7131,40.5327],[-111.6982,40.5357],[-111.6847,40.5313],[-111.6758,40.5328],[-111.6726,40.5378],[-111.664,40.5413],[-111.6614,40.55],[-111.6501,40.5513],[-111.6378,40.5681],[-111.6057,40.5645],[-111.602,40.5696],[-111.6024,40.5751],[-111.5982,40.578]];
 const RADAR_PTS = [
@@ -1506,6 +1549,11 @@ function renderMap() {
     const mk = label(L.marker([s.lat, s.lon], { icon: ic }).bindPopup(`<b>SNOTEL ${s.name}</b> (${s.trip})<br>${ft(s.elev)} ft<br><a href="${snotelLink(s.num)}" target="_blank" rel="noopener">NRCS site page</a>`), s.name, { Snowbird: 'bottom', Brighton: 'bottom' }[s.name]);
     (s.trip === '1308:UT:SNTL' ? mk.unbindTooltip() : mk).addTo(stationLayer);
   }
+  for (const [id, c] of Object.entries(CAMS)) {
+    if (c.lat == null) continue;
+    const ic = L.divIcon({ className: '', html: `<svg width="14" height="11" viewBox="0 0 14 11"><rect x="0.5" y="2" width="10" height="8" rx="1" fill="#fff" stroke="#111"/><path d="M10.5 4.5 L13.5 2.5 L13.5 9.5 L10.5 7.5 Z" fill="#111"/></svg>`, iconSize: [14, 11], iconAnchor: [7, 6] });
+    L.marker([c.lat, c.lon], { icon: ic }).bindPopup(() => `<b>${c.name}</b><br><a href="${c.img}" target="_blank" rel="noopener"><img src="${camSrc(id)}" style="width:220px;display:block;margin-top:4px" alt="${c.name}"></a>`).addTo(stationLayer);
+  }
   const F = flowSeries();
   for (const f of FLOW.filter(x => x.lat && x.lat < 40.63)) {
     const s = F[f.key], ic = L.divIcon({ className: '', html: `<svg width="10" height="10"><rect x="0.5" y="0.5" width="9" height="9" fill="#111"/></svg>`, iconSize: [10, 10], iconAnchor: [5, 5] });
@@ -1858,7 +1906,9 @@ function initUI() {
     `Code: <a href="https://github.com/Tyler-Y42/Alta.Hydromet" target="_blank" rel="noopener">github.com/Tyler-Y42/Alta.Hydromet</a>.`,
   ].join('<br>');
 }
-readHash(); initUI(); loadAll();
+readHash(); initUI(); loadAll(); loadCams();
+setInterval(() => { if (!document.hidden) loadCams(); }, 5 * MIN);
+document.getElementById('morecams').addEventListener('toggle', e => { if (e.target.open) loadCams(e.target); });
 if (/[?&]selftest/.test(location.search)) { document.querySelector('.drawer').open = true; document.getElementById('methods-box').open = true; runSelfTests(); }
 window.addEventListener('hashchange', () => { const before = JSON.stringify(S.win); readHash(); if (JSON.stringify(S.win) !== before) loadAll(); });
 let _rz = null; window.addEventListener('resize', () => { clearTimeout(_rz); _rz = setTimeout(() => safe(renderFig1, 'fig1'), 250); });
