@@ -193,6 +193,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="data")
     ap.add_argument("--since", help="backfill from YYYY-MM-DD (UTC)")
+    ap.add_argument("--until", help="backfill end, YYYY-MM-DD (UTC, exclusive); default now")
     ap.add_argument("--workers", type=int, default=4)
     a = ap.parse_args()
     now = dt.datetime.now(dt.timezone.utc)
@@ -203,6 +204,8 @@ def main():
     if os.path.exists(man_path):
         with open(man_path) as f:
             man = json.load(f)
+    if a.until:
+        end = min(end, dt.datetime.fromisoformat(a.until).replace(tzinfo=dt.timezone.utc) - dt.timedelta(minutes=5))
     if a.since:
         start = dt.datetime.fromisoformat(a.since).replace(tzinfo=dt.timezone.utc)
     elif man.get("last_utc"):
@@ -236,6 +239,9 @@ def main():
             save_month(a.out, tag, rows)
     all_months = sorted(set(man.get("months", [])) | {k for k, v in months.items() if v})
     last = max((max(v) for v in months.values() if v), default=None)
+    if man.get("last_utc"):  # a backfill of old months must not move last_utc backward
+        prev = int(dt.datetime.fromisoformat(man["last_utc"].replace("Z", "+00:00")).timestamp())
+        last = max(last or prev, prev)
     man.update({"months": all_months, "updated_utc": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "last_utc": dt.datetime.fromtimestamp(last, dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if last else man.get("last_utc"),
                 "points": {k: list(v) for k, v in POINTS.items()}, "floor_dbz": FLOOR, "mask_v": MASK_V,

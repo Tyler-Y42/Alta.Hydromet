@@ -23,6 +23,10 @@ on:
         description: "Radar backfill from YYYY-MM-DD (blank = since last frame)"
         required: false
         default: ""
+      backfill_until:
+        description: "Radar and MRMS backfill end YYYY-MM-DD, exclusive (blank = now)"
+        required: false
+        default: ""
       mrms_since:
         description: "MRMS hourly backfill from YYYY-MM-DD (blank = since last hour)"
         required: false
@@ -63,13 +67,15 @@ jobs:
         run: |
           pip install --quiet pillow
           RS="${{ github.event.inputs.radar_since }}"
-          python3 main/scripts/fetch_radar.py --out databr ${RS:+--since "$RS"}
+          BU="${{ github.event.inputs.backfill_until }}"
+          python3 main/scripts/fetch_radar.py --out databr ${RS:+--since "$RS"} ${BU:+--until "$BU"}
 
       - name: MRMS hourly
         continue-on-error: true
         run: |
           MS="${{ github.event.inputs.mrms_since }}"
-          python3 main/scripts/fetch_mrms.py --out databr ${MS:+--since "$MS"}
+          BU="${{ github.event.inputs.backfill_until }}"
+          python3 main/scripts/fetch_mrms.py --out databr ${MS:+--since "$MS"} ${BU:+--until "$BU"}
 
       - name: PhenoCam daily series for Sagehen Hydromet
         continue-on-error: true
