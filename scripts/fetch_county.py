@@ -23,6 +23,7 @@ import datetime as dt
 import http.cookiejar
 import json
 import os
+import ssl
 import sys
 import time
 import urllib.parse
@@ -47,9 +48,18 @@ SERIES = {
 UA = "Alta-Hydromet-dashboard/1.0 (github.com/Tyler-Y42/Alta.Hydromet)"
 
 
+# Since its 2026-11-18 certificate renewal the county server sends only its own certificate, not the
+# Sectigo intermediate. Browsers fetch that themselves; Python does not, so it is shipped here (public CA
+# certificate from crt.sectigo.com, valid to 2036). Verification stays on against the system roots.
+CA_EXTRA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sectigo_dv_r36.pem")
+
+
 def make_opener():
     jar = http.cookiejar.CookieJar()
-    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+    ctx = ssl.create_default_context()
+    if os.path.exists(CA_EXTRA):
+        ctx.load_verify_locations(CA_EXTRA)
+    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar), urllib.request.HTTPSHandler(context=ctx))
     op.addheaders = [("User-Agent", UA)]
     # Any page redirects through /login/, which issues a guest session cookie.
     op.open(HOST + "/", timeout=60).read()
